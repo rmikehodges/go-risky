@@ -4,10 +4,71 @@ import (
 	"go-risky/database"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
+
+type ResourceInput struct {
+	ID           uuid.UUID     `json:"id"`
+	Name         string        `json:"name"`
+	Description  zeronull.Text `json:"description"`
+	Cost         float32       `json:"cost" db:"cost"`
+	Unit         string        `json:"unit" db:"unit"`
+	Total        float32       `json:"total"`
+	ResourceType string        `json:"resourceType" db:"resource_type"`
+	BusinessID   uuid.UUID     `json:"businessId" db:"business_id"`
+}
+
+type ResourceOutput struct {
+	ID           uuid.UUID     `json:"id"`
+	Name         string        `json:"name"`
+	Description  zeronull.Text `json:"description"`
+	Cost         float32       `json:"cost" db:"cost"`
+	Unit         string        `json:"unit" db:"unit"`
+	Total        float32       `json:"total"`
+	ResourceType string        `json:"resourceType" db:"resource_type"`
+	BusinessID   uuid.UUID     `json:"businessId" db:"business_id"`
+	CreatedAt    time.Time     `json:"createdAt" db:"created_at"`
+}
+
+func inputToModel(resourceInput ResourceInput) (resourceModel database.ResourceModel, err error) {
+	resourceModel.ID = resourceInput.ID
+	resourceModel.Name = resourceInput.Name
+	resourceModel.Description = resourceInput.Description
+	resourceModel.Cost = resourceInput.Cost
+	resourceModel.Unit = resourceInput.Unit
+	resourceModel.Total = resourceInput.Total
+	resourceModel.ResourceType = resourceInput.ResourceType
+	resourceModel.BusinessID = resourceInput.BusinessID
+	return
+}
+
+func modelToOutput(resourceModel database.ResourceModel) (resourceOutput ResourceOutput, err error) {
+	resourceOutput.ID = resourceModel.ID
+	resourceOutput.Name = resourceModel.Name
+	resourceOutput.Description = resourceModel.Description
+	resourceOutput.Cost = resourceModel.Cost
+	resourceOutput.Unit = resourceModel.Unit
+	resourceOutput.Total = resourceModel.Total
+	resourceOutput.ResourceType = resourceModel.ResourceType
+	resourceOutput.BusinessID = resourceModel.BusinessID
+	resourceOutput.CreatedAt = resourceModel.CreatedAt
+	return
+}
+
+func modelsToOutputs(resourceModels []database.ResourceModel) (resourceOutputs []ResourceOutput, err error) {
+	for _, resourceModel := range resourceModels {
+		resourceOutput, err := modelToOutput(resourceModel)
+		if err != nil {
+			return resourceOutputs, err
+		}
+		resourceOutputs = append(resourceOutputs, resourceOutput)
+	}
+	return
+}
 
 func getResources(context *gin.Context) {
 	id, ok := context.GetQuery("businessId")
@@ -24,11 +85,19 @@ func getResources(context *gin.Context) {
 		return
 	}
 
-	resourceOutput, err := database.GetResources(businessId.String())
+	resourcesModels, err := database.GetResources(businessId.String())
 
 	if err != nil {
 		log.Println(err)
-		context.JSON(http.StatusNotFound, resourceOutput)
+		context.JSON(http.StatusNotFound, "Not found")
+		return
+	}
+
+	resourceOutput, err := modelsToOutputs(resourcesModels)
+
+	if err != nil {
+		log.Println(err)
+		context.JSON(http.StatusNotFound, "Not found")
 		return
 	}
 
@@ -50,11 +119,19 @@ func getResource(context *gin.Context) {
 		return
 	}
 
-	resourceOutput, err := database.GetResource(resourceId.String())
+	resourceModel, err := database.GetResource(resourceId.String())
 
 	if err != nil {
 		log.Println(err)
-		context.JSON(http.StatusNotFound, resourceOutput)
+		context.JSON(http.StatusNotFound, "Not found")
+		return
+	}
+
+	resourceOutput, err := modelToOutput(resourceModel)
+
+	if err != nil {
+		log.Println(err)
+		context.JSON(http.StatusNotFound, "Not found")
 		return
 	}
 
@@ -88,13 +165,22 @@ func deleteResource(context *gin.Context) {
 }
 
 func createResource(context *gin.Context) {
-	resourceInput := database.ResourceModel{}
+	resourceInput := ResourceInput{}
 	err := context.ShouldBindJSON(&resourceInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
-	err = database.CreateResource(resourceInput)
+
+	resourceModel, err := inputToModel(resourceInput)
+
+	if err != nil {
+		log.Println(err)
+		context.IndentedJSON(http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	err = database.CreateResource(resourceModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -105,13 +191,22 @@ func createResource(context *gin.Context) {
 }
 
 func updateResource(context *gin.Context) {
-	resourceInput := database.ResourceModel{}
+	resourceInput := ResourceInput{}
 	err := context.ShouldBindJSON(&resourceInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
-	err = database.UpdateResource(resourceInput)
+
+	resourceModel, err := inputToModel(resourceInput)
+
+	if err != nil {
+		log.Println(err)
+		context.IndentedJSON(http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	err = database.UpdateResource(resourceModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

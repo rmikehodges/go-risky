@@ -52,6 +52,7 @@ func inputToModel(actionInput ActionInput) (actionModel database.ActionModel, er
 
 }
 
+
 func modelToOutput(actionModel database.ActionModel) (actionOutput ActionOutput, err error) {
 	//This is where you do input validation sanitization
 	actionOutput.ID = actionModel.ID
@@ -79,6 +80,7 @@ func modelsToOutput(actionModels []database.ActionModel) (actionOutput []ActionO
 
 	return
 }
+
 
 func getActions(context *gin.Context) {
 	id, ok := context.GetQuery("businessId")

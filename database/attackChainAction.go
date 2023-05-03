@@ -10,20 +10,16 @@ import (
 	"github.com/google/uuid"
 	pgxuuid "github.com/jackc/pgx-gofrs-uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// Create type AttackChainActionModel based on table defintition risky_public.attack_chain_action in database/tables.sql
 type AttackChainActionModel struct {
-	ID              uuid.UUID     `json:"id"`
-	Name            string        `json:"name"`
-	Description     zeronull.Text `json:"description"`
-	CapabilityID    uuid.UUID     `json:"capabilityId" db:"capability_id"`
-	VulnerabilityID uuid.UUID     `json:"vulnerabilityId" db:"vulnerability_id"`
-	BusinessID      uuid.UUID     `json:"businessId" db:"business_id"`
-	Complexity      zeronull.Text `json:"complexity"`
-	AssetID         uuid.UUID     `json:"assetId" db:"asset_id"`
-	CreatedAt       time.Time     `json:"createdAt" db:"created_at"`
+	BusinessID    uuid.UUID `db:"business_id"`
+	ActionID      uuid.UUID `db:"action_id"`
+	AttackChainID uuid.UUID `db:"attack_chain_id"`
+	Position      int       `db:"position"`
+	CreatedAt     time.Time `db:"created_at"`
 }
 
 func GetAttackChainActions(businessID string) (actionOutput []AttackChainActionModel, err error) {
@@ -45,7 +41,7 @@ func GetAttackChainActions(businessID string) (actionOutput []AttackChainActionM
 	}
 	defer dbpool.Close()
 
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.actions(fn_business_id => $1)", businessID)
+	rows, err := dbpool.Query(context.Background(), "select attack_chain_id, action_id,position,business_id, created_at FROM risky_public.attack_chain_actions(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -79,7 +75,7 @@ func GetAttackChainAction(id string) (actionOutput AttackChainActionModel, err e
 	}
 	defer dbpool.Close()
 
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.get_attack_chain_action(fn_attack_chain_action_id => $1)", id)
+	rows, err := dbpool.Query(context.Background(), "select  attack_chain_id, action_id,position,business_id, FROM risky_public.get_attack_chain_action(fn_attack_chain_action_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -143,20 +139,14 @@ func CreateAttackChainAction(attackChainActionInput AttackChainActionModel) (err
 
 	_, err = dbpool.Query(context.Background(),
 		`select risky_public.create_attack_chain_action(
-			fn_name => $1, 
-			fn_description => $2, 
-			fn_capability_id => $3, 
-			fn_vulnerability_id => $4, 
-			fn_business_id => $5, 
-			fn_complexity => $6, 
-			fn_asset_id => $7)`,
-		attackChainActionInput.Name,
-		attackChainActionInput.Description,
-		attackChainActionInput.CapabilityID,
-		attackChainActionInput.VulnerabilityID,
-		attackChainActionInput.BusinessID,
-		attackChainActionInput.Complexity,
-		attackChainActionInput.AssetID)
+			fn_attack_chain_id => $1, 
+			fn_action_id => $2, 
+			fn_position => $3
+			fn_business_id => $4)`,
+		attackChainActionInput.AttackChainID,
+		attackChainActionInput.ActionID,
+		attackChainActionInput.Position,
+		attackChainActionInput.BusinessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -186,22 +176,14 @@ func UpdateAttackChainAction(attackChainActionInput AttackChainActionModel) (err
 
 	_, err = dbpool.Query(context.Background(),
 		`select risky_public.update_attack_chain_action(
-			fn_attack_chain_action_id => $1
-			fn_name => $2, 
-			fn_description => $3, 
-			fn_capability_id => $4, 
-			fn_vulnerability_id => $5, 
-			fn_business_id => $6, 
-			fn_complexity => $7, 
-			fn_asset_id => $8)`,
-		attackChainActionInput.ID,
-		attackChainActionInput.Name,
-		attackChainActionInput.Description,
-		attackChainActionInput.CapabilityID,
-		attackChainActionInput.VulnerabilityID,
-		attackChainActionInput.BusinessID,
-		attackChainActionInput.Complexity,
-		attackChainActionInput.AssetID)
+			fn_attack_chain_id => $1, 
+			fn_action_id => $2, 
+			fn_position => $3
+			fn_business_id => $4)`,
+		attackChainActionInput.AttackChainID,
+		attackChainActionInput.ActionID,
+		attackChainActionInput.Position,
+		attackChainActionInput.BusinessID)
 	if err != nil {
 		log.Println(err)
 		return

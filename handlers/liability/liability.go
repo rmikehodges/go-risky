@@ -4,10 +4,81 @@ import (
 	"go-risky/database"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
+
+type LiabilityInput struct {
+	ID           uuid.UUID     `json:"id"`
+	Name         string        `json:"name"`
+	Description  zeronull.Text `json:"description"`
+	Quantity     float32       `json:"quantity"`
+	Cost         float32       `json:"cost"`
+	BusinessID   uuid.UUID     `json:"businessId"`
+	MitigationID uuid.UUID     `json:"mitigationId"`
+	ResourceID   uuid.UUID     `json:"resourceId"`
+	ThreatID     uuid.UUID     `json:"threatId"`
+	ImpactID     uuid.UUID     `json:"impactId"`
+	CreatedAt    time.Time     `json:"createdAt"`
+}
+
+type LiabilityOutput struct {
+	ID           uuid.UUID     `json:"id"`
+	Name         string        `json:"name"`
+	Description  zeronull.Text `json:"description"`
+	Quantity     float32       `json:"quantity"`
+	Cost         float32       `json:"cost"`
+	BusinessID   uuid.UUID     `json:"businessId"`
+	MitigationID uuid.UUID     `json:"mitigationId"`
+	ResourceID   uuid.UUID     `json:"resourceId"`
+	ThreatID     uuid.UUID     `json:"threatId"`
+	ImpactID     uuid.UUID     `json:"impactId"`
+	CreatedAt    time.Time     `json:"createdAt"`
+}
+
+func inputToModel(liabilityInput LiabilityInput) (liabilityModel database.LiabilityModel, err error) {
+	liabilityModel.ID = liabilityInput.ID
+	liabilityModel.Name = liabilityInput.Name
+	liabilityModel.Description = liabilityInput.Description
+	liabilityModel.Quantity = liabilityInput.Quantity
+	liabilityModel.Cost = liabilityInput.Cost
+	liabilityModel.BusinessID = liabilityInput.BusinessID
+	liabilityModel.MitigationID = liabilityInput.MitigationID
+	liabilityModel.ResourceID = liabilityInput.ResourceID
+	liabilityModel.ThreatID = liabilityInput.ThreatID
+	liabilityModel.ImpactID = liabilityInput.ImpactID
+	liabilityModel.CreatedAt = liabilityInput.CreatedAt
+	return
+}
+
+func modelToOutput(liabilityModel database.LiabilityModel) (liabilityOutput LiabilityOutput, err error) {
+	liabilityOutput.ID = liabilityModel.ID
+	liabilityOutput.Name = liabilityModel.Name
+	liabilityOutput.Description = liabilityModel.Description
+	liabilityOutput.Quantity = liabilityModel.Quantity
+	liabilityOutput.Cost = liabilityModel.Cost
+	liabilityOutput.BusinessID = liabilityModel.BusinessID
+	liabilityOutput.MitigationID = liabilityModel.MitigationID
+	liabilityOutput.ResourceID = liabilityModel.ResourceID
+	liabilityOutput.ThreatID = liabilityModel.ThreatID
+	liabilityOutput.ImpactID = liabilityModel.ImpactID
+	liabilityOutput.CreatedAt = liabilityModel.CreatedAt
+	return
+}
+
+func modelsToOutputs(liabilityModels []database.LiabilityModel) (liabilityOutputs []LiabilityOutput, err error) {
+	for _, liabilityModel := range liabilityModels {
+		liabilityOutput, err := modelToOutput(liabilityModel)
+		if err != nil {
+			return nil, err
+		}
+		liabilityOutputs = append(liabilityOutputs, liabilityOutput)
+	}
+	return
+}
 
 func getLiabilities(context *gin.Context) {
 	id, ok := context.GetQuery("businessId")
@@ -24,11 +95,19 @@ func getLiabilities(context *gin.Context) {
 		return
 	}
 
-	liabilityOutput, err := database.GetLiabilities(businessId.String())
+	liabilityModels, err := database.GetLiabilities(businessId.String())
 
 	if err != nil {
 		log.Println(err)
-		context.JSON(http.StatusNotFound, liabilityOutput)
+		context.JSON(http.StatusNotFound, "Not Found")
+		return
+	}
+
+	liabilityOutput, err := modelsToOutputs(liabilityModels)
+
+	if err != nil {
+		log.Println(err)
+		context.JSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
@@ -50,14 +129,21 @@ func getLiability(context *gin.Context) {
 		return
 	}
 
-	liabilityOutput, err := database.GetLiability(liabilityId.String())
+	liabilityModel, err := database.GetLiability(liabilityId.String())
 
 	if err != nil {
 		log.Println(err)
-		context.JSON(http.StatusNotFound, liabilityOutput)
+		context.JSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
+	liabilityOutput, err := modelToOutput(liabilityModel)
+
+	if err != nil {
+		log.Println(err)
+		context.JSON(http.StatusNotFound, "Not Found")
+		return
+	}
 	context.JSON(http.StatusOK, liabilityOutput)
 }
 
@@ -88,13 +174,22 @@ func deleteLiability(context *gin.Context) {
 }
 
 func createLiability(context *gin.Context) {
-	liabilityInput := database.Liability{}
+	liabilityInput := LiabilityInput{}
 	err := context.ShouldBindJSON(&liabilityInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
-	err = database.CreateLiability(liabilityInput)
+
+	liabilityModel, err := inputToModel(liabilityInput)
+
+	if err != nil {
+		log.Println(err)
+		context.IndentedJSON(http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	err = database.CreateLiability(liabilityModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -105,13 +200,21 @@ func createLiability(context *gin.Context) {
 }
 
 func updateLiability(context *gin.Context) {
-	liabilityInput := database.Liability{}
+	liabilityInput := LiabilityInput{}
 	err := context.ShouldBindJSON(&liabilityInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
-	err = database.UpdateLiability(liabilityInput)
+	liabilityModel, err := inputToModel(liabilityInput)
+
+	if err != nil {
+		log.Println(err)
+		context.IndentedJSON(http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	err = database.UpdateLiability(liabilityModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

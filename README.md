@@ -1,7 +1,7 @@
 # Risky
 
 ## Where I Left Off
-Finished all the base CRUD operations but I realized the usefulness in having different structs for input, output,  and the data model. Namely, selectively returning information to the user and doing input validation in the conversion functions. Only Action, Asset, Resource, Threat, and Vulnerability have been done. Need to do attackChain, attackChainAction, Capability, Detection, Impact, Liability, and Mitigation.
+Completed all crud operations and now moving on to tests
 
 ## TODO
 1. Create database calls for the crud operations. (In-progress)

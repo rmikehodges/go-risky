@@ -3,12 +3,72 @@ package attackChain
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"go-risky/database"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
+
+//Create types AttackChainInput and AttackChainOutput that match the database model AttackChainModel
+
+type AttackChainInput struct {
+	ID          uuid.UUID     `json:"id"`
+	Name        string        `json:"name"`
+	Description zeronull.Text `json:"description"`
+	BusinessID  uuid.UUID     `json:"businessId"`
+	ThreatID    uuid.UUID     `json:"assetId"`
+	CreatedAt   time.Time     `json:"createdAt"`
+}
+
+// This is the output type that will be returned to the user
+type AttackChainOutput struct {
+	ID          uuid.UUID     `json:"id"`
+	Name        string        `json:"name"`
+	Description zeronull.Text `json:"description"`
+	BusinessID  uuid.UUID     `json:"businessId"`
+	ThreatID    uuid.UUID     `json:"assetId"`
+	CreatedAt   time.Time     `json:"createdAt"`
+}
+
+//Create functions modelToOutput, inputToModel, and modelsToOutput that convert between the database model and the input/output types
+
+func inputToModel(attackChainInput AttackChainInput) (attackChainModel database.AttackChainModel, err error) {
+	//This is where you do input validation sanitization
+	attackChainModel.ID = attackChainInput.ID
+	attackChainModel.Name = attackChainInput.Name
+	attackChainModel.Description = attackChainInput.Description
+	attackChainModel.BusinessID = attackChainInput.BusinessID
+	attackChainModel.ThreatID = attackChainInput.ThreatID
+	attackChainModel.CreatedAt = attackChainInput.CreatedAt
+
+	return
+
+}
+
+func modelToOutput(attackChainModel database.AttackChainModel) (attackChainOutput AttackChainOutput, err error) {
+	//This is where you do input validation sanitization
+	attackChainOutput.ID = attackChainModel.ID
+	attackChainOutput.Name = attackChainModel.Name
+	attackChainOutput.Description = attackChainModel.Description
+	attackChainOutput.BusinessID = attackChainModel.BusinessID
+	attackChainOutput.ThreatID = attackChainModel.ThreatID
+	attackChainOutput.CreatedAt = attackChainModel.CreatedAt
+	return
+}
+
+func modelsToOutput(attackChainModels []database.AttackChainModel) (attackChainOutputs []AttackChainOutput, err error) {
+	for _, attackChainModel := range attackChainModels {
+		attackChainOutput, err := modelToOutput(attackChainModel)
+		if err != nil {
+			return attackChainOutputs, err
+		}
+		attackChainOutputs = append(attackChainOutputs, attackChainOutput)
+	}
+	return
+}
 
 func getAttackChains(context *gin.Context) {
 	id, ok := context.GetQuery("businessId")
@@ -25,11 +85,19 @@ func getAttackChains(context *gin.Context) {
 		return
 	}
 
-	attackChainOutput, err := database.GetAttackChains(businessId.String())
+	attackChainModel, err := database.GetAttackChains(businessId.String())
 
 	if err != nil {
 		log.Println(err)
-		context.JSON(http.StatusNotFound, attackChainOutput)
+		context.JSON(http.StatusNotFound, "Not found")
+		return
+	}
+
+	attackChainOutput, err := modelsToOutput(attackChainModel)
+
+	if err != nil {
+		log.Println(err)
+		context.JSON(http.StatusNotFound, "Not found")
 		return
 	}
 
@@ -51,7 +119,15 @@ func getAttackChain(context *gin.Context) {
 		return
 	}
 
-	attackChainOutput, err := database.GetAttackChain(attackChainId.String())
+	attackChainModel, err := database.GetAttackChain(attackChainId.String())
+
+	if err != nil {
+		log.Println(err)
+		context.JSON(http.StatusNotFound, "Not found")
+		return
+	}
+
+	attackChainOutput, err := modelToOutput(attackChainModel)
 
 	if err != nil {
 		log.Println(err)
@@ -89,13 +165,22 @@ func deleteAttackChain(context *gin.Context) {
 }
 
 func createAttackChain(context *gin.Context) {
-	attackChainInput := database.AttackChain{}
+	attackChainInput := AttackChainInput{}
 	err := context.ShouldBindJSON(&attackChainInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
-	err = database.CreateAttackChain(attackChainInput)
+
+	attackChainModel, err := inputToModel(attackChainInput)
+
+	if err != nil {
+		log.Println(err)
+		context.IndentedJSON(http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	err = database.CreateAttackChain(attackChainModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -106,13 +191,22 @@ func createAttackChain(context *gin.Context) {
 }
 
 func updateAttackChain(context *gin.Context) {
-	attackChainInput := database.AttackChain{}
+	attackChainInput := AttackChainInput{}
 	err := context.ShouldBindJSON(&attackChainInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
-	err = database.UpdateAttackChain(attackChainInput)
+
+	attackChainModel, err := inputToModel(attackChainInput)
+
+	if err != nil {
+		log.Println(err)
+		context.IndentedJSON(http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	err = database.UpdateAttackChain(attackChainModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
