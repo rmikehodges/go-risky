@@ -1,0 +1,2 @@
+DROP DATABASE risky;
+CREATE DATABASE risky;
