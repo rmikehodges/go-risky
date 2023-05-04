@@ -22,7 +22,7 @@ type AttackChainStepModel struct {
 	CreatedAt     time.Time `db:"created_at"`
 }
 
-func GetAttackChainSteps(businessID string) (actionOutput []attackChainStepModel, err error) {
+func GetAttackChainSteps(businessID string) (actionOutput []AttackChainStepModel, err error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	dbconfig, err := pgxpool.ParseConfig(databaseURL)
@@ -47,7 +47,7 @@ func GetAttackChainSteps(businessID string) (actionOutput []attackChainStepModel
 		return
 	}
 
-	actionOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[attackChainStepModel])
+	actionOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[AttackChainStepModel])
 	if err != nil {
 		log.Println(err)
 		return
@@ -81,7 +81,7 @@ func GetAttackChainStep(id string) (actionOutput AttackChainStepModel, err error
 		return
 	}
 
-	actionOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[attackChainStepModel])
+	actionOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[AttackChainStepModel])
 	if err != nil {
 		log.Println(err)
 		return

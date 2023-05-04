@@ -3,6 +3,7 @@ package main
 import (
 	"go-risky/handlers/action"
 	"go-risky/handlers/attackChain"
+	"go-risky/handlers/attackChainStep"
 	"go-risky/handlers/business"
 	"go-risky/handlers/capability"
 	"go-risky/handlers/impact"
@@ -17,7 +18,7 @@ import (
 
 func initializeRouter(router *gin.Engine) {
 	action.ActionRoutes(router)
-	attackChainStep.attackChainStepRoutes(router)
+	attackChainStep.AttackChainStepRoutes(router)
 	attackChain.AttackChainRoutes(router)
 	business.BusinessRoutes(router)
 	capability.CapabilityRoutes(router)

@@ -1,6 +1,7 @@
 package action
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -14,25 +15,25 @@ import (
 
 type ActionInput struct {
 	ID              uuid.UUID     `json:"id"`
-	Name            string        `json:"name"`
+	Name            string        `json:"name" binding:"required"`
 	Description     zeronull.Text `json:"description"`
-	CapabilityID    uuid.UUID     `json:"capabilityId" db:"capability_id"`
-	VulnerabilityID uuid.UUID     `json:"vulnerabilityId" db:"vulnerability_id"`
-	BusinessID      uuid.UUID     `json:"businessId" db:"business_id"`
+	CapabilityID    *uuid.UUID    `json:"capabilityId"`
+	VulnerabilityID *uuid.UUID    `json:"vulnerabilityId"`
+	BusinessID      uuid.UUID     `json:"businessId" binding:"required"`
 	Complexity      zeronull.Text `json:"complexity"`
-	AssetID         uuid.UUID     `json:"assetId" db:"asset_id"`
-	CreatedAt       time.Time     `json:"createdAt" db:"created_at"`
+	AssetID         *uuid.UUID    `json:"assetId"`
+	CreatedAt       time.Time     `json:"createdAt"`
 }
 
 type ActionOutput struct {
 	ID              uuid.UUID     `json:"id"`
 	Name            string        `json:"name"`
 	Description     zeronull.Text `json:"description"`
-	CapabilityID    uuid.UUID     `json:"capabilityId" db:"capability_id"`
-	VulnerabilityID uuid.UUID     `json:"vulnerabilityId" db:"vulnerability_id"`
+	CapabilityID    *uuid.UUID    `json:"capabilityId" db:"capability_id"`
+	VulnerabilityID *uuid.UUID    `json:"vulnerabilityId" db:"vulnerability_id"`
 	BusinessID      uuid.UUID     `json:"businessId" db:"business_id"`
 	Complexity      zeronull.Text `json:"complexity"`
-	AssetID         uuid.UUID     `json:"assetId" db:"asset_id"`
+	AssetID         *uuid.UUID    `json:"assetId" db:"asset_id"`
 	CreatedAt       time.Time     `json:"createdAt" db:"created_at"`
 }
 
@@ -41,17 +42,17 @@ func inputToModel(actionInput ActionInput) (actionModel database.ActionModel, er
 	actionModel.ID = actionInput.ID
 	actionModel.Name = actionInput.Name
 	actionModel.Description = actionInput.Description
-	actionModel.CapabilityID = actionInput.CapabilityID
-	actionModel.VulnerabilityID = actionInput.VulnerabilityID
 	actionModel.BusinessID = actionInput.BusinessID
 	actionModel.Complexity = actionInput.Complexity
-	actionModel.AssetID = actionInput.AssetID
 	actionModel.CreatedAt = actionInput.CreatedAt
+
+	actionModel.CapabilityID = actionInput.CapabilityID
+	actionModel.VulnerabilityID = actionInput.VulnerabilityID
+	actionModel.AssetID = actionInput.AssetID
 
 	return
 
 }
-
 
 func modelToOutput(actionModel database.ActionModel) (actionOutput ActionOutput, err error) {
 	//This is where you do input validation sanitization
@@ -80,7 +81,6 @@ func modelsToOutput(actionModels []database.ActionModel) (actionOutput []ActionO
 
 	return
 }
-
 
 func getActions(context *gin.Context) {
 	id, ok := context.GetQuery("businessId")
@@ -173,6 +173,7 @@ func createAction(context *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
+		return
 	}
 	actionModel, err := inputToModel(actionInput)
 	if err != nil {
@@ -182,8 +183,10 @@ func createAction(context *gin.Context) {
 	}
 
 	err = database.CreateAction(actionModel)
+	fmt.Println("returned from create action")
 	if err != nil {
 		log.Println(err)
+		fmt.Println("Error creating action")
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}

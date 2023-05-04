@@ -18,11 +18,11 @@ type ActionModel struct {
 	ID              uuid.UUID     `json:"id"`
 	Name            string        `json:"name"`
 	Description     zeronull.Text `json:"description"`
-	CapabilityID    uuid.UUID     `json:"capabilityId" db:"capability_id"`
-	VulnerabilityID uuid.UUID     `json:"vulnerabilityId" db:"vulnerability_id"`
+	CapabilityID    *uuid.UUID    `json:"capabilityId" db:"capability_id"`
+	VulnerabilityID *uuid.UUID    `json:"vulnerabilityId" db:"vulnerability_id"`
 	BusinessID      uuid.UUID     `json:"businessId" db:"business_id"`
 	Complexity      zeronull.Text `json:"complexity"`
-	AssetID         uuid.UUID     `json:"assetId" db:"asset_id"`
+	AssetID         *uuid.UUID    `json:"assetId" db:"asset_id"`
 	CreatedAt       time.Time     `json:"createdAt" db:"created_at"`
 }
 
@@ -127,6 +127,7 @@ func CreateAction(actionInput ActionModel) (err error) {
 
 	dbconfig, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
@@ -140,8 +141,9 @@ func CreateAction(actionInput ActionModel) (err error) {
 		return
 	}
 	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(),
+	fmt.Println("starting Create action")
+	fmt.Println(actionInput.CapabilityID)
+	_, err = dbpool.Exec(context.Background(),
 		`select risky_public.create_action(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -183,10 +185,9 @@ func UpdateAction(actionInput ActionModel) (err error) {
 		return
 	}
 	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(),
+	_, err = dbpool.Exec(context.Background(),
 		`select risky_public.update_action(
-			fn_action_id => $1
+			fn_action_id => $1,
 			fn_name => $2, 
 			fn_description => $3, 
 			fn_capability_id => $4, 
@@ -206,6 +207,5 @@ func UpdateAction(actionInput ActionModel) (err error) {
 		log.Println(err)
 		return
 	}
-
 	return
 }

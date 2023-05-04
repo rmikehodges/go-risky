@@ -1,4 +1,4 @@
-package AttackChainStep
+package attackChainStep
 
 import (
 	"go-risky/database"
@@ -26,30 +26,30 @@ type AttackChainStepOutput struct {
 	CreatedAt     time.Time `json:"createdAt"`
 }
 
-func inputToModel(attackChainStepInput AttackChainStepInput) (attackChainStepModel database.attackChainStepModel, err error) {
-	attackChainStepModel.BusinessID = AttackChainStepInput.BusinessID
-	attackChainStepModel.ActionID = AttackChainStepInput.ActionID
-	attackChainStepModel.AttackChainID = AttackChainStepInput.AttackChainID
-	attackChainStepModel.Position = AttackChainStepInput.Postion
-	attackChainStepModel.CreatedAt = AttackChainStepInput.CreatedAt
+func inputToModel(attackChainStepInput AttackChainStepInput) (attackChainStepModel database.AttackChainStepModel, err error) {
+	attackChainStepModel.BusinessID = attackChainStepInput.BusinessID
+	attackChainStepModel.ActionID = attackChainStepInput.ActionID
+	attackChainStepModel.AttackChainID = attackChainStepInput.AttackChainID
+	attackChainStepModel.Position = attackChainStepInput.Postion
+	attackChainStepModel.CreatedAt = attackChainStepInput.CreatedAt
 
 	return
 
 }
 
-func modelToOutput(attackChainStepModel database.attackChainStepModel) (attackChainStepOutput AttackChainStepOutput, err error) {
+func modelToOutput(attackChainStepModel database.AttackChainStepModel) (attackChainStepOutput AttackChainStepOutput, err error) {
 	//This is where you do input validation sanitization
-	attackChainStepOutput.BusinessID = AttackChainStepModel.BusinessID
-	attackChainStepOutput.ActionID = AttackChainStepModel.ActionID
-	attackChainStepOutput.AttackChainID = AttackChainStepModel.AttackChainID
-	attackChainStepOutput.Position = AttackChainStepModel.Postion
-	attackChainStepOutput.CreatedAt = AttackChainStepModel.CreatedAt
+	attackChainStepOutput.BusinessID = attackChainStepModel.BusinessID
+	attackChainStepOutput.ActionID = attackChainStepModel.ActionID
+	attackChainStepOutput.AttackChainID = attackChainStepModel.AttackChainID
+	attackChainStepOutput.Position = attackChainStepModel.Position
+	attackChainStepOutput.CreatedAt = attackChainStepModel.CreatedAt
 	return
 }
 
-func modelsToOutput(attackChainStepModels []database.attackChainStepModel) (attackChainStepOutput []attackChainStepOutput, err error) {
+func modelsToOutput(attackChainStepModels []database.AttackChainStepModel) (attackChainStepOutput []AttackChainStepOutput, err error) {
 	//This is where you do input validation sanitization
-	for _, model := range AttackChainStepModels {
+	for _, model := range attackChainStepModels {
 		output, err := modelToOutput(model)
 		if err != nil {
 			return nil, err
@@ -71,7 +71,7 @@ func getAttackChainSteps(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, AttackChainStepOutput)
+	c.JSON(200, attackChainStepOutput)
 }
 
 func getAttackChainStep(c *gin.Context) {
@@ -86,7 +86,7 @@ func getAttackChainStep(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, AttackChainStepOutput)
+	c.JSON(200, attackChainStepOutput)
 }
 
 func deleteAttackChainStep(c *gin.Context) {
@@ -100,7 +100,7 @@ func deleteAttackChainStep(c *gin.Context) {
 }
 
 func updateAttackChainStep(c *gin.Context) {
-	var AttackChainStepInput AttackChainStepInput
+	var attackChainStepInput AttackChainStepInput
 	err := c.ShouldBindJSON(&attackChainStepInput)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
@@ -122,11 +122,11 @@ func updateAttackChainStep(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, AttackChainStepOutput)
+	c.JSON(200, attackChainStepOutput)
 }
 
 func createAttackChainStep(c *gin.Context) {
-	var AttackChainStepInput AttackChainStepInput
+	var attackChainStepInput AttackChainStepInput
 	err := c.ShouldBindJSON(&attackChainStepInput)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
@@ -148,7 +148,7 @@ func createAttackChainStep(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, AttackChainStepOutput)
+	c.JSON(200, attackChainStepOutput)
 }
 
 //Create the handlers for the AttackChainStep that matches the format of AttackChain handlers
