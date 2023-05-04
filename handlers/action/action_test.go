@@ -7,7 +7,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/assert/v2"
+	"github.com/go-playground/assert"
+	"github.com/google/uuid"
 )
 
 //Functions to test handlers/action.go
@@ -68,8 +69,8 @@ func TestActionRoutes(t *testing.T) {
 
 func TestInputToModel(t *testing.T) {
 	actionInput := ActionInput{
-		ActionID:   1,
-		ActionName: "Test",
+		ID:   uuid.New(),
+		Name: "Test",
 	}
 	_, err := inputToModel(actionInput)
 	assert.Equal(t, nil, err)
@@ -77,8 +78,8 @@ func TestInputToModel(t *testing.T) {
 
 func TestModelToOutput(t *testing.T) {
 	actionModel := database.ActionModel{
-		ActionID:   1,
-		ActionName: "Test",
+		ID:   uuid.New(),
+		Name: "Test",
 	}
 	_, err := modelToOutput(actionModel)
 	assert.Equal(t, nil, err)

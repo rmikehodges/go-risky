@@ -1,7 +1,7 @@
 # Risky
 
 ## Where I Left Off
-Completed all crud operations and now moving on to tests
+Writing unit tests that need some work, and did a little bit of database seeding work
 
 ## TODO
 1. Create database calls for the crud operations. (In-progress)
