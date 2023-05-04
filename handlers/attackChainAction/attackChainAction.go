@@ -1,4 +1,4 @@
-package attackChainAction
+package AttackChainStep
 
 import (
 	"go-risky/database"
@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 )
 
-//Create types and functions for attackChainAction that match the handler attackChain
+//Create types and functions for AttackChainStep that match the handler attackChain
 
-type AttackChainActionInput struct {
+type AttackChainStepInput struct {
 	BusinessID    uuid.UUID `json:"businessId"`
 	ActionID      uuid.UUID `json:"actionId"`
 	AttackChainID uuid.UUID `json:"attackChainId"`
@@ -18,7 +18,7 @@ type AttackChainActionInput struct {
 	CreatedAt     time.Time `json:"createdAt"`
 }
 
-type AttackChainActionOutput struct {
+type AttackChainStepOutput struct {
 	BusinessID    uuid.UUID `json:"businessId"`
 	ActionID      uuid.UUID `json:"actionId"`
 	AttackChainID uuid.UUID `json:"attackChainId"`
@@ -26,72 +26,72 @@ type AttackChainActionOutput struct {
 	CreatedAt     time.Time `json:"createdAt"`
 }
 
-func inputToModel(attackChainActionInput AttackChainActionInput) (attackChainActionModel database.AttackChainActionModel, err error) {
-	attackChainActionModel.BusinessID = attackChainActionInput.BusinessID
-	attackChainActionModel.ActionID = attackChainActionInput.ActionID
-	attackChainActionModel.AttackChainID = attackChainActionInput.AttackChainID
-	attackChainActionModel.Position = attackChainActionInput.Postion
-	attackChainActionModel.CreatedAt = attackChainActionInput.CreatedAt
+func inputToModel(attackChainStepInput AttackChainStepInput) (attackChainStepModel database.attackChainStepModel, err error) {
+	attackChainStepModel.BusinessID = AttackChainStepInput.BusinessID
+	attackChainStepModel.ActionID = AttackChainStepInput.ActionID
+	attackChainStepModel.AttackChainID = AttackChainStepInput.AttackChainID
+	attackChainStepModel.Position = AttackChainStepInput.Postion
+	attackChainStepModel.CreatedAt = AttackChainStepInput.CreatedAt
 
 	return
 
 }
 
-func modelToOutput(attackChainActionModel database.AttackChainActionModel) (attackChainActionOutput AttackChainActionOutput, err error) {
+func modelToOutput(attackChainStepModel database.attackChainStepModel) (attackChainStepOutput AttackChainStepOutput, err error) {
 	//This is where you do input validation sanitization
-	attackChainActionOutput.BusinessID = attackChainActionModel.BusinessID
-	attackChainActionOutput.ActionID = attackChainActionModel.ActionID
-	attackChainActionOutput.AttackChainID = attackChainActionModel.AttackChainID
-	attackChainActionOutput.Position = attackChainActionModel.Postion
-	attackChainActionOutput.CreatedAt = attackChainActionModel.CreatedAt
+	attackChainStepOutput.BusinessID = AttackChainStepModel.BusinessID
+	attackChainStepOutput.ActionID = AttackChainStepModel.ActionID
+	attackChainStepOutput.AttackChainID = AttackChainStepModel.AttackChainID
+	attackChainStepOutput.Position = AttackChainStepModel.Postion
+	attackChainStepOutput.CreatedAt = AttackChainStepModel.CreatedAt
 	return
 }
 
-func modelsToOutput(attackChainActionModels []database.AttackChainActionModel) (attackChainActionOutput []AttackChainActionOutput, err error) {
+func modelsToOutput(attackChainStepModels []database.attackChainStepModel) (attackChainStepOutput []attackChainStepOutput, err error) {
 	//This is where you do input validation sanitization
-	for _, model := range attackChainActionModels {
+	for _, model := range AttackChainStepModels {
 		output, err := modelToOutput(model)
 		if err != nil {
 			return nil, err
 		}
-		attackChainActionOutput = append(attackChainActionOutput, output)
+		attackChainStepOutput = append(attackChainStepOutput, output)
 	}
 	return
 }
 
-func getAttackChainActions(c *gin.Context) {
+func getAttackChainSteps(c *gin.Context) {
 	businessID := c.Query("businessId")
-	attackChainActionModels, err := database.GetAttackChainActions(businessID)
+	attackChainStepModels, err := database.GetAttackChainSteps(businessID)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainActionOutput, err := modelsToOutput(attackChainActionModels)
+	attackChainStepOutput, err := modelsToOutput(attackChainStepModels)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, attackChainActionOutput)
+	c.JSON(200, AttackChainStepOutput)
 }
 
-func getAttackChainAction(c *gin.Context) {
+func getAttackChainStep(c *gin.Context) {
 	id := c.Param("id")
-	attackChainActionModel, err := database.GetAttackChainAction(id)
+	attackChainStepModel, err := database.GetAttackChainStep(id)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainActionOutput, err := modelToOutput(attackChainActionModel)
+	attackChainStepOutput, err := modelToOutput(attackChainStepModel)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, attackChainActionOutput)
+	c.JSON(200, AttackChainStepOutput)
 }
 
-func deleteAttackChainAction(c *gin.Context) {
+func deleteAttackChainStep(c *gin.Context) {
 	id := c.Param("id")
-	err := database.DeleteAttackChainAction(id)
+	err := database.DeleteAttackChainStep(id)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -99,64 +99,64 @@ func deleteAttackChainAction(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func updateAttackChainAction(c *gin.Context) {
-	var attackChainActionInput AttackChainActionInput
-	err := c.ShouldBindJSON(&attackChainActionInput)
+func updateAttackChainStep(c *gin.Context) {
+	var AttackChainStepInput AttackChainStepInput
+	err := c.ShouldBindJSON(&attackChainStepInput)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainActionModel, err := inputToModel(attackChainActionInput)
+	attackChainStepModel, err := inputToModel(attackChainStepInput)
 	if err != nil {
 
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	err = database.UpdateAttackChainAction(attackChainActionModel)
+	err = database.UpdateAttackChainStep(attackChainStepModel)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainActionOutput, err := modelToOutput(attackChainActionModel)
+	attackChainStepOutput, err := modelToOutput(attackChainStepModel)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, attackChainActionOutput)
+	c.JSON(200, AttackChainStepOutput)
 }
 
-func createAttackChainAction(c *gin.Context) {
-	var attackChainActionInput AttackChainActionInput
-	err := c.ShouldBindJSON(&attackChainActionInput)
+func createAttackChainStep(c *gin.Context) {
+	var AttackChainStepInput AttackChainStepInput
+	err := c.ShouldBindJSON(&attackChainStepInput)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainActionModel, err := inputToModel(attackChainActionInput)
+	attackChainStepModel, err := inputToModel(attackChainStepInput)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	err = database.CreateAttackChainAction(attackChainActionModel)
+	err = database.CreateAttackChainStep(attackChainStepModel)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainActionOutput, err := modelToOutput(attackChainActionModel)
+	attackChainStepOutput, err := modelToOutput(attackChainStepModel)
 	if err != nil {
 
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, attackChainActionOutput)
+	c.JSON(200, AttackChainStepOutput)
 }
 
-//Create the handlers for the attackChainAction that matches the format of AttackChain handlers
+//Create the handlers for the AttackChainStep that matches the format of AttackChain handlers
 
-func AttackChainActionRoutes(router *gin.Engine) {
-	router.GET("/attackChainActions", getAttackChainActions)
-	router.GET("/attackChainAction/:id", getAttackChainAction)
-	router.DELETE("/attackChainAction/:id", deleteAttackChainAction)
-	router.PATCH("/attackChainAction/:id", updateAttackChainAction)
-	router.POST("/attackChainActions", createAttackChainAction)
+func AttackChainStepRoutes(router *gin.Engine) {
+	router.GET("/attackChainSteps", getAttackChainSteps)
+	router.GET("/attackChainStep/:id", getAttackChainStep)
+	router.DELETE("/attackChainStep/:id", deleteAttackChainStep)
+	router.PATCH("/attackChainStep/:id", updateAttackChainStep)
+	router.POST("/attackChainSteps", createAttackChainStep)
 }

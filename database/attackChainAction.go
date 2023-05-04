@@ -13,8 +13,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// Create type AttackChainActionModel based on table defintition risky_public.attack_chain_action in database/tables.sql
-type AttackChainActionModel struct {
+// Create type AttackChainStepModel based on table defintition risky_public.attack_chain_action in database/tables.sql
+type AttackChainStepModel struct {
 	BusinessID    uuid.UUID `db:"business_id"`
 	ActionID      uuid.UUID `db:"action_id"`
 	AttackChainID uuid.UUID `db:"attack_chain_id"`
@@ -22,7 +22,7 @@ type AttackChainActionModel struct {
 	CreatedAt     time.Time `db:"created_at"`
 }
 
-func GetAttackChainActions(businessID string) (actionOutput []AttackChainActionModel, err error) {
+func GetAttackChainSteps(businessID string) (actionOutput []attackChainStepModel, err error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	dbconfig, err := pgxpool.ParseConfig(databaseURL)
@@ -47,7 +47,7 @@ func GetAttackChainActions(businessID string) (actionOutput []AttackChainActionM
 		return
 	}
 
-	actionOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[AttackChainActionModel])
+	actionOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[attackChainStepModel])
 	if err != nil {
 		log.Println(err)
 		return
@@ -56,7 +56,7 @@ func GetAttackChainActions(businessID string) (actionOutput []AttackChainActionM
 	return
 }
 
-func GetAttackChainAction(id string) (actionOutput AttackChainActionModel, err error) {
+func GetAttackChainStep(id string) (actionOutput AttackChainStepModel, err error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	dbconfig, err := pgxpool.ParseConfig(databaseURL)
@@ -81,7 +81,7 @@ func GetAttackChainAction(id string) (actionOutput AttackChainActionModel, err e
 		return
 	}
 
-	actionOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[AttackChainActionModel])
+	actionOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[attackChainStepModel])
 	if err != nil {
 		log.Println(err)
 		return
@@ -90,7 +90,7 @@ func GetAttackChainAction(id string) (actionOutput AttackChainActionModel, err e
 	return
 }
 
-func DeleteAttackChainAction(id string) (err error) {
+func DeleteAttackChainStep(id string) (err error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	dbconfig, err := pgxpool.ParseConfig(databaseURL)
@@ -118,7 +118,7 @@ func DeleteAttackChainAction(id string) (err error) {
 	return
 }
 
-func CreateAttackChainAction(attackChainActionInput AttackChainActionModel) (err error) {
+func CreateAttackChainStep(attackChainStepInput AttackChainStepModel) (err error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	dbconfig, err := pgxpool.ParseConfig(databaseURL)
@@ -143,10 +143,10 @@ func CreateAttackChainAction(attackChainActionInput AttackChainActionModel) (err
 			fn_action_id => $2, 
 			fn_position => $3
 			fn_business_id => $4)`,
-		attackChainActionInput.AttackChainID,
-		attackChainActionInput.ActionID,
-		attackChainActionInput.Position,
-		attackChainActionInput.BusinessID)
+		attackChainStepInput.AttackChainID,
+		attackChainStepInput.ActionID,
+		attackChainStepInput.Position,
+		attackChainStepInput.BusinessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -155,7 +155,7 @@ func CreateAttackChainAction(attackChainActionInput AttackChainActionModel) (err
 	return
 }
 
-func UpdateAttackChainAction(attackChainActionInput AttackChainActionModel) (err error) {
+func UpdateAttackChainStep(attackChainStepInput AttackChainStepModel) (err error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	dbconfig, err := pgxpool.ParseConfig(databaseURL)
@@ -180,10 +180,10 @@ func UpdateAttackChainAction(attackChainActionInput AttackChainActionModel) (err
 			fn_action_id => $2, 
 			fn_position => $3
 			fn_business_id => $4)`,
-		attackChainActionInput.AttackChainID,
-		attackChainActionInput.ActionID,
-		attackChainActionInput.Position,
-		attackChainActionInput.BusinessID)
+		attackChainStepInput.AttackChainID,
+		attackChainStepInput.ActionID,
+		attackChainStepInput.Position,
+		attackChainStepInput.BusinessID)
 	if err != nil {
 		log.Println(err)
 		return
