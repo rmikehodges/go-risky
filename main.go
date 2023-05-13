@@ -1,39 +1,21 @@
 package main
 
 import (
-	"go-risky/handlers/action"
-	"go-risky/handlers/attackChain"
-	"go-risky/handlers/attackChainStep"
-	"go-risky/handlers/business"
-	"go-risky/handlers/capability"
-	"go-risky/handlers/impact"
-	"go-risky/handlers/liability"
-	"go-risky/handlers/mitigation"
-	"go-risky/handlers/resource"
-	"go-risky/handlers/threat"
-	"go-risky/handlers/vulnerability"
+	"go-risky/riskyrouter"
 
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/contrib/secure"
 	"github.com/gin-gonic/gin"
 )
 
-func initializeRouter(router *gin.Engine) {
-	action.ActionRoutes(router)
-	attackChainStep.AttackChainStepRoutes(router)
-	attackChain.AttackChainRoutes(router)
-	business.BusinessRoutes(router)
-	capability.CapabilityRoutes(router)
-	impact.ImpactRoutes(router)
-	liability.LiabilityRoutes(router)
-	mitigation.MitigationRoutes(router)
-	resource.ResourceRoutes(router)
-	threat.ThreatRoutes(router)
-	vulnerability.VulnerabilityRoutes(router)
-}
-
 func main() {
 	router := gin.Default()
+	router.Use(cors.Default())
+	riskyrouter.InitializeRouter(router)
 
-	initializeRouter(router)
+	router.Use(secure.Secure(secure.Options{
+		ContentSecurityPolicy: "default-src 'self' http://localhost:3000",
+	}))
 
-	router.Run("localhost:8081")
+	router.Run(":8081")
 }

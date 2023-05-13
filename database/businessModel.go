@@ -10,18 +10,17 @@ import (
 	"github.com/google/uuid"
 	pgxuuid "github.com/jackc/pgx-gofrs-uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type BusinessModel struct {
-	ID        uuid.UUID       `json:"id"`
-	Name      string          `json:"name"`
-	Revenue   zeronull.Float8 `json:"revenue"`
-	CreatedAt time.Time       `json:"createdAt" db:"created_at"`
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	Revenue   float32   `json:"revenue"`
+	CreatedAt time.Time `json:"createdAt" db:"created_at"`
 }
 
-func GetBusinesss(businessID string) (businessOutput []BusinessModel, err error) {
+func GetBusinesses() (businessOutput []BusinessModel, err error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	dbconfig, err := pgxpool.ParseConfig(databaseURL)
@@ -40,7 +39,7 @@ func GetBusinesss(businessID string) (businessOutput []BusinessModel, err error)
 	}
 	defer dbpool.Close()
 
-	rows, err := dbpool.Query(context.Background(), "select id,name, revenue, capability_id, created_at FROM risky_public.businesses(fn_business_id => $1)", businessID)
+	rows, err := dbpool.Query(context.Background(), "select id,name, revenue, created_at FROM risky_public.businesses()")
 	if err != nil {
 		log.Println(err)
 		return
@@ -89,7 +88,7 @@ func GetBusiness(id string) (businessOutput BusinessModel, err error) {
 	return
 }
 
-func DeleteBusiness(id string) (err error) {
+func DeleteBusiness(id string) (businessOutput BusinessModel, err error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	dbconfig, err := pgxpool.ParseConfig(databaseURL)
@@ -108,7 +107,13 @@ func DeleteBusiness(id string) (err error) {
 	}
 	defer dbpool.Close()
 
-	_, err = dbpool.Query(context.Background(), "select risky_public.delete_business(fn_business_id => $1)", id)
+	rows, err := dbpool.Query(context.Background(), "select risky_public.delete_business(fn_business_id => $1)", id)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	businessOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[BusinessModel])
 	if err != nil {
 		log.Println(err)
 		return
@@ -117,7 +122,7 @@ func DeleteBusiness(id string) (err error) {
 	return
 }
 
-func CreateBusiness(businessInput BusinessModel) (err error) {
+func CreateBusiness(businessInput BusinessModel) (businessOutput BusinessModel, err error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	dbconfig, err := pgxpool.ParseConfig(databaseURL)
@@ -136,7 +141,7 @@ func CreateBusiness(businessInput BusinessModel) (err error) {
 	}
 	defer dbpool.Close()
 
-	_, err = dbpool.Query(context.Background(),
+	rows, err := dbpool.Query(context.Background(),
 		`select risky_public.create_business(
 			fn_name => $1, 
 			fn_revenue => $2)`,
@@ -147,10 +152,16 @@ func CreateBusiness(businessInput BusinessModel) (err error) {
 		return
 	}
 
+	businessOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[BusinessModel])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	return
 }
 
-func UpdateBusiness(businessInput BusinessModel) (err error) {
+func UpdateBusiness(businessInput BusinessModel) (businessOutput BusinessModel, err error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	dbconfig, err := pgxpool.ParseConfig(databaseURL)
@@ -169,14 +180,20 @@ func UpdateBusiness(businessInput BusinessModel) (err error) {
 	}
 	defer dbpool.Close()
 
-	_, err = dbpool.Query(context.Background(),
+	rows, err := dbpool.Query(context.Background(),
 		`select risky_public.update_business(
-			fn_business_id => $1
+			fn_business_id => $1,
 			fn_name => $2, 
-			fn_description => $3)`,
+			fn_revenue => $3)`,
 		businessInput.ID,
 		businessInput.Name,
 		businessInput.Revenue)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	businessOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[BusinessModel])
 	if err != nil {
 		log.Println(err)
 		return

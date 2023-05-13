@@ -135,6 +135,7 @@ CREATE TABLE risky_public.liability (
 CREATE TABLE risky_public.attack_chain_step (
     attack_chain_id uuid constraint attack_chain_mapping_attack_chain_id_fkey references risky_public.attack_chain (id) NOT NULL,
     action_id uuid  constraint attack_chain_mapping_action_id_fkey references risky_public.action (id) NOT NULL,
+    asset_id uuid  constraint attack_chain_mapping_asset_id_fkey references risky_public.asset (id),
     business_id uuid references risky_public.business(id) NOT NULL,
     primary key (attack_chain_id, action_id),
     position INT NOT NULL,

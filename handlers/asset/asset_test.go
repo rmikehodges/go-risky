@@ -11,13 +11,14 @@ import (
 	"github.com/go-playground/assert/v2"
 )
 
-//Functions to test handlers/asset/asset.go with dummy data
+// Functions to test handlers/asset/asset.go with dummy data
+var businessId = "568d1c21-c83f-4f4f-815b-9ee6490fe8f7"
 
 func TestGetAssets(t *testing.T) {
 	router := gin.Default()
 	router.GET("/assets", getAssets)
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/assets", nil)
+	req, _ := http.NewRequest("GET", "/assets?businessId="+businessId, nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 }

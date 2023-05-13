@@ -23,17 +23,17 @@ INSERT INTO risky_public.resource (name, description, business_id) VALUES ('Empl
 INSERT INTO risky_public.resource (name, description, business_id) VALUES ('Business Money', 'The money of the business', 'a6b3c0a1-3d1a-4a8b-bc0d-9e9b3f14c8c7');
 
 -- Create Seed Data for action using common actions a hacker would take attacking a system
-INSERT INTO risky_public.action (name, description, business_id) VALUES ('Exploit', 'The ability to exploit a vulnerability', 'a6b3c0a1-3d1a-4a8b-bc0d-9e9b3f14c8c7');
-INSERT INTO risky_public.action (name, description, business_id) VALUES ('Use', 'The ability to use a capability', 'a6b3c0a1-3d1a-4a8b-bc0d-9e9b3f14c8c7');
+INSERT INTO risky_public.action (name, description, business_id) VALUES ('Exploit', 'The ability to exploit a vulnerability', '23628819-59dd-45f3-8395-aceeca86bc9c');
+INSERT INTO risky_public.action (name, description, business_id) VALUES ('Use', 'The ability to use a capability', '23628819-59dd-45f3-8395-aceeca86bc9c');
 
 -- Create seed data for threat using the common threats to a system such as deletion of data or theft of data
-INSERT INTO risky_public.threat (name, description, business_id) VALUES ('Theft', 'The ability to steal data from a system', 'a6b3c0a1-3d1a-4a8b-bc0d-9e9b3f14c8c7');
-INSERT INTO risky_public.threat (name, description, business_id) VALUES ('Deletion', 'The ability to delete data from a system', 'a6b3c0a1-3d1a-4a8b-bc0d-9e9b3f14c8c7');
+INSERT INTO risky_public.threat (name, description, business_id) VALUES ('Theft', 'The ability to steal data from a system', '23628819-59dd-45f3-8395-aceeca86bc9c');
+INSERT INTO risky_public.threat (name, description, business_id) VALUES ('Deletion', 'The ability to delete data from a system', '23628819-59dd-45f3-8395-aceeca86bc9c');
 
 
 --Create seed data for asset
-INSERT INTO risky_public.asset (name, description, business_id) VALUES ('Customer Data', 'The data of the customer', 'a6b3c0a1-3d1a-4a8b-bc0d-9e9b3f14c8c7');
-INSERT INTO risky_public.asset (name, description, business_id) VALUES ('Employee Data', 'The data of the employee', 'a6b3c0a1-3d1a-4a8b-bc0d-9e9b3f14c8c7');
+INSERT INTO risky_public.asset (name, description, business_id) VALUES ('Customer Data', 'The data of the customer', '23628819-59dd-45f3-8395-aceeca86bc9c');
+INSERT INTO risky_public.asset (name, description, business_id) VALUES ('Employee Data', 'The data of the employee', '23628819-59dd-45f3-8395-aceeca86bc9c');
 
 --Create seed data for attackChain
 INSERT INTO risky_public.attack_chain (name, description, business_id) VALUES ('XSS Attack Chain', 'The attack chain for XSS', 'a6b3c0a1-3d1a-4a8b-bc0d-9e9b3f14c8c7');

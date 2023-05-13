@@ -1,0 +1,1 @@
+for `p in ls`;do cd $p; cp ../Actions/CreateAction.tsx Create*; cp ../Actions/UpdateAction.tsx Update*; cp ../Actions/DeleteAction.tsx Delete*; done
