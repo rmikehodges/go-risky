@@ -10,6 +10,12 @@ AS $$
     SELECT * FROM risky_public.liability WHERE id = fn_liability_id;
 $$ LANGUAGE sql;
 
+CREATE OR REPLACE FUNCTION risky_public.get_liability_by_impact_id(fn_impact_id uuid) 
+RETURNS risky_public.liability 
+AS $$
+    SELECT * FROM risky_public.liability WHERE impact_id = fn_impact_id;
+$$ LANGUAGE sql;
+
 CREATE OR REPLACE FUNCTION risky_public.delete_liability(fn_liability_id uuid) 
 RETURNS void 
 AS $$

@@ -71,6 +71,8 @@ func modelsToOutputs(resourceModels []database.ResourceModel) (resourceOutputs [
 }
 
 func getResources(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("businessId")
 	if !ok {
 		log.Println("Parameter businessId not found")
@@ -85,7 +87,7 @@ func getResources(context *gin.Context) {
 		return
 	}
 
-	resourcesModels, err := database.GetResources(businessId.String())
+	resourcesModels, err := db.GetResources(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -105,6 +107,8 @@ func getResources(context *gin.Context) {
 }
 
 func getResource(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -119,7 +123,7 @@ func getResource(context *gin.Context) {
 		return
 	}
 
-	resourceModel, err := database.GetResource(resourceId.String())
+	resourceModel, err := db.GetResource(resourceId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -139,6 +143,8 @@ func getResource(context *gin.Context) {
 }
 
 func deleteResource(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -153,7 +159,7 @@ func deleteResource(context *gin.Context) {
 		return
 	}
 
-	err = database.DeleteResource(resourceId.String())
+	err = db.DeleteResource(resourceId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -165,6 +171,8 @@ func deleteResource(context *gin.Context) {
 }
 
 func createResource(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	resourceInput := ResourceInput{}
 	err := context.ShouldBindJSON(&resourceInput)
 	if err != nil {
@@ -180,7 +188,7 @@ func createResource(context *gin.Context) {
 		return
 	}
 
-	err = database.CreateResource(resourceModel)
+	err = db.CreateResource(resourceModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -191,6 +199,8 @@ func createResource(context *gin.Context) {
 }
 
 func updateResource(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	resourceInput := ResourceInput{}
 	err := context.ShouldBindJSON(&resourceInput)
 	if err != nil {
@@ -206,7 +216,7 @@ func updateResource(context *gin.Context) {
 		return
 	}
 
-	err = database.UpdateResource(resourceModel)
+	err = db.UpdateResource(resourceModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

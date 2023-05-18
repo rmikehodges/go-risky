@@ -83,6 +83,7 @@ func modelsToOutput(actionModels []database.ActionModel) (actionOutput []ActionO
 }
 
 func getActions(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
 	id, ok := context.GetQuery("businessId")
 	if !ok {
 		log.Println("Parameter businessId not found")
@@ -97,7 +98,7 @@ func getActions(context *gin.Context) {
 		return
 	}
 
-	actionmodel, err := database.GetActions(businessId.String())
+	actionmodel, err := db.GetActions(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -116,6 +117,7 @@ func getActions(context *gin.Context) {
 }
 
 func getAction(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -130,7 +132,7 @@ func getAction(context *gin.Context) {
 		return
 	}
 
-	actionOutput, err := database.GetAction(actionId.String())
+	actionOutput, err := db.GetAction(actionId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -142,6 +144,8 @@ func getAction(context *gin.Context) {
 }
 
 func deleteAction(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -156,7 +160,7 @@ func deleteAction(context *gin.Context) {
 		return
 	}
 
-	err = database.DeleteAction(actionId.String())
+	err = db.DeleteAction(actionId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -168,6 +172,8 @@ func deleteAction(context *gin.Context) {
 }
 
 func createAction(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	actionInput := ActionInput{}
 	err := context.ShouldBindJSON(&actionInput)
 	if err != nil {
@@ -182,7 +188,7 @@ func createAction(context *gin.Context) {
 		return
 	}
 
-	err = database.CreateAction(actionModel)
+	err = db.CreateAction(actionModel)
 	fmt.Println("returned from create action")
 	if err != nil {
 		log.Println(err)
@@ -195,6 +201,8 @@ func createAction(context *gin.Context) {
 }
 
 func updateAction(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	actionInput := ActionInput{}
 	err := context.ShouldBindJSON(&actionInput)
 	if err != nil {
@@ -210,7 +218,7 @@ func updateAction(context *gin.Context) {
 		return
 	}
 
-	err = database.UpdateAction(actionModel)
+	err = db.UpdateAction(actionModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

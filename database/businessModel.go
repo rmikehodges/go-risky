@@ -18,7 +18,7 @@ type BusinessModel struct {
 
 func (m *DBManager) GetBusinesses() (businessOutput []BusinessModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, revenue, created_at FROM risky_public.businesses()")
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, revenue, created_at FROM risky_public.businesses()")
 	if err != nil {
 		log.Println(err)
 		return
@@ -35,7 +35,7 @@ func (m *DBManager) GetBusinesses() (businessOutput []BusinessModel, err error) 
 
 func (m *DBManager) GetBusiness(id string) (businessOutput BusinessModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, revenue, created_at FROM risky_public.get_business(fn_business_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, revenue, created_at FROM risky_public.get_business(fn_business_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -52,7 +52,7 @@ func (m *DBManager) GetBusiness(id string) (businessOutput BusinessModel, err er
 
 func (m *DBManager) DeleteBusiness(id string) (businessOutput BusinessModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select risky_public.delete_business(fn_business_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select risky_public.delete_business(fn_business_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -69,7 +69,7 @@ func (m *DBManager) DeleteBusiness(id string) (businessOutput BusinessModel, err
 
 func (m *DBManager) CreateBusiness(businessInput BusinessModel) (businessOutput BusinessModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(),
+	rows, err := m.DBPool.Query(context.Background(),
 		`select risky_public.create_business(
 			fn_name => $1, 
 			fn_revenue => $2)`,
@@ -91,7 +91,7 @@ func (m *DBManager) CreateBusiness(businessInput BusinessModel) (businessOutput 
 
 func (m *DBManager) UpdateBusiness(businessInput BusinessModel) (businessOutput BusinessModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(),
+	rows, err := m.DBPool.Query(context.Background(),
 		`select risky_public.update_business(
 			fn_business_id => $1,
 			fn_name => $2, 

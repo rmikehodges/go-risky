@@ -65,6 +65,8 @@ func modelsToOutput(mitigationModels []database.MitigationModel) (mitigationOutp
 }
 
 func getMitigations(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("businessId")
 	if !ok {
 		log.Println("Parameter businessId not found")
@@ -79,7 +81,7 @@ func getMitigations(context *gin.Context) {
 		return
 	}
 
-	mitigationModels, err := database.GetMitigations(businessId.String())
+	mitigationModels, err := db.GetMitigations(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -99,6 +101,8 @@ func getMitigations(context *gin.Context) {
 }
 
 func getMitigation(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -113,7 +117,7 @@ func getMitigation(context *gin.Context) {
 		return
 	}
 
-	mitigationModel, err := database.GetMitigation(mitigationId.String())
+	mitigationModel, err := db.GetMitigation(mitigationId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -133,6 +137,8 @@ func getMitigation(context *gin.Context) {
 }
 
 func deleteMitigation(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -147,7 +153,7 @@ func deleteMitigation(context *gin.Context) {
 		return
 	}
 
-	err = database.DeleteMitigation(mitigationId.String())
+	err = db.DeleteMitigation(mitigationId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -159,6 +165,8 @@ func deleteMitigation(context *gin.Context) {
 }
 
 func createMitigation(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	mitigationInput := MitigationInput{}
 	err := context.ShouldBindJSON(&mitigationInput)
 	if err != nil {
@@ -174,7 +182,7 @@ func createMitigation(context *gin.Context) {
 		return
 	}
 
-	err = database.CreateMitigation(mitigationModel)
+	err = db.CreateMitigation(mitigationModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -185,6 +193,8 @@ func createMitigation(context *gin.Context) {
 }
 
 func updateMitigation(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	mitigationInput := MitigationInput{}
 	err := context.ShouldBindJSON(&mitigationInput)
 	if err != nil {
@@ -199,7 +209,7 @@ func updateMitigation(context *gin.Context) {
 		return
 	}
 
-	err = database.UpdateMitigation(mitigationModel)
+	err = db.UpdateMitigation(mitigationModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

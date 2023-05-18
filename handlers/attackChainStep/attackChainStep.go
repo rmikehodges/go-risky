@@ -59,96 +59,101 @@ func modelsToOutput(attackChainStepModels []database.AttackChainStepModel) (atta
 	return
 }
 
-func getAttackChainSteps(c *gin.Context) {
-	businessID := c.Query("businessId")
-	attackChainStepModels, err := database.GetAttackChainSteps(businessID)
+func getAttackChainSteps(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+	businessID := context.Query("businessId")
+	attackChainStepModels, err := db.GetAttackChainSteps(businessID)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	attackChainStepOutput, err := modelsToOutput(attackChainStepModels)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, attackChainStepOutput)
+	context.JSON(200, attackChainStepOutput)
 }
 
-func getAttackChainStep(c *gin.Context) {
-	id := c.Param("id")
-	attackChainStepModel, err := database.GetAttackChainStep(id)
+func getAttackChainStep(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+	id := context.Param("id")
+	attackChainStepModel, err := db.GetAttackChainStep(id)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	attackChainStepOutput, err := modelToOutput(attackChainStepModel)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, attackChainStepOutput)
+	context.JSON(200, attackChainStepOutput)
 }
 
-func deleteAttackChainStep(c *gin.Context) {
-	id := c.Param("id")
-	err := database.DeleteAttackChainStep(id)
+func deleteAttackChainStep(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+	id := context.Param("id")
+	err := db.DeleteAttackChainStep(id)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{})
+	context.JSON(200, gin.H{})
 }
 
-func updateAttackChainStep(c *gin.Context) {
+func updateAttackChainStep(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
 	var attackChainStepInput AttackChainStepInput
-	err := c.ShouldBindJSON(&attackChainStepInput)
+	err := context.ShouldBindJSON(&attackChainStepInput)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	attackChainStepModel, err := inputToModel(attackChainStepInput)
 	if err != nil {
 
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	err = database.UpdateAttackChainStep(attackChainStepModel)
+	err = db.UpdateAttackChainStep(attackChainStepModel)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	attackChainStepOutput, err := modelToOutput(attackChainStepModel)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, attackChainStepOutput)
+	context.JSON(200, attackChainStepOutput)
 }
 
-func createAttackChainStep(c *gin.Context) {
+func createAttackChainStep(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
 	var attackChainStepInput AttackChainStepInput
-	err := c.ShouldBindJSON(&attackChainStepInput)
+	err := context.ShouldBindJSON(&attackChainStepInput)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	attackChainStepModel, err := inputToModel(attackChainStepInput)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	err = database.CreateAttackChainStep(attackChainStepModel)
+	err = db.CreateAttackChainStep(attackChainStepModel)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	attackChainStepOutput, err := modelToOutput(attackChainStepModel)
 	if err != nil {
 
-		c.JSON(500, gin.H{"error": err.Error()})
+		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, attackChainStepOutput)
+	context.JSON(200, attackChainStepOutput)
 }
 
 //Create the handlers for the AttackChainStep that matches the format of AttackChain handlers

@@ -22,7 +22,7 @@ type MitigationModel struct {
 
 func (m *DBManager) GetMitigations(businessID string) (mitigationOutput []MitigationModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented, created_at FROM risky_public.mitigations(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented, created_at FROM risky_public.mitigations(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -39,7 +39,7 @@ func (m *DBManager) GetMitigations(businessID string) (mitigationOutput []Mitiga
 
 func (m *DBManager) GetMitigation(id string) (mitigationOutput MitigationModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented, created_at FROM risky_public.get_mitigation(fn_mitigation_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented, created_at FROM risky_public.get_mitigation(fn_mitigation_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -56,7 +56,7 @@ func (m *DBManager) GetMitigation(id string) (mitigationOutput MitigationModel, 
 
 func (m *DBManager) DeleteMitigation(id string) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_mitigation(fn_mitigation_id => $1)", id)
+	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_mitigation(fn_mitigation_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -67,7 +67,7 @@ func (m *DBManager) DeleteMitigation(id string) (err error) {
 
 func (m *DBManager) CreateMitigation(mitigationInput MitigationModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.create_mitigation(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -89,7 +89,7 @@ func (m *DBManager) CreateMitigation(mitigationInput MitigationModel) (err error
 
 func (m *DBManager) UpdateMitigation(mitigationInput MitigationModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.update_mitigation(
 			fn_mitigation_id => $1
 			fn_name => $2, 

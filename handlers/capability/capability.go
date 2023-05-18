@@ -63,6 +63,8 @@ func modelsToOutput(capabilityModels []database.CapabilityModel) (capabilityOutp
 }
 
 func getCapabilities(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("businessId")
 	if !ok {
 		log.Println("Parameter businessId not found")
@@ -77,7 +79,7 @@ func getCapabilities(context *gin.Context) {
 		return
 	}
 
-	capabilityModel, err := database.GetCapabilities(businessId.String())
+	capabilityModel, err := db.GetCapabilities(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -97,6 +99,8 @@ func getCapabilities(context *gin.Context) {
 }
 
 func getCapability(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -111,7 +115,7 @@ func getCapability(context *gin.Context) {
 		return
 	}
 
-	capabilityOutput, err := database.GetCapability(capabilityId.String())
+	capabilityOutput, err := db.GetCapability(capabilityId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -123,6 +127,8 @@ func getCapability(context *gin.Context) {
 }
 
 func deleteCapability(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -137,7 +143,7 @@ func deleteCapability(context *gin.Context) {
 		return
 	}
 
-	err = database.DeleteCapability(capabilityId.String())
+	err = db.DeleteCapability(capabilityId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -149,6 +155,8 @@ func deleteCapability(context *gin.Context) {
 }
 
 func createCapability(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	capabilityInput := CapabilityInput{}
 	err := context.ShouldBindJSON(&capabilityInput)
 	if err != nil {
@@ -163,7 +171,7 @@ func createCapability(context *gin.Context) {
 		return
 	}
 
-	err = database.CreateCapability(capabilityModel)
+	err = db.CreateCapability(capabilityModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -174,6 +182,8 @@ func createCapability(context *gin.Context) {
 }
 
 func updateCapability(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	capabilityInput := CapabilityInput{}
 	err := context.ShouldBindJSON(&capabilityInput)
 	if err != nil {
@@ -188,7 +198,7 @@ func updateCapability(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 		return
 	}
-	err = database.UpdateCapability(capabilityModel)
+	err = db.UpdateCapability(capabilityModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

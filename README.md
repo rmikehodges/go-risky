@@ -13,9 +13,41 @@ Optional fields are handled using pointers to the original values so that they c
 
 5/9 https://reactflow.dev/docs/examples/overview/ - that will help the attack chain builder, 2 different views, tiered table and a flow chart. I think the flow chart is the best way to go, but the tiered table is a good backup.
 
+5/13 I think going towards a balance sheet feel for impact builder. This will allow people familiar with finance to understand the impacts while getting infosec people familiar with it. However, it should be really easy to use. This is because we will have different categories.
+1. Compliance Costs
+2. Liability Transfer (People hours)
+3. Revenue per head due to moving to non-productive task
+4. DFIR Costs - lots of companies have someone on retainer for incident response
+5. Asset Replacement - could be physical or digital
+6. Legal Costs - most companies have someone on retainer, which has a known rate
+This should mirror what a balance sheet looks like with categories like YNAB. 
+
+There should be a balance sheet view of cost of mitigation vs cost of exploitation
+
+In order to tie this all together, we are going to need a resource builder 
+
+
+Attack Chain Builder:
+THere should be a view where you can see all the attack chains that a certain action is in. This would help gauge the impact of fixes at different stages in the attack chain.
+
+Each node should have a small box showing whats in it and allow updating upon double clicking
+
+There should be a filter on the items
+
+There should be the ability to add mitigations and detections and it should be indicated somehow, color, or something.
+
+
+Accounting:
+https://www.mdd.com/forensic-accounting-articles/accounting-for-business-interruption-loss-after-cyber-attack/ - should probably read up on forensic accounting methodologies to make impact analysis solid.
+
+Accountants go by revenue / employee hours. This means
+
+
+
 
 ## TODO
 1. Create database calls for the crud operations. (In-progress)
+2. Clean up database initialization and start the pool in main and pass it to handlers
 2. Write tests
 3. Think about struct creation for input structs and database structs
 3. Create Seed Script for DB

@@ -20,7 +20,7 @@ type AssetModel struct {
 
 func (m *DBManager) GetAssets(businessID string) (assetOutput []AssetModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, created_at FROM risky_public.assets(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, created_at FROM risky_public.assets(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -37,7 +37,7 @@ func (m *DBManager) GetAssets(businessID string) (assetOutput []AssetModel, err 
 
 func (m *DBManager) GetAsset(id string) (assetOutput AssetModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, created_at FROM risky_public.get_asset(fn_asset_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, created_at FROM risky_public.get_asset(fn_asset_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -54,7 +54,7 @@ func (m *DBManager) GetAsset(id string) (assetOutput AssetModel, err error) {
 
 func (m *DBManager) DeleteAsset(id string) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_asset(fn_asset_id => $1)", id)
+	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_asset(fn_asset_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -65,7 +65,7 @@ func (m *DBManager) DeleteAsset(id string) (err error) {
 
 func (m *DBManager) CreateAsset(assetInput AssetModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.create_asset(
 			fn_name => $1,
 			fn_description => $2,
@@ -83,7 +83,7 @@ func (m *DBManager) CreateAsset(assetInput AssetModel) (err error) {
 
 func (m *DBManager) UpdateAsset(assetInput AssetModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.update_asset(
 			fn_asset_id => $1
 			fn_name => $2,

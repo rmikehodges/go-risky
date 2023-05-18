@@ -20,7 +20,7 @@ type ThreatModel struct {
 
 func (m *DBManager) GetThreats(businessID string) (threatOutput []ThreatModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id,created_at FROM risky_public.threats(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id,created_at FROM risky_public.threats(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -37,7 +37,7 @@ func (m *DBManager) GetThreats(businessID string) (threatOutput []ThreatModel, e
 
 func (m *DBManager) GetThreat(id string) (threatOutput ThreatModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description,business_id, created_at FROM risky_public.get_threat(fn_threat_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description,business_id, created_at FROM risky_public.get_threat(fn_threat_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -54,7 +54,7 @@ func (m *DBManager) GetThreat(id string) (threatOutput ThreatModel, err error) {
 
 func (m *DBManager) DeleteThreat(id string) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_threat(fn_threat_id => $1)", id)
+	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_threat(fn_threat_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -65,7 +65,7 @@ func (m *DBManager) DeleteThreat(id string) (err error) {
 
 func (m *DBManager) CreateThreat(threatInput ThreatModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.create_threat(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -83,7 +83,7 @@ func (m *DBManager) CreateThreat(threatInput ThreatModel) (err error) {
 
 func (m *DBManager) UpdateThreat(threatInput ThreatModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.update_threat(
 			fn_threat_id => $1
 			fn_name => $2, 

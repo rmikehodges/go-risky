@@ -20,7 +20,7 @@ type CapabilityModel struct {
 
 func (m *DBManager) GetCapabilities(businessID string) (capabilityOutput []CapabilityModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.capabilities(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.capabilities(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -37,7 +37,7 @@ func (m *DBManager) GetCapabilities(businessID string) (capabilityOutput []Capab
 
 func (m *DBManager) GetCapability(id string) (capabilityOutput CapabilityModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.get_capability(fn_capability_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.get_capability(fn_capability_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -54,7 +54,7 @@ func (m *DBManager) GetCapability(id string) (capabilityOutput CapabilityModel, 
 
 func (m *DBManager) DeleteCapability(id string) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_capability(fn_capability_id => $1)", id)
+	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_capability(fn_capability_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -65,7 +65,7 @@ func (m *DBManager) DeleteCapability(id string) (err error) {
 
 func (m *DBManager) CreateCapability(capabilityInput CapabilityModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.create_capability(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -83,7 +83,7 @@ func (m *DBManager) CreateCapability(capabilityInput CapabilityModel) (err error
 
 func (m *DBManager) UpdateCapability(capabilityInput CapabilityModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.update_capability(
 			fn_capability_id => $1
 			fn_name => $2, 

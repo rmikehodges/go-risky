@@ -71,6 +71,8 @@ func modelsToOutput(attackChainModels []database.AttackChainModel) (attackChainO
 }
 
 func getAttackChains(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("businessId")
 	if !ok {
 		log.Println("Parameter businessId not found")
@@ -85,7 +87,7 @@ func getAttackChains(context *gin.Context) {
 		return
 	}
 
-	attackChainModel, err := database.GetAttackChains(businessId.String())
+	attackChainModel, err := db.GetAttackChains(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -105,6 +107,8 @@ func getAttackChains(context *gin.Context) {
 }
 
 func getAttackChain(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -119,7 +123,7 @@ func getAttackChain(context *gin.Context) {
 		return
 	}
 
-	attackChainModel, err := database.GetAttackChain(attackChainId.String())
+	attackChainModel, err := db.GetAttackChain(attackChainId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -139,6 +143,8 @@ func getAttackChain(context *gin.Context) {
 }
 
 func deleteAttackChain(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -153,7 +159,7 @@ func deleteAttackChain(context *gin.Context) {
 		return
 	}
 
-	err = database.DeleteAttackChain(attackChainId.String())
+	err = db.DeleteAttackChain(attackChainId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -165,6 +171,8 @@ func deleteAttackChain(context *gin.Context) {
 }
 
 func createAttackChain(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	attackChainInput := AttackChainInput{}
 	err := context.ShouldBindJSON(&attackChainInput)
 	if err != nil {
@@ -180,7 +188,7 @@ func createAttackChain(context *gin.Context) {
 		return
 	}
 
-	err = database.CreateAttackChain(attackChainModel)
+	err = db.CreateAttackChain(attackChainModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -191,6 +199,8 @@ func createAttackChain(context *gin.Context) {
 }
 
 func updateAttackChain(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	attackChainInput := AttackChainInput{}
 	err := context.ShouldBindJSON(&attackChainInput)
 	if err != nil {
@@ -206,7 +216,7 @@ func updateAttackChain(context *gin.Context) {
 		return
 	}
 
-	err = database.UpdateAttackChain(attackChainModel)
+	err = db.UpdateAttackChain(attackChainModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

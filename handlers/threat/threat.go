@@ -61,6 +61,8 @@ func modelsToOutput(threatModels []database.ThreatModel) (threatOutput []ThreatO
 }
 
 func getThreats(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("businessId")
 	if !ok {
 		log.Println("Parameter businessId not found")
@@ -75,7 +77,7 @@ func getThreats(context *gin.Context) {
 		return
 	}
 
-	threatmodel, err := database.GetThreats(businessId.String())
+	threatmodel, err := db.GetThreats(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -94,6 +96,8 @@ func getThreats(context *gin.Context) {
 }
 
 func getThreat(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -108,7 +112,7 @@ func getThreat(context *gin.Context) {
 		return
 	}
 
-	threatOutput, err := database.GetThreat(threatId.String())
+	threatOutput, err := db.GetThreat(threatId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -120,6 +124,8 @@ func getThreat(context *gin.Context) {
 }
 
 func deleteThreat(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -134,7 +140,7 @@ func deleteThreat(context *gin.Context) {
 		return
 	}
 
-	err = database.DeleteThreat(threatId.String())
+	err = db.DeleteThreat(threatId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -146,6 +152,8 @@ func deleteThreat(context *gin.Context) {
 }
 
 func createThreat(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	threatInput := ThreatInput{}
 	err := context.ShouldBindJSON(&threatInput)
 	if err != nil {
@@ -159,7 +167,7 @@ func createThreat(context *gin.Context) {
 		return
 	}
 
-	err = database.CreateThreat(threatModel)
+	err = db.CreateThreat(threatModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -170,6 +178,8 @@ func createThreat(context *gin.Context) {
 }
 
 func updateThreat(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	threatInput := ThreatInput{}
 	err := context.ShouldBindJSON(&threatInput)
 	if err != nil {
@@ -185,7 +195,7 @@ func updateThreat(context *gin.Context) {
 		return
 	}
 
-	err = database.UpdateThreat(threatModel)
+	err = db.UpdateThreat(threatModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

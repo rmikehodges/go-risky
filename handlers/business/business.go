@@ -61,8 +61,9 @@ func modelsToOutput(businessModels []database.BusinessModel) (businessOutput []B
 }
 
 func getBusinesses(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
 
-	businessmodel, err := database.GetBusinesses()
+	businessmodel, err := db.GetBusinesses()
 
 	if err != nil {
 		log.Println(err)
@@ -81,6 +82,8 @@ func getBusinesses(context *gin.Context) {
 }
 
 func getBusiness(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -95,7 +98,7 @@ func getBusiness(context *gin.Context) {
 		return
 	}
 
-	businessOutput, err := database.GetBusiness(businessId.String())
+	businessOutput, err := db.GetBusiness(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -107,6 +110,8 @@ func getBusiness(context *gin.Context) {
 }
 
 func deleteBusiness(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -121,7 +126,7 @@ func deleteBusiness(context *gin.Context) {
 		return
 	}
 
-	businessOutput, err := database.DeleteBusiness(businessId.String())
+	businessOutput, err := db.DeleteBusiness(businessId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -133,6 +138,8 @@ func deleteBusiness(context *gin.Context) {
 }
 
 func createBusiness(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	businessInput := BusinessInput{}
 	err := context.ShouldBindJSON(&businessInput)
 	if err != nil {
@@ -147,7 +154,7 @@ func createBusiness(context *gin.Context) {
 		return
 	}
 
-	businessOutput, err := database.CreateBusiness(businessModel)
+	businessOutput, err := db.CreateBusiness(businessModel)
 	fmt.Println("returned from create business")
 	if err != nil {
 		log.Println(err)
@@ -160,6 +167,8 @@ func createBusiness(context *gin.Context) {
 }
 
 func updateBusiness(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	businessInput := BusinessInput{}
 	err := context.ShouldBindJSON(&businessInput)
 	if err != nil {
@@ -175,7 +184,7 @@ func updateBusiness(context *gin.Context) {
 		return
 	}
 
-	businessOutput, err := database.UpdateBusiness(businessModel)
+	businessOutput, err := db.UpdateBusiness(businessModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

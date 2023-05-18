@@ -71,6 +71,8 @@ func modelsToOutput(detectionModels []database.DetectionModel) (detectionOutputs
 }
 
 func getDetections(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("businessId")
 	if !ok {
 		log.Println("Parameter businessId not found")
@@ -85,7 +87,7 @@ func getDetections(context *gin.Context) {
 		return
 	}
 
-	detectionModels, err := database.GetDetections(businessId.String())
+	detectionModels, err := db.GetDetections(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -105,6 +107,8 @@ func getDetections(context *gin.Context) {
 }
 
 func getDetection(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -119,7 +123,7 @@ func getDetection(context *gin.Context) {
 		return
 	}
 
-	detectionModel, err := database.GetDetection(detectionId.String())
+	detectionModel, err := db.GetDetection(detectionId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -139,6 +143,8 @@ func getDetection(context *gin.Context) {
 }
 
 func deleteDetection(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -153,7 +159,7 @@ func deleteDetection(context *gin.Context) {
 		return
 	}
 
-	err = database.DeleteDetection(detectionId.String())
+	err = db.DeleteDetection(detectionId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -165,6 +171,8 @@ func deleteDetection(context *gin.Context) {
 }
 
 func createDetection(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	detectionInput := DetectionInput{}
 	err := context.ShouldBindJSON(&detectionInput)
 	if err != nil {
@@ -180,7 +188,7 @@ func createDetection(context *gin.Context) {
 		return
 	}
 
-	err = database.CreateDetection(detectionModel)
+	err = db.CreateDetection(detectionModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -191,6 +199,8 @@ func createDetection(context *gin.Context) {
 }
 
 func updateDetection(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	detectionInput := DetectionInput{}
 	err := context.ShouldBindJSON(&detectionInput)
 	if err != nil {
@@ -206,7 +216,7 @@ func updateDetection(context *gin.Context) {
 		return
 	}
 
-	err = database.UpdateDetection(detectionModel)
+	err = db.UpdateDetection(detectionModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

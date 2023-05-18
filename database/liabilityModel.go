@@ -26,7 +26,7 @@ type LiabilityModel struct {
 
 func (m *DBManager) GetLiabilities(businessID string) (liabilityOutput []LiabilityModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -43,7 +43,7 @@ func (m *DBManager) GetLiabilities(businessID string) (liabilityOutput []Liabili
 
 func (m *DBManager) GetLiability(id string) (liabilityOutput LiabilityModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.get_liability(fn_liability_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.get_liability(fn_liability_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -60,7 +60,7 @@ func (m *DBManager) GetLiability(id string) (liabilityOutput LiabilityModel, err
 
 func (m *DBManager) GetLiabilityByImpactId(impactId string) (liabilityOutput []LiabilityModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.get_liability_by_impact_id(fn_impact_id => $1)", impactId)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.get_liability_by_impact_id(fn_impact_id => $1)", impactId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -77,7 +77,7 @@ func (m *DBManager) GetLiabilityByImpactId(impactId string) (liabilityOutput []L
 
 func (m *DBManager) DeleteLiability(id string) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_liability(fn_liability_id => $1)", id)
+	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_liability(fn_liability_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -88,7 +88,7 @@ func (m *DBManager) DeleteLiability(id string) (err error) {
 
 func (m *DBManager) CreateLiability(liabilityInput LiabilityModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.create_liability(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -114,7 +114,7 @@ func (m *DBManager) CreateLiability(liabilityInput LiabilityModel) (err error) {
 
 func (m *DBManager) UpdateLiability(liabilityInput LiabilityModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.update_liability(
 			fn_liability_id => $1
 			fn_name => $2, 

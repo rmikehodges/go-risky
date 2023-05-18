@@ -23,7 +23,7 @@ type ImpactModel struct {
 
 func (m *DBManager) GetImpacts(businessID string) (impactOutput []ImpactModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, threat_id, exploitation_cost, mitigation_cost, created_at FROM risky_public.impacts(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, threat_id, exploitation_cost, mitigation_cost, created_at FROM risky_public.impacts(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -40,7 +40,7 @@ func (m *DBManager) GetImpacts(businessID string) (impactOutput []ImpactModel, e
 
 func (m *DBManager) GetImpact(id string) (impactOutput ImpactModel, err error) {
 
-	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, threat_id, exploitation_cost, mitigation_cost, created_at FROM risky_public.get_impact(fn_impact_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, threat_id, exploitation_cost, mitigation_cost, created_at FROM risky_public.get_impact(fn_impact_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -57,7 +57,7 @@ func (m *DBManager) GetImpact(id string) (impactOutput ImpactModel, err error) {
 
 func (m *DBManager) DeleteImpact(id string) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_impact(fn_impact_id => $1)", id)
+	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_impact(fn_impact_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -68,7 +68,7 @@ func (m *DBManager) DeleteImpact(id string) (err error) {
 
 func (m *DBManager) CreateImpact(impactInput ImpactModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.create_impact(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -88,7 +88,7 @@ func (m *DBManager) CreateImpact(impactInput ImpactModel) (err error) {
 
 func (m *DBManager) UpdateImpact(impactInput ImpactModel) (err error) {
 
-	_, err = m.dbPool.Query(context.Background(),
+	_, err = m.DBPool.Query(context.Background(),
 		`select risky_public.update_impact(
 			fn_impact_id => $1
 			fn_name => $2, 

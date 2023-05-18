@@ -69,6 +69,8 @@ func modelsToOutput(impactModels []database.ImpactModel) (impactOutputs []Impact
 }
 
 func getImpacts(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("businessId")
 	if !ok {
 		log.Println("Parameter businessId not found")
@@ -83,7 +85,7 @@ func getImpacts(context *gin.Context) {
 		return
 	}
 
-	impactModel, err := database.GetImpacts(businessId.String())
+	impactModel, err := db.GetImpacts(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -102,6 +104,8 @@ func getImpacts(context *gin.Context) {
 }
 
 func getImpact(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -116,7 +120,7 @@ func getImpact(context *gin.Context) {
 		return
 	}
 
-	impactModel, err := database.GetImpact(impactId.String())
+	impactModel, err := db.GetImpact(impactId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -136,6 +140,8 @@ func getImpact(context *gin.Context) {
 }
 
 func deleteImpact(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -150,7 +156,7 @@ func deleteImpact(context *gin.Context) {
 		return
 	}
 
-	err = database.DeleteImpact(impactId.String())
+	err = db.DeleteImpact(impactId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -162,6 +168,8 @@ func deleteImpact(context *gin.Context) {
 }
 
 func createImpact(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	impactInput := ImpactInput{}
 	err := context.ShouldBindJSON(&impactInput)
 	if err != nil {
@@ -177,7 +185,7 @@ func createImpact(context *gin.Context) {
 		return
 	}
 
-	err = database.CreateImpact(impactModel)
+	err = db.CreateImpact(impactModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -188,6 +196,8 @@ func createImpact(context *gin.Context) {
 }
 
 func updateImpact(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	impactInput := ImpactInput{}
 	err := context.ShouldBindJSON(&impactInput)
 	if err != nil {
@@ -203,7 +213,7 @@ func updateImpact(context *gin.Context) {
 		return
 	}
 
-	err = database.UpdateImpact(impactModel)
+	err = db.UpdateImpact(impactModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

@@ -63,6 +63,8 @@ func modelsToOutput(assetModels []database.AssetModel) (assetOutput []AssetOutpu
 }
 
 func getAssets(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("businessId")
 	if !ok {
 		log.Println("Parameter businessId not found")
@@ -77,7 +79,7 @@ func getAssets(context *gin.Context) {
 		return
 	}
 
-	assetModel, err := database.GetAssets(businessId.String())
+	assetModel, err := db.GetAssets(businessId.String())
 	if err != nil {
 		log.Println(err)
 		context.JSON(http.StatusNotFound, assetModel)
@@ -96,6 +98,8 @@ func getAssets(context *gin.Context) {
 }
 
 func getAsset(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -110,7 +114,7 @@ func getAsset(context *gin.Context) {
 		return
 	}
 
-	assetModel, err := database.GetAsset(assetId.String())
+	assetModel, err := db.GetAsset(assetId.String())
 	if err != nil {
 		log.Println(err)
 		context.JSON(http.StatusNotFound, assetModel)
@@ -128,6 +132,8 @@ func getAsset(context *gin.Context) {
 }
 
 func deleteAsset(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -142,7 +148,7 @@ func deleteAsset(context *gin.Context) {
 		return
 	}
 
-	err = database.DeleteAsset(assetId.String())
+	err = db.DeleteAsset(assetId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -154,6 +160,8 @@ func deleteAsset(context *gin.Context) {
 }
 
 func createAsset(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	assetInput := AssetInput{}
 	err := context.ShouldBindJSON(&assetInput)
 	if err != nil {
@@ -168,7 +176,7 @@ func createAsset(context *gin.Context) {
 		return
 	}
 
-	err = database.CreateAsset(assetModel)
+	err = db.CreateAsset(assetModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -179,6 +187,8 @@ func createAsset(context *gin.Context) {
 }
 
 func updateAsset(context *gin.Context) {
+	db := context.MustGet("DBManager").(*database.DBManager)
+
 	assetInput := AssetInput{}
 	err := context.ShouldBindJSON(&assetInput)
 	if err != nil {
@@ -194,7 +204,7 @@ func updateAsset(context *gin.Context) {
 		return
 	}
 
-	err = database.UpdateAsset(assetModel)
+	err = db.UpdateAsset(assetModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
