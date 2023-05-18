@@ -42,13 +42,11 @@ https://www.mdd.com/forensic-accounting-articles/accounting-for-business-interru
 
 Accountants go by revenue / employee hours. This means
 
-
+5/16 - Reworked the database middleware and started writing tests for the database functions.
 
 
 ## TODO
-1. Create database calls for the crud operations. (In-progress)
-2. Clean up database initialization and start the pool in main and pass it to handlers
-2. Write tests
+2. Write tests for database models and handlers (postgresql should probably be last)
 3. Think about struct creation for input structs and database structs
 3. Create Seed Script for DB
 
