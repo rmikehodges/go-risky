@@ -2,16 +2,12 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
-	pgxuuid "github.com/jackc/pgx-gofrs-uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype/zeronull"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type MitigationModel struct {
@@ -24,26 +20,9 @@ type MitigationModel struct {
 	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
 }
 
-func GetMitigations(businessID string) (mitigationOutput []MitigationModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) GetMitigations(businessID string) (mitigationOutput []MitigationModel, err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented, created_at FROM risky_public.mitigations(fn_business_id => $1)", businessID)
+	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented, created_at FROM risky_public.mitigations(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -58,26 +37,9 @@ func GetMitigations(businessID string) (mitigationOutput []MitigationModel, err 
 	return
 }
 
-func GetMitigation(id string) (mitigationOutput MitigationModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) GetMitigation(id string) (mitigationOutput MitigationModel, err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented, created_at FROM risky_public.get_mitigation(fn_mitigation_id => $1)", id)
+	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented, created_at FROM risky_public.get_mitigation(fn_mitigation_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -92,26 +54,9 @@ func GetMitigation(id string) (mitigationOutput MitigationModel, err error) {
 	return
 }
 
-func DeleteMitigation(id string) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) DeleteMitigation(id string) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(), "select risky_public.delete_mitigation(fn_mitigation_id => $1)", id)
+	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_mitigation(fn_mitigation_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -120,26 +65,9 @@ func DeleteMitigation(id string) (err error) {
 	return
 }
 
-func CreateMitigation(mitigationInput MitigationModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) CreateMitigation(mitigationInput MitigationModel) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(),
+	_, err = m.dbPool.Query(context.Background(),
 		`select risky_public.create_mitigation(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -159,26 +87,9 @@ func CreateMitigation(mitigationInput MitigationModel) (err error) {
 	return
 }
 
-func UpdateMitigation(mitigationInput MitigationModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) UpdateMitigation(mitigationInput MitigationModel) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(),
+	_, err = m.dbPool.Query(context.Background(),
 		`select risky_public.update_mitigation(
 			fn_mitigation_id => $1
 			fn_name => $2, 

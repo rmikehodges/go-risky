@@ -2,16 +2,12 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
-	pgxuuid "github.com/jackc/pgx-gofrs-uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype/zeronull"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ActionModel struct {
@@ -26,26 +22,9 @@ type ActionModel struct {
 	CreatedAt       time.Time     `json:"createdAt" db:"created_at"`
 }
 
-func GetActions(businessID string) (actionOutput []ActionModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) GetActions(businessID string) (actionOutput []ActionModel, err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.actions(fn_business_id => $1)", businessID)
+	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.actions(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -60,26 +39,9 @@ func GetActions(businessID string) (actionOutput []ActionModel, err error) {
 	return
 }
 
-func GetAction(id string) (actionOutput ActionModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) GetAction(id string) (actionOutput ActionModel, err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.get_action(fn_action_id => $1)", id)
+	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.get_action(fn_action_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -94,26 +56,9 @@ func GetAction(id string) (actionOutput ActionModel, err error) {
 	return
 }
 
-func DeleteAction(id string) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) DeleteAction(id string) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(), "select risky_public.delete_action(fn_action_id => $1)", id)
+	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_action(fn_action_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -122,28 +67,8 @@ func DeleteAction(id string) (err error) {
 	return
 }
 
-func CreateAction(actionInput ActionModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
-
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-	fmt.Println("starting Create action")
-	fmt.Println(actionInput.CapabilityID)
-	_, err = dbpool.Exec(context.Background(),
+func (m *DBManager) CreateAction(actionInput ActionModel) (err error) {
+	_, err = m.dbPool.Exec(context.Background(),
 		`select risky_public.create_action(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -167,25 +92,8 @@ func CreateAction(actionInput ActionModel) (err error) {
 	return
 }
 
-func UpdateAction(actionInput ActionModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
-
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-	_, err = dbpool.Exec(context.Background(),
+func (m *DBManager) UpdateAction(actionInput ActionModel) (err error) {
+	_, err = m.dbPool.Exec(context.Background(),
 		`select risky_public.update_action(
 			fn_action_id => $1,
 			fn_name => $2, 

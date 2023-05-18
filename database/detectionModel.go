@@ -2,16 +2,12 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
-	pgxuuid "github.com/jackc/pgx-gofrs-uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype/zeronull"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type DetectionModel struct {
@@ -24,26 +20,8 @@ type DetectionModel struct {
 	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
 }
 
-func GetDetections(businessID string) (detectionOutput []DetectionModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
-
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented ,created_at FROM risky_public.detections(fn_business_id => $1)", businessID)
+func (m *DBManager) GetDetections(businessID string) (detectionOutput []DetectionModel, err error) {
+	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented ,created_at FROM risky_public.detections(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -58,26 +36,8 @@ func GetDetections(businessID string) (detectionOutput []DetectionModel, err err
 	return
 }
 
-func GetDetection(id string) (detectionOutput DetectionModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
-
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented ,created_at FROM risky_public.get_detection(fn_detection_id => $1)", id)
+func (m *DBManager) GetDetection(id string) (detectionOutput DetectionModel, err error) {
+	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented ,created_at FROM risky_public.get_detection(fn_detection_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -92,26 +52,8 @@ func GetDetection(id string) (detectionOutput DetectionModel, err error) {
 	return
 }
 
-func DeleteDetection(id string) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
-
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(), "select risky_public.delete_detection(fn_detection_id => $1)", id)
+func (m *DBManager) DeleteDetection(id string) (err error) {
+	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_detection(fn_detection_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -120,26 +62,8 @@ func DeleteDetection(id string) (err error) {
 	return
 }
 
-func CreateDetection(detectionInput DetectionModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
-
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(),
+func (m *DBManager) CreateDetection(detectionInput DetectionModel) (err error) {
+	_, err = m.dbPool.Query(context.Background(),
 		`select risky_public.create_detection(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -159,26 +83,9 @@ func CreateDetection(detectionInput DetectionModel) (err error) {
 	return
 }
 
-func UpdateDetection(detectionInput DetectionModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) UpdateDetection(detectionInput DetectionModel) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(),
+	_, err = m.dbPool.Query(context.Background(),
 		`select risky_public.update_detection(
 			fn_detection_id => $1
 			fn_name => $2, 

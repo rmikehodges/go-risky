@@ -2,15 +2,11 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
-	pgxuuid "github.com/jackc/pgx-gofrs-uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // Create type AttackChainStepModel based on table defintition risky_public.attack_chain_action in database/tables.sql
@@ -22,26 +18,9 @@ type AttackChainStepModel struct {
 	CreatedAt     time.Time `db:"created_at"`
 }
 
-func GetAttackChainSteps(businessID string) (actionOutput []AttackChainStepModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) GetAttackChainSteps(businessID string) (actionOutput []AttackChainStepModel, err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select attack_chain_id, action_id,position,business_id, created_at FROM risky_public.attack_chain_actions(fn_business_id => $1)", businessID)
+	rows, err := m.dbPool.Query(context.Background(), "select attack_chain_id, action_id,position,business_id, created_at FROM risky_public.attack_chain_actions(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -56,26 +35,9 @@ func GetAttackChainSteps(businessID string) (actionOutput []AttackChainStepModel
 	return
 }
 
-func GetAttackChainStep(id string) (actionOutput AttackChainStepModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) GetAttackChainStep(id string) (actionOutput AttackChainStepModel, err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select  attack_chain_id, action_id,position,business_id, FROM risky_public.get_attack_chain_action(fn_attack_chain_action_id => $1)", id)
+	rows, err := m.dbPool.Query(context.Background(), "select  attack_chain_id, action_id,position,business_id, FROM risky_public.get_attack_chain_action(fn_attack_chain_action_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -90,26 +52,9 @@ func GetAttackChainStep(id string) (actionOutput AttackChainStepModel, err error
 	return
 }
 
-func DeleteAttackChainStep(id string) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) DeleteAttackChainStep(id string) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(), "select risky_public.delete_attack_chain_action(fn_attack_chain_action_id => $1)", id)
+	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_attack_chain_action(fn_attack_chain_action_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -118,26 +63,9 @@ func DeleteAttackChainStep(id string) (err error) {
 	return
 }
 
-func CreateAttackChainStep(attackChainStepInput AttackChainStepModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) CreateAttackChainStep(attackChainStepInput AttackChainStepModel) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(),
+	_, err = m.dbPool.Query(context.Background(),
 		`select risky_public.create_attack_chain_action(
 			fn_attack_chain_id => $1, 
 			fn_action_id => $2, 
@@ -155,26 +83,9 @@ func CreateAttackChainStep(attackChainStepInput AttackChainStepModel) (err error
 	return
 }
 
-func UpdateAttackChainStep(attackChainStepInput AttackChainStepModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) UpdateAttackChainStep(attackChainStepInput AttackChainStepModel) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(),
+	_, err = m.dbPool.Query(context.Background(),
 		`select risky_public.update_attack_chain_action(
 			fn_attack_chain_id => $1, 
 			fn_action_id => $2, 

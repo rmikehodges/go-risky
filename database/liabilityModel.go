@@ -2,16 +2,12 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
-	pgxuuid "github.com/jackc/pgx-gofrs-uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype/zeronull"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type LiabilityModel struct {
@@ -28,26 +24,9 @@ type LiabilityModel struct {
 	CreatedAt    time.Time     `json:"createdAt" db:"created_at"`
 }
 
-func GetLiabilities(businessID string) (liabilityOutput []LiabilityModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) GetLiabilities(businessID string) (liabilityOutput []LiabilityModel, err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities(fn_business_id => $1)", businessID)
+	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -62,26 +41,9 @@ func GetLiabilities(businessID string) (liabilityOutput []LiabilityModel, err er
 	return
 }
 
-func GetLiability(id string) (liabilityOutput LiabilityModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) GetLiability(id string) (liabilityOutput LiabilityModel, err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.get_liability(fn_liability_id => $1)", id)
+	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.get_liability(fn_liability_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -96,26 +58,15 @@ func GetLiability(id string) (liabilityOutput LiabilityModel, err error) {
 	return
 }
 
-func DeleteLiability(id string) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) GetLiabilityByImpactId(impactId string) (liabilityOutput []LiabilityModel, err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
+	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.get_liability_by_impact_id(fn_impact_id => $1)", impactId)
 	if err != nil {
+		log.Println(err)
 		return
 	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
 
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(), "select risky_public.delete_liability(fn_liability_id => $1)", id)
+	liabilityOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[LiabilityModel])
 	if err != nil {
 		log.Println(err)
 		return
@@ -124,26 +75,20 @@ func DeleteLiability(id string) (err error) {
 	return
 }
 
-func CreateLiability(liabilityInput LiabilityModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) DeleteLiability(id string) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
+	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_liability(fn_liability_id => $1)", id)
 	if err != nil {
+		log.Println(err)
 		return
 	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
 
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
+	return
+}
 
-	_, err = dbpool.Query(context.Background(),
+func (m *DBManager) CreateLiability(liabilityInput LiabilityModel) (err error) {
+
+	_, err = m.dbPool.Query(context.Background(),
 		`select risky_public.create_liability(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -167,26 +112,9 @@ func CreateLiability(liabilityInput LiabilityModel) (err error) {
 	return
 }
 
-func UpdateLiability(liabilityInput LiabilityModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) UpdateLiability(liabilityInput LiabilityModel) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(),
+	_, err = m.dbPool.Query(context.Background(),
 		`select risky_public.update_liability(
 			fn_liability_id => $1
 			fn_name => $2, 

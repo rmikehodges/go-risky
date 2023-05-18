@@ -2,16 +2,12 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
-	pgxuuid "github.com/jackc/pgx-gofrs-uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype/zeronull"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type AssetModel struct {
@@ -22,26 +18,9 @@ type AssetModel struct {
 	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
 }
 
-func GetAssets(businessID string) (assetOutput []AssetModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) GetAssets(businessID string) (assetOutput []AssetModel, err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, business_id, created_at FROM risky_public.assets(fn_business_id => $1)", businessID)
+	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, created_at FROM risky_public.assets(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -56,26 +35,9 @@ func GetAssets(businessID string) (assetOutput []AssetModel, err error) {
 	return
 }
 
-func GetAsset(id string) (assetOutput AssetModel, err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) GetAsset(id string) (assetOutput AssetModel, err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	rows, err := dbpool.Query(context.Background(), "select id,name, description, business_id, created_at FROM risky_public.get_asset(fn_asset_id => $1)", id)
+	rows, err := m.dbPool.Query(context.Background(), "select id,name, description, business_id, created_at FROM risky_public.get_asset(fn_asset_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -90,26 +52,9 @@ func GetAsset(id string) (assetOutput AssetModel, err error) {
 	return
 }
 
-func DeleteAsset(id string) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) DeleteAsset(id string) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(), "select risky_public.delete_asset(fn_asset_id => $1)", id)
+	_, err = m.dbPool.Query(context.Background(), "select risky_public.delete_asset(fn_asset_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -118,26 +63,9 @@ func DeleteAsset(id string) (err error) {
 	return
 }
 
-func CreateAsset(assetInput AssetModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) CreateAsset(assetInput AssetModel) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(),
+	_, err = m.dbPool.Query(context.Background(),
 		`select risky_public.create_asset(
 			fn_name => $1,
 			fn_description => $2,
@@ -153,26 +81,9 @@ func CreateAsset(assetInput AssetModel) (err error) {
 	return
 }
 
-func UpdateAsset(assetInput AssetModel) (err error) {
-	databaseURL := os.Getenv("DATABASE_URL")
+func (m *DBManager) UpdateAsset(assetInput AssetModel) (err error) {
 
-	dbconfig, err := pgxpool.ParseConfig(databaseURL)
-	if err != nil {
-		return
-	}
-	dbconfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		pgxuuid.Register(conn.TypeMap())
-		return nil
-	}
-
-	dbpool, err := pgxpool.NewWithConfig(context.Background(), dbconfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		return
-	}
-	defer dbpool.Close()
-
-	_, err = dbpool.Query(context.Background(),
+	_, err = m.dbPool.Query(context.Background(),
 		`select risky_public.update_asset(
 			fn_asset_id => $1
 			fn_name => $2,
