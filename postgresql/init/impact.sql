@@ -11,24 +11,20 @@ AS $$
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION risky_public.delete_impact(fn_impact_id uuid) 
-RETURNS void 
+RETURNS uuid 
 AS $$
-    DELETE FROM risky_public.impact WHERE id = fn_impact_id;
+    DELETE FROM risky_public.impact WHERE id = fn_impact_id RETURNING fn_impact_id;
 $$ LANGUAGE sql VOLATILE;
 
 CREATE OR REPLACE FUNCTION risky_public.create_impact(fn_name varchar, fn_business_id uuid, fn_threat_id uuid) 
-RETURNS void
+RETURNS uuid
 AS $$
-    declare
-    begin
-    INSERT INTO risky_public.impact(name, business_id, threat_id) values(fn_name, fn_business_id, fn_threat_id);
-    RETURN;
-    end;
-$$ LANGUAGE plpgsql VOLATILE;
+    INSERT INTO risky_public.impact(name, business_id, threat_id) values(fn_name, fn_business_id, fn_threat_id) RETURNING id;
+$$ LANGUAGE sql VOLATILE;
 
 
 CREATE OR REPLACE FUNCTION risky_public.update_impact(fn_impact_id uuid, fn_name varchar, fn_business_id uuid, fn_threat_id uuid) 
-RETURNS void 
+RETURNS uuid 
 AS $$
     declare
         v_mitigation_cost DOUBLE PRECISION;
@@ -37,7 +33,7 @@ AS $$
     v_mitigation_cost := impact_mitigation_cost(fn_impact_id);
     v_exploitation_cost := impact_exploitation_cost(fn_impact_id);
     UPDATE risky_public.impact SET name = fn_name, business_id = fn_business_id, threat_id = fn_threat_id, exploitation_cost = v_exploitation_cost, mitigation_cost = v_mitigation_cost  WHERE id = fn_impact_id;
-    RETURN;
+    RETURN fn_impact_id;
     end;
 $$ LANGUAGE plpgsql VOLATILE;
 

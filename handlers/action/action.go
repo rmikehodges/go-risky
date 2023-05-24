@@ -188,7 +188,7 @@ func createAction(context *gin.Context) {
 		return
 	}
 
-	err = db.CreateAction(actionModel)
+	_, err = db.CreateAction(actionModel)
 	fmt.Println("returned from create action")
 	if err != nil {
 		log.Println(err)
@@ -218,7 +218,7 @@ func updateAction(context *gin.Context) {
 		return
 	}
 
-	err = db.UpdateAction(actionModel)
+	_, err = db.UpdateAction(actionModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

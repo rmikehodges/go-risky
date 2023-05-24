@@ -47,6 +47,7 @@ Accountants go by revenue / employee hours. This means
 
 ## TODO
 2. Write tests for database models and handlers (postgresql should probably be last)
+- Wrote example tests for actions on the model and determined that I need to return more data for create and update in order to test them effectively (or do I? Since I can just get them after create and update)
 3. Think about struct creation for input structs and database structs
 3. Create Seed Script for DB
 

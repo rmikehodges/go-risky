@@ -12,9 +12,9 @@ $$ LANGUAGE sql VOLATILE;
 
 
 CREATE OR REPLACE FUNCTION risky_public.delete_attack_chain(fn_attack_chain_id uuid)
-RETURNS void 
+RETURNS uuid 
 AS $$
-    DELETE FROM risky_public.attack_chain WHERE id = fn_attack_chain_id;
+    DELETE FROM risky_public.attack_chain WHERE id = fn_attack_chain_id RETURNING fn_attack_chain_id;
 $$ LANGUAGE sql VOLATILE;
 
 

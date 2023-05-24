@@ -57,7 +57,7 @@ func (m *DBManager) GetAction(id string) (actionOutput ActionModel, err error) {
 }
 
 func (m *DBManager) DeleteAction(id string) (err error) {
-	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_action(fn_action_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_action(fn_action_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -66,9 +66,9 @@ func (m *DBManager) DeleteAction(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateAction(actionInput ActionModel) (err error) {
-	_, err = m.DBPool.Exec(context.Background(),
-		`select risky_public.create_action(
+func (m *DBManager) CreateAction(actionInput ActionModel) (actionOutput ActionModel, err error) {
+	rows, err := m.DBPool.Query(context.Background(),
+		`select  id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.create_action(
 			fn_name => $1, 
 			fn_description => $2, 
 			fn_capability_id => $3, 
@@ -83,11 +83,17 @@ func (m *DBManager) CreateAction(actionInput ActionModel) (err error) {
 		actionInput.BusinessID,
 		actionInput.Complexity,
 		actionInput.AssetID)
+
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	actionOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[ActionModel])
 
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	return
 }
 
