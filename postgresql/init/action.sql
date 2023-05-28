@@ -22,9 +22,9 @@ $$ LANGUAGE sql VOLATILE;
 
 DROP FUNCTION risky_public.create_action;
 CREATE FUNCTION risky_public.create_action(fn_name varchar, fn_description varchar, fn_capability_id uuid, fn_vulnerability_id uuid, fn_business_id uuid, fn_complexity risky_public.action_complexity, fn_asset_id uuid) 
-RETURNS risky_public.action 
+RETURNS uuid
 AS $$
-    INSERT INTO risky_public.action(name, description, capability_id, vulnerability_id, business_id, complexity, asset_id) values(fn_name, fn_description, fn_capability_id,fn_vulnerability_id, fn_business_id, fn_complexity, fn_asset_id)  RETURNING *;
+    INSERT INTO risky_public.action(name, description, capability_id, vulnerability_id, business_id, complexity, asset_id) values(fn_name, fn_description, fn_capability_id,fn_vulnerability_id, fn_business_id, fn_complexity, fn_asset_id) RETURNING id;
 $$ LANGUAGE sql VOLATILE;
 
 DROP FUNCTION risky_public.update_action;

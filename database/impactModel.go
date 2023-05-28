@@ -66,9 +66,9 @@ func (m *DBManager) DeleteImpact(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateImpact(impactInput ImpactModel) (err error) {
+func (m *DBManager) CreateImpact(impactInput ImpactModel) (impactId string, err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
+	err = m.DBPool.QueryRow(context.Background(),
 		`select risky_public.create_impact(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -77,7 +77,7 @@ func (m *DBManager) CreateImpact(impactInput ImpactModel) (err error) {
 		impactInput.Name,
 		impactInput.Description,
 		impactInput.BusinessID,
-		impactInput.ThreatID)
+		impactInput.ThreatID).Scan(&impactId)
 	if err != nil {
 		log.Println(err)
 		return

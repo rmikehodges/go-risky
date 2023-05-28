@@ -11,7 +11,7 @@ AS $$
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION risky_public.delete_threat(fn_threat_id uuid) 
-RETURNS uuid 
+RETURNS void 
 AS $$
     DELETE FROM risky_public.threat WHERE id = fn_threat_id; 
 $$ LANGUAGE sql VOLATILE;
@@ -24,7 +24,7 @@ $$ LANGUAGE sql VOLATILE;
 
 
 CREATE OR REPLACE FUNCTION risky_public.update_threat(fn_threat_id uuid, fn_name varchar, fn_description varchar, fn_business_id uuid) 
-RETURNS uuid 
+RETURNS void 
 AS $$
-    UPDATE risky_public.threat SET name = fn_name, description = fn_description,business_id = fn_business_id  WHERE id = fn_threat_id RETURNING fn_threat_id;
+    UPDATE risky_public.threat SET name = fn_name, description = fn_description,business_id = fn_business_id  WHERE id = fn_threat_id;
 $$ LANGUAGE sql VOLATILE;

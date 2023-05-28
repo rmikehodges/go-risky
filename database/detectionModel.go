@@ -62,8 +62,8 @@ func (m *DBManager) DeleteDetection(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateDetection(detectionInput DetectionModel) (err error) {
-	_, err = m.DBPool.Query(context.Background(),
+func (m *DBManager) CreateDetection(detectionInput DetectionModel) (detectionId string, err error) {
+	err = m.DBPool.QueryRow(context.Background(),
 		`select risky_public.create_detection(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -74,7 +74,7 @@ func (m *DBManager) CreateDetection(detectionInput DetectionModel) (err error) {
 		detectionInput.Description,
 		detectionInput.BusinessID,
 		detectionInput.ActionID,
-		detectionInput.Implemented)
+		detectionInput.Implemented).Scan(&detectionId)
 	if err != nil {
 		log.Println(err)
 		return

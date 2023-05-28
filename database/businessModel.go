@@ -50,15 +50,9 @@ func (m *DBManager) GetBusiness(id string) (businessOutput BusinessModel, err er
 	return
 }
 
-func (m *DBManager) DeleteBusiness(id string) (businessOutput BusinessModel, err error) {
+func (m *DBManager) DeleteBusiness(id string) (err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select risky_public.delete_business(fn_business_id => $1)", id)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	businessOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[BusinessModel])
+	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_business(fn_business_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -67,20 +61,14 @@ func (m *DBManager) DeleteBusiness(id string) (businessOutput BusinessModel, err
 	return
 }
 
-func (m *DBManager) CreateBusiness(businessInput BusinessModel) (businessOutput BusinessModel, err error) {
+func (m *DBManager) CreateBusiness(businessInput BusinessModel) (businessId string, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(),
+	err = m.DBPool.QueryRow(context.Background(),
 		`select risky_public.create_business(
 			fn_name => $1, 
 			fn_revenue => $2)`,
 		businessInput.Name,
-		businessInput.Revenue)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	businessOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[BusinessModel])
+		businessInput.Revenue).Scan(&businessId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -89,9 +77,9 @@ func (m *DBManager) CreateBusiness(businessInput BusinessModel) (businessOutput 
 	return
 }
 
-func (m *DBManager) UpdateBusiness(businessInput BusinessModel) (businessOutput BusinessModel, err error) {
+func (m *DBManager) UpdateBusiness(businessInput BusinessModel) (err error) {
 
-	rows, err := m.DBPool.Query(context.Background(),
+	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_business(
 			fn_business_id => $1,
 			fn_name => $2, 
@@ -99,12 +87,6 @@ func (m *DBManager) UpdateBusiness(businessInput BusinessModel) (businessOutput 
 		businessInput.ID,
 		businessInput.Name,
 		businessInput.Revenue)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	businessOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[BusinessModel])
 	if err != nil {
 		log.Println(err)
 		return

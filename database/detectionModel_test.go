@@ -10,9 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var actionId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
-
-func TestGetActions(t *testing.T) {
+func TestGetDetections(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -20,14 +18,15 @@ func TestGetActions(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actions, _ := dbManager.GetActions(businessId)
+	detections, _ := dbManager.GetDetections(businessId)
 
-	for _, action := range actions {
-		assert.IsEqual(action.BusinessID.String(), businessId)
+	for _, detection := range detections {
+		assert.IsEqual(detection.BusinessID.String(), businessId)
 	}
 }
 
-func TestGetAction(t *testing.T) {
+func TestGetDetection(t *testing.T) {
+	var detectionId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -35,12 +34,12 @@ func TestGetAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	action, _ := dbManager.GetAction(actionId)
+	detection, _ := dbManager.GetDetection(detectionId)
 
-	assert.IsEqual(action.ID.String(), actionId)
+	assert.IsEqual(detection.ID.String(), detectionId)
 }
 
-func TestCreateAction(t *testing.T) {
+func TestDeleteDetection(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -48,40 +47,40 @@ func TestCreateAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, err := dbManager.CreateAction(actionInput)
+	detectionInput := database.DetectionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	detectionId, _ := dbManager.CreateDetection(detectionInput)
+
+	err = dbManager.DeleteDetection(detectionId)
 
 	assert.Equal(t, err, nil)
 
-	action, err := dbManager.GetAction(actionId)
-
-	assert.Equal(t, err, nil)
-
-	assert.Equal(t, action.ID.String(), actionId)
-}
-
-func TestDeleteAction(t *testing.T) {
-	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		panic(err)
-	}
-	defer pgPool.Close()
-	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, _ := dbManager.CreateAction(actionInput)
-
-	err = dbManager.DeleteAction(actionId)
-
-	assert.Equal(t, err, nil)
-
-	_, err = dbManager.GetAction(actionId)
+	_, err = dbManager.GetDetection(detectionId)
 
 	assert.NotEqual(t, err, nil)
 
 }
 
-func TestUpdateAction(t *testing.T) {
+func TestCreateDetection(t *testing.T) {
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	detectionInput := database.DetectionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	detectionId, err := dbManager.CreateDetection(detectionInput)
+
+	assert.Equal(t, err, nil)
+
+	detection, err := dbManager.GetDetection(detectionId)
+
+	assert.Equal(t, err, nil)
+
+	assert.Equal(t, detection.ID.String(), detectionId)
+}
+
+func TestUpdateDetection(t *testing.T) {
 
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
@@ -90,19 +89,18 @@ func TestUpdateAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createActionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, _ := dbManager.CreateAction(createActionInput)
+	createDetectionInput := database.DetectionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	detectionId, _ := dbManager.CreateDetection(createDetectionInput)
 
-	createActionInput.Name = "test2"
-	createActionInput.ID = uuid.MustParse(actionId)
+	updateDetectionInput := createDetectionInput
+	updateDetectionInput.Name = "test2"
+	updateDetectionInput.ID = uuid.MustParse(detectionId)
 
-	updateActionInput := createActionInput
-
-	err = dbManager.UpdateAction(updateActionInput)
+	err = dbManager.UpdateDetection(updateDetectionInput)
 
 	assert.Equal(t, err, nil)
 
-	updatedAction, _ := dbManager.GetAction(actionId)
+	updatedDetection, _ := dbManager.GetDetection(detectionId)
 
-	assert.Equal(t, updateActionInput.Name, updatedAction.Name)
+	assert.Equal(t, updateDetectionInput.Name, updatedDetection.Name)
 }

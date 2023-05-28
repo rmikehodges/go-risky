@@ -65,9 +65,9 @@ func (m *DBManager) DeleteMitigation(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateMitigation(mitigationInput MitigationModel) (err error) {
+func (m *DBManager) CreateMitigation(mitigationInput MitigationModel) (mitigationId string, err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
+	err = m.DBPool.QueryRow(context.Background(),
 		`select risky_public.create_mitigation(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -78,7 +78,7 @@ func (m *DBManager) CreateMitigation(mitigationInput MitigationModel) (err error
 		mitigationInput.Description,
 		mitigationInput.BusinessID,
 		mitigationInput.ActionID,
-		mitigationInput.Implemented)
+		mitigationInput.Implemented).Scan(&mitigationId)
 	if err != nil {
 		log.Println(err)
 		return

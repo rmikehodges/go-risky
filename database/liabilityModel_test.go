@@ -10,9 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var actionId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
-
-func TestGetActions(t *testing.T) {
+func TestGetLiabilities(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -20,14 +18,15 @@ func TestGetActions(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actions, _ := dbManager.GetActions(businessId)
+	liabilities, _ := dbManager.GetLiabilities(businessId)
 
-	for _, action := range actions {
-		assert.IsEqual(action.BusinessID.String(), businessId)
+	for _, liability := range liabilities {
+		assert.IsEqual(liability.BusinessID.String(), businessId)
 	}
 }
 
-func TestGetAction(t *testing.T) {
+func TestGetLiability(t *testing.T) {
+	var liabilityId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -35,12 +34,12 @@ func TestGetAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	action, _ := dbManager.GetAction(actionId)
+	liability, _ := dbManager.GetLiability(liabilityId)
 
-	assert.IsEqual(action.ID.String(), actionId)
+	assert.IsEqual(liability.ID.String(), liabilityId)
 }
 
-func TestCreateAction(t *testing.T) {
+func TestDeleteLiability(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -48,40 +47,40 @@ func TestCreateAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, err := dbManager.CreateAction(actionInput)
+	liabilityInput := database.LiabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	liabilityId, _ := dbManager.CreateLiability(liabilityInput)
+
+	err = dbManager.DeleteLiability(liabilityId)
 
 	assert.Equal(t, err, nil)
 
-	action, err := dbManager.GetAction(actionId)
-
-	assert.Equal(t, err, nil)
-
-	assert.Equal(t, action.ID.String(), actionId)
-}
-
-func TestDeleteAction(t *testing.T) {
-	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		panic(err)
-	}
-	defer pgPool.Close()
-	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, _ := dbManager.CreateAction(actionInput)
-
-	err = dbManager.DeleteAction(actionId)
-
-	assert.Equal(t, err, nil)
-
-	_, err = dbManager.GetAction(actionId)
+	_, err = dbManager.GetLiability(liabilityId)
 
 	assert.NotEqual(t, err, nil)
 
 }
 
-func TestUpdateAction(t *testing.T) {
+func TestCreateLiability(t *testing.T) {
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	liabilityInput := database.LiabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	liabilityId, err := dbManager.CreateLiability(liabilityInput)
+
+	assert.Equal(t, err, nil)
+
+	liability, err := dbManager.GetLiability(liabilityId)
+
+	assert.Equal(t, err, nil)
+
+	assert.Equal(t, liability.ID.String(), liabilityId)
+}
+
+func TestUpdateLiability(t *testing.T) {
 
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
@@ -90,19 +89,18 @@ func TestUpdateAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createActionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, _ := dbManager.CreateAction(createActionInput)
+	createLiabilityInput := database.LiabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	liabilityId, _ := dbManager.CreateLiability(createLiabilityInput)
 
-	createActionInput.Name = "test2"
-	createActionInput.ID = uuid.MustParse(actionId)
+	updateLiabilityInput := createLiabilityInput
+	updateLiabilityInput.Name = "test2"
+	updateLiabilityInput.ID = uuid.MustParse(liabilityId)
 
-	updateActionInput := createActionInput
-
-	err = dbManager.UpdateAction(updateActionInput)
+	err = dbManager.UpdateLiability(updateLiabilityInput)
 
 	assert.Equal(t, err, nil)
 
-	updatedAction, _ := dbManager.GetAction(actionId)
+	updatedLiability, _ := dbManager.GetLiability(liabilityId)
 
-	assert.Equal(t, updateActionInput.Name, updatedAction.Name)
+	assert.Equal(t, updateLiabilityInput.Name, updatedLiability.Name)
 }

@@ -10,9 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var actionId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
-
-func TestGetActions(t *testing.T) {
+func TestGetImpacts(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -20,14 +18,15 @@ func TestGetActions(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actions, _ := dbManager.GetActions(businessId)
+	impacts, _ := dbManager.GetImpacts(businessId)
 
-	for _, action := range actions {
-		assert.IsEqual(action.BusinessID.String(), businessId)
+	for _, impact := range impacts {
+		assert.IsEqual(impact.BusinessID.String(), businessId)
 	}
 }
 
-func TestGetAction(t *testing.T) {
+func TestGetImpact(t *testing.T) {
+	var impactId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -35,12 +34,12 @@ func TestGetAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	action, _ := dbManager.GetAction(actionId)
+	impact, _ := dbManager.GetImpact(impactId)
 
-	assert.IsEqual(action.ID.String(), actionId)
+	assert.IsEqual(impact.ID.String(), impactId)
 }
 
-func TestCreateAction(t *testing.T) {
+func TestDeleteImpact(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -48,40 +47,40 @@ func TestCreateAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, err := dbManager.CreateAction(actionInput)
+	impactInput := database.ImpactModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	impactId, _ := dbManager.CreateImpact(impactInput)
+
+	err = dbManager.DeleteImpact(impactId)
 
 	assert.Equal(t, err, nil)
 
-	action, err := dbManager.GetAction(actionId)
-
-	assert.Equal(t, err, nil)
-
-	assert.Equal(t, action.ID.String(), actionId)
-}
-
-func TestDeleteAction(t *testing.T) {
-	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		panic(err)
-	}
-	defer pgPool.Close()
-	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, _ := dbManager.CreateAction(actionInput)
-
-	err = dbManager.DeleteAction(actionId)
-
-	assert.Equal(t, err, nil)
-
-	_, err = dbManager.GetAction(actionId)
+	_, err = dbManager.GetImpact(impactId)
 
 	assert.NotEqual(t, err, nil)
 
 }
 
-func TestUpdateAction(t *testing.T) {
+func TestCreateImpact(t *testing.T) {
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	impactInput := database.ImpactModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	impactId, err := dbManager.CreateImpact(impactInput)
+
+	assert.Equal(t, err, nil)
+
+	impact, err := dbManager.GetImpact(impactId)
+
+	assert.Equal(t, err, nil)
+
+	assert.Equal(t, impact.ID.String(), impactId)
+}
+
+func TestUpdateImpact(t *testing.T) {
 
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
@@ -90,19 +89,19 @@ func TestUpdateAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createActionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, _ := dbManager.CreateAction(createActionInput)
+	createImpactInput := database.ImpactModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	impactId, _ := dbManager.CreateImpact(createImpactInput)
 
-	createActionInput.Name = "test2"
-	createActionInput.ID = uuid.MustParse(actionId)
+	updateImpactInput := createImpactInput
 
-	updateActionInput := createActionInput
+	updateImpactInput.Name = "test2"
+	updateImpactInput.ID = uuid.MustParse(impactId)
 
-	err = dbManager.UpdateAction(updateActionInput)
+	err = dbManager.UpdateImpact(updateImpactInput)
 
 	assert.Equal(t, err, nil)
 
-	updatedAction, _ := dbManager.GetAction(actionId)
+	updatedImpact, _ := dbManager.GetImpact(impactId)
 
-	assert.Equal(t, updateActionInput.Name, updatedAction.Name)
+	assert.Equal(t, updateImpactInput.Name, updatedImpact.Name)
 }

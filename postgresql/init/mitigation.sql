@@ -11,9 +11,9 @@ AS $$
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION risky_public.delete_mitigation(fn_mitigation_id uuid) 
-RETURNS uuid 
+RETURNS void 
 AS $$
-    DELETE FROM risky_public.mitigation WHERE id = fn_mitigation_id RETURNING fn_mitigation_id;
+    DELETE FROM risky_public.mitigation WHERE id = fn_mitigation_id;
 $$ LANGUAGE sql VOLATILE;
 
 CREATE OR REPLACE FUNCTION risky_public.create_mitigation(fn_name varchar, fn_description varchar, fn_business_id uuid,  fn_action_id uuid, fn_implemented boolean)
@@ -24,7 +24,7 @@ $$ LANGUAGE sql VOLATILE;
 
 
 CREATE OR REPLACE FUNCTION risky_public.update_mitigation(fn_mitigation_id uuid, fn_name varchar, fn_description varchar, fn_business_id uuid,  fn_action_id uuid, fn_implemented boolean) 
-RETURNS uuid 
+RETURNS void 
 AS $$
-    UPDATE risky_public.mitigation SET name = fn_name, description = fn_description, action_id = fn_action_id, implemented = fn_implemented WHERE id = fn_mitigation_id RETURNING fn_mitigation_id;
+    UPDATE risky_public.mitigation SET name = fn_name, description = fn_description, action_id = fn_action_id, implemented = fn_implemented WHERE id = fn_mitigation_id;
 $$ LANGUAGE sql VOLATILE;

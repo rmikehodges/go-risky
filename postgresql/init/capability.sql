@@ -11,7 +11,7 @@ AS $$
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION risky_public.delete_capability(fn_capability_id uuid) 
-RETURNS uuid 
+RETURNS void 
 AS $$
     DELETE FROM risky_public.capability WHERE id = fn_capability_id RETURNING fn_capability_id;
 $$ LANGUAGE sql VOLATILE;
@@ -24,7 +24,7 @@ $$ LANGUAGE sql VOLATILE;
 
 
 CREATE OR REPLACE FUNCTION risky_public.update_capability(fn_capability_id uuid, fn_name varchar,  fn_description varchar) 
-RETURNS uuid 
+RETURNS void 
 AS $$
-    UPDATE risky_public.capability SET name = fn_name, description = fn_description WHERE id = fn_capability_id RETURNING fn_capability_id;
+    UPDATE risky_public.capability SET name = fn_name, description = fn_description WHERE id = fn_capability_id;
 $$ LANGUAGE sql VOLATILE;

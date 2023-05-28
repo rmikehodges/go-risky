@@ -10,9 +10,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var actionId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
+var assetId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
 
-func TestGetActions(t *testing.T) {
+func TestGetAssets(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -20,14 +20,14 @@ func TestGetActions(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actions, _ := dbManager.GetActions(businessId)
+	assets, _ := dbManager.GetAssets(businessId)
 
-	for _, action := range actions {
-		assert.IsEqual(action.BusinessID.String(), businessId)
+	for _, asset := range assets {
+		assert.IsEqual(asset.BusinessID.String(), businessId)
 	}
 }
 
-func TestGetAction(t *testing.T) {
+func TestGetAsset(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -35,12 +35,12 @@ func TestGetAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	action, _ := dbManager.GetAction(actionId)
+	asset, _ := dbManager.GetAsset(assetId)
 
-	assert.IsEqual(action.ID.String(), actionId)
+	assert.IsEqual(asset.ID.String(), assetId)
 }
 
-func TestCreateAction(t *testing.T) {
+func TestCreateAsset(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -48,19 +48,19 @@ func TestCreateAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, err := dbManager.CreateAction(actionInput)
+	assetInput := database.AssetModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	assetId, err := dbManager.CreateAsset(assetInput)
 
 	assert.Equal(t, err, nil)
 
-	action, err := dbManager.GetAction(actionId)
+	asset, err := dbManager.GetAsset(assetId)
 
 	assert.Equal(t, err, nil)
 
-	assert.Equal(t, action.ID.String(), actionId)
+	assert.Equal(t, asset.ID.String(), assetId)
 }
 
-func TestDeleteAction(t *testing.T) {
+func TestDeleteAsset(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -68,20 +68,20 @@ func TestDeleteAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, _ := dbManager.CreateAction(actionInput)
+	assetInput := database.AssetModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	assetId, _ := dbManager.CreateAsset(assetInput)
 
-	err = dbManager.DeleteAction(actionId)
+	err = dbManager.DeleteAsset(assetId)
 
 	assert.Equal(t, err, nil)
 
-	_, err = dbManager.GetAction(actionId)
+	_, err = dbManager.GetAsset(assetId)
 
 	assert.NotEqual(t, err, nil)
 
 }
 
-func TestUpdateAction(t *testing.T) {
+func TestUpdateAsset(t *testing.T) {
 
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
@@ -90,19 +90,19 @@ func TestUpdateAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createActionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, _ := dbManager.CreateAction(createActionInput)
+	createAssetInput := database.AssetModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	assetId, _ := dbManager.CreateAsset(createAssetInput)
 
-	createActionInput.Name = "test2"
-	createActionInput.ID = uuid.MustParse(actionId)
+	updateAssetInput := createAssetInput
 
-	updateActionInput := createActionInput
+	updateAssetInput.Name = "test2"
+	updateAssetInput.ID = uuid.MustParse(assetId)
 
-	err = dbManager.UpdateAction(updateActionInput)
+	err = dbManager.UpdateAsset(updateAssetInput)
 
 	assert.Equal(t, err, nil)
 
-	updatedAction, _ := dbManager.GetAction(actionId)
+	updatedAsset, _ := dbManager.GetAsset(assetId)
 
-	assert.Equal(t, updateActionInput.Name, updatedAction.Name)
+	assert.Equal(t, updateAssetInput.Name, updatedAsset.Name)
 }

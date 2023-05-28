@@ -11,9 +11,9 @@ AS $$
 $$ LANGUAGE sql VOLATILE;
 
 CREATE OR REPLACE FUNCTION risky_public.delete_resource(fn_resource_id uuid) 
-RETURNS uuid 
+RETURNS void 
 AS $$
-    DELETE FROM risky_public.resource WHERE id = fn_resource_id RETURNING fn_resource_id;
+    DELETE FROM risky_public.resource WHERE id = fn_resource_id;
 $$ LANGUAGE sql VOLATILE;
 
 CREATE OR REPLACE FUNCTION risky_public.create_resource(fn_name varchar, fn_cost DOUBLE PRECISION, fn_unit TEXT, fn_total DOUBLE, fn_resouce_type risky_public.resources_type, fn_business_id uuid) 
@@ -24,7 +24,7 @@ $$ LANGUAGE sql VOLATILE;
 
 
 CREATE OR REPLACE FUNCTION risky_public.update_resource(fn_resource_id uuid, fn_name varchar, fn_cost DOUBLE PRECISION, fn_unit TEXT, fn_total DOUBLE, fn_resouce_type risky_public.resources_type, fn_business_id uuid)
-RETURNS uuid
+RETURNS void
 AS $$
-    UPDATE risky_public.resource SET name = fn_name, cost = fn_cost, unit = fn_unit, total = fn_total, resouce_type = fn_resouce_type, fn_business_id = fn_business_id WHERE id = fn_resource_id RETURNING fn_resouce_id;
+    UPDATE risky_public.resource SET name = fn_name, cost = fn_cost, unit = fn_unit, total = fn_total, resouce_type = fn_resouce_type, fn_business_id = fn_business_id WHERE id = fn_resource_id;
 $$ LANGUAGE sql VOLATILE;

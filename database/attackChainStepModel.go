@@ -18,9 +18,9 @@ type AttackChainStepModel struct {
 	CreatedAt     time.Time `db:"created_at"`
 }
 
-func (m *DBManager) GetAttackChainSteps(businessID string) (actionOutput []AttackChainStepModel, err error) {
+func (m *DBManager) GetAttackChainSteps(attackChainId string, businessId string) (actionOutput []AttackChainStepModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select attack_chain_id, action_id,position,business_id, created_at FROM risky_public.attack_chain_actions(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select attack_chain_id, action_id,position,business_id, created_at FROM risky_public.attack_chain_steps(fn_business_id => $1, fn_attack_chain_id => $2)", businessId, attackChainId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -35,9 +35,9 @@ func (m *DBManager) GetAttackChainSteps(businessID string) (actionOutput []Attac
 	return
 }
 
-func (m *DBManager) GetAttackChainStep(id string) (actionOutput AttackChainStepModel, err error) {
+func (m *DBManager) GetAttackChainStep(actionId string, attackChainId string) (actionOutput AttackChainStepModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select  attack_chain_id, action_id,position,business_id, FROM risky_public.get_attack_chain_action(fn_attack_chain_action_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select  attack_chain_id, action_id,position,business_id, FROM risky_public.get_attack_chain_step(fn_attack_chain_id => $1, fn_action_id => $2)", attackChainId, actionId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -52,9 +52,10 @@ func (m *DBManager) GetAttackChainStep(id string) (actionOutput AttackChainStepM
 	return
 }
 
-func (m *DBManager) DeleteAttackChainStep(id string) (err error) {
+func (m *DBManager) DeleteAttackChainStep(actionId string, attackChainId string) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_attack_chain_action(fn_attack_chain_action_id => $1)", id)
+	_, err = m.DBPool.Query(context.Background(),
+		"select risky_public.delete_attack_chain_step(fn_attack_chain_id => $1, fn_action_id => $2)", attackChainId, actionId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -63,10 +64,10 @@ func (m *DBManager) DeleteAttackChainStep(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateAttackChainStep(attackChainStepInput AttackChainStepModel) (err error) {
+func (m *DBManager) CreateAttackChainStep(attackChainStepInput AttackChainStepModel) (actionId string, attackChainId string, err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
-		`select risky_public.create_attack_chain_action(
+	err = m.DBPool.QueryRow(context.Background(),
+		`select risky_public.create_attack_chain_step(
 			fn_attack_chain_id => $1, 
 			fn_action_id => $2, 
 			fn_position => $3
@@ -74,7 +75,7 @@ func (m *DBManager) CreateAttackChainStep(attackChainStepInput AttackChainStepMo
 		attackChainStepInput.AttackChainID,
 		attackChainStepInput.ActionID,
 		attackChainStepInput.Position,
-		attackChainStepInput.BusinessID)
+		attackChainStepInput.BusinessID).Scan(&attackChainId, &actionId)
 	if err != nil {
 		log.Println(err)
 		return

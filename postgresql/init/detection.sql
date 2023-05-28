@@ -11,9 +11,9 @@ AS $$
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION risky_public.delete_detection(fn_detection_id uuid) 
-RETURNS uuid 
+RETURNS void 
 AS $$
-    DELETE FROM risky_public.detection WHERE id = fn_detection_id RETURNING fn_detection_id;
+    DELETE FROM risky_public.detection WHERE id = fn_detection_id;
 $$ LANGUAGE sql VOLATILE;
 
 CREATE OR REPLACE FUNCTION risky_public.create_detection(fn_name varchar, fn_description varchar, fn_business_id uuid,  fn_action_id uuid, fn_implemented boolean)
@@ -24,7 +24,7 @@ $$ LANGUAGE sql VOLATILE;
 
 
 CREATE OR REPLACE FUNCTION risky_public.update_detection(fn_detection_id uuid, fn_name varchar, fn_description varchar, fn_business_id uuid,  fn_action_id uuid, fn_implemented boolean) 
-RETURNS uuid 
+RETURNS void 
 AS $$
-    UPDATE risky_public.detection SET name = fn_name, description = fn_description, action_id = fn_action_id, implemented = fn_implemented WHERE id = fn_detection_id RETURNING fn_detection_id;
+    UPDATE risky_public.detection SET name = fn_name, description = fn_description, action_id = fn_action_id, implemented = fn_implemented WHERE id = fn_detection_id;
 $$ LANGUAGE sql VOLATILE;

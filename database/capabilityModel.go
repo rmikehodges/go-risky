@@ -63,16 +63,16 @@ func (m *DBManager) DeleteCapability(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateCapability(capabilityInput CapabilityModel) (err error) {
+func (m *DBManager) CreateCapability(capabilityInput CapabilityModel) (capabilityId string, err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
+	err = m.DBPool.QueryRow(context.Background(),
 		`select risky_public.create_capability(
 			fn_name => $1, 
 			fn_description => $2, 
 			fn_business_id => $3)`,
 		capabilityInput.Name,
 		capabilityInput.Description,
-		capabilityInput.BusinessID)
+		capabilityInput.BusinessID).Scan(&capabilityId)
 	if err != nil {
 		log.Println(err)
 		return

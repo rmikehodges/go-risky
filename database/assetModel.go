@@ -52,9 +52,16 @@ func (m *DBManager) GetAsset(id string) (assetOutput AssetModel, err error) {
 	return
 }
 
-func (m *DBManager) DeleteAsset(id string) (err error) {
+func (m *DBManager) CreateAsset(assetInput AssetModel) (assetId string, err error) {
 
-	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_asset(fn_asset_id => $1)", id)
+	err = m.DBPool.QueryRow(context.Background(),
+		`select * FROM risky_public.create_asset(
+			fn_name => $1,
+			fn_description => $2,
+			fn_business_id => $3)`,
+		assetInput.Name,
+		assetInput.Description,
+		assetInput.BusinessID).Scan(&assetId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -63,16 +70,9 @@ func (m *DBManager) DeleteAsset(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateAsset(assetInput AssetModel) (err error) {
+func (m *DBManager) DeleteAsset(id string) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
-		`select risky_public.create_asset(
-			fn_name => $1,
-			fn_description => $2,
-			fn_business_id => $3)`,
-		assetInput.Name,
-		assetInput.Description,
-		assetInput.BusinessID)
+	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_asset(fn_asset_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -83,9 +83,9 @@ func (m *DBManager) CreateAsset(assetInput AssetModel) (err error) {
 
 func (m *DBManager) UpdateAsset(assetInput AssetModel) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
+	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_asset(
-			fn_asset_id => $1
+			fn_asset_id => $1,
 			fn_name => $2,
 			fn_description => $3,
 			fn_business_id => $4)`,

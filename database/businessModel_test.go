@@ -10,9 +10,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var actionId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
+var businessId = "23628819-59dd-45f3-8395-aceeca86bc9c"
 
-func TestGetActions(t *testing.T) {
+func TestGetBusinesses(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -20,47 +20,16 @@ func TestGetActions(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actions, _ := dbManager.GetActions(businessId)
-
-	for _, action := range actions {
-		assert.IsEqual(action.BusinessID.String(), businessId)
-	}
-}
-
-func TestGetAction(t *testing.T) {
-	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		panic(err)
-	}
-	defer pgPool.Close()
-	dbManager := &database.DBManager{DBPool: pgPool}
-	action, _ := dbManager.GetAction(actionId)
-
-	assert.IsEqual(action.ID.String(), actionId)
-}
-
-func TestCreateAction(t *testing.T) {
-	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		panic(err)
-	}
-	defer pgPool.Close()
-	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, err := dbManager.CreateAction(actionInput)
+	_, err = dbManager.GetBusinesses()
 
 	assert.Equal(t, err, nil)
 
-	action, err := dbManager.GetAction(actionId)
-
-	assert.Equal(t, err, nil)
-
-	assert.Equal(t, action.ID.String(), actionId)
+	// for _, business := range businesses {
+	// 	assert.IsEqual(business.ID.String(), businessId)
+	// }
 }
 
-func TestDeleteAction(t *testing.T) {
+func TestGetBusiness(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -68,20 +37,53 @@ func TestDeleteAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, _ := dbManager.CreateAction(actionInput)
+	business, _ := dbManager.GetBusiness(businessId)
 
-	err = dbManager.DeleteAction(actionId)
+	assert.IsEqual(business.ID.String(), businessId)
+}
+
+func TestDeleteBusiness(t *testing.T) {
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	businessInput := database.BusinessModel{Name: "test", Revenue: 10000}
+	businessId, _ := dbManager.CreateBusiness(businessInput)
+
+	err = dbManager.DeleteBusiness(businessId)
 
 	assert.Equal(t, err, nil)
 
-	_, err = dbManager.GetAction(actionId)
+	_, err = dbManager.GetBusiness(businessId)
 
 	assert.NotEqual(t, err, nil)
 
 }
 
-func TestUpdateAction(t *testing.T) {
+func TestCreateBusiness(t *testing.T) {
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	businessInput := database.BusinessModel{Name: "test", Revenue: 10000}
+	businessId, err := dbManager.CreateBusiness(businessInput)
+
+	assert.Equal(t, err, nil)
+
+	business, err := dbManager.GetBusiness(businessId)
+
+	assert.Equal(t, err, nil)
+
+	assert.Equal(t, business.ID.String(), businessId)
+}
+
+func TestUpdateBusiness(t *testing.T) {
 
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
@@ -90,19 +92,19 @@ func TestUpdateAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createActionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	actionId, _ := dbManager.CreateAction(createActionInput)
+	createBusinessInput := database.BusinessModel{Name: "test", Revenue: 10000}
+	businessId, _ := dbManager.CreateBusiness(createBusinessInput)
 
-	createActionInput.Name = "test2"
-	createActionInput.ID = uuid.MustParse(actionId)
+	updateBusinessInput := createBusinessInput
 
-	updateActionInput := createActionInput
+	updateBusinessInput.Name = "test2"
+	updateBusinessInput.ID = uuid.MustParse(businessId)
 
-	err = dbManager.UpdateAction(updateActionInput)
+	err = dbManager.UpdateBusiness(updateBusinessInput)
 
 	assert.Equal(t, err, nil)
 
-	updatedAction, _ := dbManager.GetAction(actionId)
+	updatedBusiness, _ := dbManager.GetBusiness(businessId)
 
-	assert.Equal(t, updateActionInput.Name, updatedAction.Name)
+	assert.Equal(t, updateBusinessInput.Name, updatedBusiness.Name)
 }

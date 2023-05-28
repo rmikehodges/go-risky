@@ -86,9 +86,9 @@ func (m *DBManager) DeleteLiability(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateLiability(liabilityInput LiabilityModel) (err error) {
+func (m *DBManager) CreateLiability(liabilityInput LiabilityModel) (liabilityId string, err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
+	err = m.DBPool.QueryRow(context.Background(),
 		`select risky_public.create_liability(
 			fn_name => $1, 
 			fn_description => $2, 
@@ -103,7 +103,7 @@ func (m *DBManager) CreateLiability(liabilityInput LiabilityModel) (err error) {
 		liabilityInput.MitigationID,
 		liabilityInput.ResourceID,
 		liabilityInput.ThreatID,
-		liabilityInput.ImpactID)
+		liabilityInput.ImpactID).Scan(&liabilityId)
 	if err != nil {
 		log.Println(err)
 		return

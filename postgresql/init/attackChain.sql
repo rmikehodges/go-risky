@@ -32,15 +32,16 @@ create type attack_chain_patch as (
 );
 
 CREATE OR REPLACE FUNCTION risky_public.create_attack_chain(fn_name varchar, fn_business_id uuid,fn_actions action_map[]) 
-RETURNS risky_public.attack_chain
+RETURNS uuid
 AS $$
     declare
         v_attack_chain risky_public.attack_chain;
+        v_attack_chain_id uuid;
         v_action action_map;
     begin
         insert into risky_public.attack_chain(business_id, name)
         values(fn_business_id, fn_name)
-        RETURNING * INTO v_attack_chain;
+        RETURNING id INTO v_attack_chain_id;
 
         IF fn_actions IS NOT NULL THEN
             FOREACH v_action IN ARRAY fn_actions
@@ -49,13 +50,13 @@ AS $$
                 values(v_attack_chain.id,v_action.id, v_action.position);
             END LOOP;
         END IF;
-        RETURN v_attack_chain;
+        RETURN v_attack_chain_id;
     end;
  $$ LANGUAGE plpgsql VOLATILE;
 
 
 CREATE OR REPLACE FUNCTION risky_public.update_attack_chain(fn_attack_chain_id uuid, fn_patch attack_chain_patch) 
-RETURNS risky_public.attack_chain 
+RETURNS void
 AS $$
     declare
         v_action action_map;
@@ -78,7 +79,7 @@ AS $$
             END LOOP;
         END IF;
 
-        RETURN v_attack_chain;
+        RETURN;
     end;
  $$ LANGUAGE plpgsql VOLATILE STRICT;
 

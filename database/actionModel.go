@@ -66,9 +66,9 @@ func (m *DBManager) DeleteAction(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateAction(actionInput ActionModel) (actionOutput ActionModel, err error) {
-	rows, err := m.DBPool.Query(context.Background(),
-		`select  id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.create_action(
+func (m *DBManager) CreateAction(actionInput ActionModel) (createdAction string, err error) {
+	err = m.DBPool.QueryRow(context.Background(),
+		`select * FROM risky_public.create_action(
 			fn_name => $1, 
 			fn_description => $2, 
 			fn_capability_id => $3, 
@@ -82,16 +82,10 @@ func (m *DBManager) CreateAction(actionInput ActionModel) (actionOutput ActionMo
 		actionInput.VulnerabilityID,
 		actionInput.BusinessID,
 		actionInput.Complexity,
-		actionInput.AssetID)
+		actionInput.AssetID).Scan(&createdAction)
 
 	if err != nil {
-		log.Println(err)
-		return
-	}
-	actionOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[ActionModel])
-
-	if err != nil {
-		log.Println(err)
+		log.Printf("Error creating action %s", err)
 		return
 	}
 	return
