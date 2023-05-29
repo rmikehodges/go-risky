@@ -39,7 +39,27 @@ func TestGetBusiness(t *testing.T) {
 	dbManager := &database.DBManager{DBPool: pgPool}
 	business, _ := dbManager.GetBusiness(businessId)
 
-	assert.IsEqual(business.ID.String(), businessId)
+	assert.Equal(t, business.ID.String(), businessId)
+}
+
+func TestCreateBusiness(t *testing.T) {
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	businessInput := database.BusinessModel{Name: "test", Revenue: 10000}
+	businessId, err := dbManager.CreateBusiness(businessInput)
+
+	assert.Equal(t, err, nil)
+
+	business, err := dbManager.GetBusiness(businessId)
+
+	assert.Equal(t, err, nil)
+
+	assert.Equal(t, business.ID.String(), businessId)
 }
 
 func TestDeleteBusiness(t *testing.T) {
@@ -61,26 +81,6 @@ func TestDeleteBusiness(t *testing.T) {
 
 	assert.NotEqual(t, err, nil)
 
-}
-
-func TestCreateBusiness(t *testing.T) {
-	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		panic(err)
-	}
-	defer pgPool.Close()
-	dbManager := &database.DBManager{DBPool: pgPool}
-	businessInput := database.BusinessModel{Name: "test", Revenue: 10000}
-	businessId, err := dbManager.CreateBusiness(businessInput)
-
-	assert.Equal(t, err, nil)
-
-	business, err := dbManager.GetBusiness(businessId)
-
-	assert.Equal(t, err, nil)
-
-	assert.Equal(t, business.ID.String(), businessId)
 }
 
 func TestUpdateBusiness(t *testing.T) {

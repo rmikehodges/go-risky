@@ -21,12 +21,12 @@ func TestGetCapabilities(t *testing.T) {
 	capabilities, _ := dbManager.GetCapabilities(businessId)
 
 	for _, capability := range capabilities {
-		assert.IsEqual(capability.BusinessID.String(), businessId)
+		assert.Equal(t, capability.BusinessID.String(), businessId)
 	}
 }
 
 func TestGetCapability(t *testing.T) {
-	var capabilityId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
+	var capabilityId = "8f506766-41c4-447b-a0ee-f43fc7fd1487"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -36,7 +36,27 @@ func TestGetCapability(t *testing.T) {
 	dbManager := &database.DBManager{DBPool: pgPool}
 	capability, _ := dbManager.GetCapability(capabilityId)
 
-	assert.IsEqual(capability.ID.String(), capabilityId)
+	assert.Equal(t, capability.ID.String(), capabilityId)
+}
+
+func TestCreateCapability(t *testing.T) {
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	capabilityInput := database.CapabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	capabilityId, err := dbManager.CreateCapability(capabilityInput)
+
+	assert.Equal(t, err, nil)
+
+	capability, err := dbManager.GetCapability(capabilityId)
+
+	assert.Equal(t, err, nil)
+
+	assert.Equal(t, capability.ID.String(), capabilityId)
 }
 
 func TestDeleteCapability(t *testing.T) {
@@ -58,26 +78,6 @@ func TestDeleteCapability(t *testing.T) {
 
 	assert.NotEqual(t, err, nil)
 
-}
-
-func TestCreateCapability(t *testing.T) {
-	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		panic(err)
-	}
-	defer pgPool.Close()
-	dbManager := &database.DBManager{DBPool: pgPool}
-	capabilityInput := database.CapabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	capabilityId, err := dbManager.CreateCapability(capabilityInput)
-
-	assert.Equal(t, err, nil)
-
-	capability, err := dbManager.GetCapability(capabilityId)
-
-	assert.Equal(t, err, nil)
-
-	assert.Equal(t, capability.ID.String(), capabilityId)
 }
 
 func TestUpdateCapability(t *testing.T) {

@@ -15,7 +15,7 @@ type DetectionModel struct {
 	Name        string        `json:"name"`
 	Description zeronull.Text `json:"description"`
 	BusinessID  uuid.UUID     `json:"businessId" db:"business_id"`
-	ActionID    uuid.UUID     `json:"actionId" db:"action_id"`
+	ActionID    *uuid.UUID    `json:"actionId" db:"action_id"` //Note: Handling null relationships is hard here
 	Implemented bool          `json:"complexity"`
 	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
 }
@@ -29,7 +29,7 @@ func (m *DBManager) GetDetections(businessID string) (detectionOutput []Detectio
 
 	detectionOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[DetectionModel])
 	if err != nil {
-		log.Println(err)
+		log.Printf("GetDetections ErrorL %s", err)
 		return
 	}
 
@@ -45,7 +45,7 @@ func (m *DBManager) GetDetection(id string) (detectionOutput DetectionModel, err
 
 	detectionOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[DetectionModel])
 	if err != nil {
-		log.Println(err)
+		log.Printf("GetDetection Error: %s", err)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (m *DBManager) GetDetection(id string) (detectionOutput DetectionModel, err
 }
 
 func (m *DBManager) DeleteDetection(id string) (err error) {
-	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_detection(fn_detection_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_detection(fn_detection_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -76,7 +76,7 @@ func (m *DBManager) CreateDetection(detectionInput DetectionModel) (detectionId 
 		detectionInput.ActionID,
 		detectionInput.Implemented).Scan(&detectionId)
 	if err != nil {
-		log.Println(err)
+		log.Printf("CreateDetection Error: %s", err)
 		return
 	}
 
@@ -85,9 +85,9 @@ func (m *DBManager) CreateDetection(detectionInput DetectionModel) (detectionId 
 
 func (m *DBManager) UpdateDetection(detectionInput DetectionModel) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
+	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_detection(
-			fn_detection_id => $1
+			fn_detection_id => $1,
 			fn_name => $2, 
 			fn_description => $3, 
 			fn_business_id => $4, 

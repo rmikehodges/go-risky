@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var assetId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
+var assetId = "465804b9-e5aa-49e1-b844-61ba3d928b84"
 
 func TestGetAssets(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")

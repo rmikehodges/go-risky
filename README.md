@@ -44,6 +44,8 @@ Accountants go by revenue / employee hours. This means
 
 5/16 - Reworked the database middleware and started writing tests for the database functions.
 
+5/29 - I figured out that I need to do pointers to uuid.UUID instead of the value since I will need represent nil values coming from the database to deal with optional relationships. Otherwise the all 0 uuid value will be rejected. 
+
 
 ## TODO
 2. Write tests for database models and handlers (postgresql should probably be last)
