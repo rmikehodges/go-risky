@@ -46,7 +46,7 @@ AS $$
         IF fn_actions IS NOT NULL THEN
             FOREACH v_action IN ARRAY fn_actions
             LOOP
-                insert into risky_public.attack_chain_action(attack_chain_id, action_id, position)
+                insert into risky_public.attack_chain_step(attack_chain_id, action_id, position)
                 values(v_attack_chain.id,v_action.id, v_action.position);
             END LOOP;
         END IF;
@@ -68,13 +68,13 @@ AS $$
         WHERE id = fn_attack_chain_id
         RETURNING * INTO v_attack_chain;
 
-        DELETE FROM risky_public.attack_chain_action
+        DELETE FROM risky_public.attack_chain_step
         WHERE attack_chain_id = fn_attack_chain_id;
         
         IF fn_patch.actions IS NOT NULL THEN
             FOREACH v_action IN ARRAY fn_patch.actions
             LOOP
-                insert into risky_public.attack_chain_action(id, action_id, position)
+                insert into risky_public.attack_chain_step(id, action_id, position)
                 values(v_attack_chain.id,v_action.action_id, v_action.position);
             END LOOP;
         END IF;

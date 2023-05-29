@@ -122,7 +122,7 @@ CREATE TABLE risky_public.liability (
     id uuid primary key default gen_random_uuid(),
     name varchar not null,
     description varchar default '',
-    quantity DOUBLE PRECISION NOT NULL,
+    quantity DOUBLE PRECISION,
     cost DOUBLE precision,
     business_id uuid references risky_public.business(id) NOT NULL,
     mitigation_id uuid references risky_public.mitigation(id),

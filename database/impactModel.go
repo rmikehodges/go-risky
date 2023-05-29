@@ -7,18 +7,17 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
 
 type ImpactModel struct {
-	ID               uuid.UUID       `json:"id"`
-	Name             string          `json:"name"`
-	Description      zeronull.Text   `json:"description"`
-	BusinessID       uuid.UUID       `json:"businessId" db:"business_id"`
-	ThreatID         uuid.UUID       `json:"threatId" db:"threat_id"`
-	ExploitationCost zeronull.Float8 `json:"exploitationCost" db:"exploitation_cost"`
-	MitigationCost   zeronull.Float8 `json:"mitigationCost" db:"mitigation_cost"`
-	CreatedAt        time.Time       `json:"createdAt" db:"created_at"`
+	ID               uuid.UUID  `json:"id"`
+	Name             string     `json:"name"`
+	Description      *string    `json:"description"`
+	BusinessID       uuid.UUID  `json:"businessId" db:"business_id"`
+	ThreatID         *uuid.UUID `json:"threatId" db:"threat_id"`
+	ExploitationCost *float32   `json:"exploitationCost" db:"exploitation_cost"`
+	MitigationCost   *float32   `json:"mitigationCost" db:"mitigation_cost"`
+	CreatedAt        time.Time  `json:"createdAt" db:"created_at"`
 }
 
 func (m *DBManager) GetImpacts(businessID string) (impactOutput []ImpactModel, err error) {
@@ -31,7 +30,7 @@ func (m *DBManager) GetImpacts(businessID string) (impactOutput []ImpactModel, e
 
 	impactOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[ImpactModel])
 	if err != nil {
-		log.Println(err)
+		log.Printf("GetImpacts Error %s:", err)
 		return
 	}
 
@@ -48,7 +47,7 @@ func (m *DBManager) GetImpact(id string) (impactOutput ImpactModel, err error) {
 
 	impactOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[ImpactModel])
 	if err != nil {
-		log.Println(err)
+		log.Printf("GetImpact error: %s", err)
 		return
 	}
 
@@ -57,9 +56,9 @@ func (m *DBManager) GetImpact(id string) (impactOutput ImpactModel, err error) {
 
 func (m *DBManager) DeleteImpact(id string) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_impact(fn_impact_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_impact(fn_impact_id => $1)", id)
 	if err != nil {
-		log.Println(err)
+		log.Printf("DeleteImpact Error: %s", err)
 		return
 	}
 
@@ -79,7 +78,7 @@ func (m *DBManager) CreateImpact(impactInput ImpactModel) (impactId string, err 
 		impactInput.BusinessID,
 		impactInput.ThreatID).Scan(&impactId)
 	if err != nil {
-		log.Println(err)
+		log.Printf("CreateImpact error: %s", err)
 		return
 	}
 
@@ -88,9 +87,9 @@ func (m *DBManager) CreateImpact(impactInput ImpactModel) (impactId string, err 
 
 func (m *DBManager) UpdateImpact(impactInput ImpactModel) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
+	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_impact(
-			fn_impact_id => $1
+			fn_impact_id => $1,
 			fn_name => $2, 
 			fn_description => $3, 
 			fn_business_id => $4, 
@@ -101,7 +100,7 @@ func (m *DBManager) UpdateImpact(impactInput ImpactModel) (err error) {
 		impactInput.BusinessID,
 		impactInput.ThreatID)
 	if err != nil {
-		log.Println(err)
+		log.Printf("UpdateImpacts Error: %s", err)
 		return
 	}
 

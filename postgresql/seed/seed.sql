@@ -30,6 +30,9 @@ INSERT INTO risky_public.action (name, description, business_id) VALUES ('Use', 
 INSERT INTO risky_public.threat (name, description, business_id) VALUES ('Theft', 'The ability to steal data from a system', '23628819-59dd-45f3-8395-aceeca86bc9c');
 INSERT INTO risky_public.threat (name, description, business_id) VALUES ('Deletion', 'The ability to delete data from a system', '23628819-59dd-45f3-8395-aceeca86bc9c');
 
+INSERT INTO risky_public.impact (name, description, business_id) VALUES ('Impact of Theft of Data', 'The financial impact of the realization of the threat of the theft of data', '23628819-59dd-45f3-8395-aceeca86bc9c');
+INSERT INTO risky_public.impact (name, description, business_id) VALUES ('Impact of Deletion of Data', 'The financial impact of the deletion of data from the system', '23628819-59dd-45f3-8395-aceeca86bc9c');
+
 
 --Create seed data for asset
 INSERT INTO risky_public.asset (name, description, business_id) VALUES ('Customer Data', 'The data of the customer', '23628819-59dd-45f3-8395-aceeca86bc9c');
