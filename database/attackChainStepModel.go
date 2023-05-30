@@ -87,7 +87,7 @@ func (m *DBManager) CreateAttackChainStep(attackChainStepInput AttackChainStepMo
 func (m *DBManager) UpdateAttackChainStep(attackChainStepInput AttackChainStepModel) (err error) {
 
 	_, err = m.DBPool.Query(context.Background(),
-		`select risky_public.update_attack_chain_action(
+		`select risky_public.update_attack_chain_step(
 			fn_attack_chain_id => $1, 
 			fn_action_id => $2, 
 			fn_position => $3

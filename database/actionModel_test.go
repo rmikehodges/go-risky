@@ -10,8 +10,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var actionId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
-
 func TestGetActions(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
@@ -23,11 +21,12 @@ func TestGetActions(t *testing.T) {
 	actions, _ := dbManager.GetActions(businessId)
 
 	for _, action := range actions {
-		assert.IsEqual(action.BusinessID.String(), businessId)
+		assert.Equal(t, action.BusinessID.String(), businessId)
 	}
 }
 
 func TestGetAction(t *testing.T) {
+	var actionId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -37,7 +36,7 @@ func TestGetAction(t *testing.T) {
 	dbManager := &database.DBManager{DBPool: pgPool}
 	action, _ := dbManager.GetAction(actionId)
 
-	assert.IsEqual(action.ID.String(), actionId)
+	assert.Equal(t, action.ID.String(), actionId)
 }
 
 func TestCreateAction(t *testing.T) {

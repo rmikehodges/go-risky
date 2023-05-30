@@ -1,34 +1,39 @@
-CREATE OR REPLACE FUNCTION risky_public.liabilities(fn_business_id uuid) 
+DROP FUNCTION  risky_public.liabilities;
+CREATE FUNCTION risky_public.liabilities(fn_business_id uuid) 
 RETURNS SETOF risky_public.liability 
 AS $$
     SELECT * FROM risky_public.liability WHERE business_id = fn_business_id;
 $$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION risky_public.get_liability(fn_liability_id uuid) 
+DROP FUNCTION risky_public.get_liability;
+CREATE FUNCTION risky_public.get_liability(fn_liability_id uuid) 
 RETURNS risky_public.liability 
 AS $$
     SELECT * FROM risky_public.liability WHERE id = fn_liability_id;
 $$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION risky_public.get_liability_by_impact_id(fn_impact_id uuid) 
-RETURNS risky_public.liability 
-AS $$
-    SELECT * FROM risky_public.liability WHERE impact_id = fn_impact_id;
-$$ LANGUAGE sql;
+-- DROP FUNCTION risky_public.get_liability_by_impact_id;
+-- CREATE FUNCTION risky_public.get_liability_by_impact_id(fn_impact_id uuid) 
+-- RETURNS risky_public.liability 
+-- AS $$
+--     SELECT * FROM risky_public.liability WHERE impact_id = fn_impact_id;
+-- $$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION risky_public.delete_liability(fn_liability_id uuid) 
-RETURNS  
+DROP FUNCTION risky_public.delete_liability;
+CREATE FUNCTION risky_public.delete_liability(fn_liability_id uuid) 
+RETURNS void
 AS $$
     DELETE FROM risky_public.liability WHERE id = fn_liability_id ;
 $$ LANGUAGE sql VOLATILE;
 
-CREATE OR REPLACE FUNCTION risky_public.create_liability(fn_name varchar, fn_description varchar, fn_quantity DOUBLE PRECISION, fn_business_id uuid, fn_mitigation_id uuid, fn_resource_id uuid, fn_threat_id uuid, fn_impact_id uuid) 
+DROP FUNCTION risky_public.create_liability;
+CREATE FUNCTION risky_public.create_liability(fn_name varchar, fn_description varchar, fn_quantity DOUBLE PRECISION, fn_business_id uuid, fn_mitigation_id uuid, fn_resource_id uuid, fn_threat_id uuid, fn_impact_id uuid) 
 RETURNS uuid
 AS $$
     declare
-        v_resource_cost DOUBLE PRECISION
-        v_total_cost DOUBLE PRECISION
-        v_liability_id uuid
+        v_resource_cost DOUBLE PRECISION;
+        v_total_cost DOUBLE PRECISION;
+        v_liability_id uuid;
     begin
         IF fn_resource_id IS NOT NULL AND fn_quantity IS NOT NULL 
         THEN
@@ -44,13 +49,13 @@ AS $$
     end;
 $$ LANGUAGE plpgsql VOLATILE;
 
-
-CREATE OR REPLACE FUNCTION risky_public.update_liability(fn_liability_id uuid,fn_name varchar, fn_description varchar, fn_quantity DOUBLE PRECISION, fn_business_id uuid, fn_mitigation_id uuid, fn_resource_id uuid, fn_threat_id uuid, fn_impact_id uuid)
+DROP FUNCTION risky_public.update_liability;
+CREATE FUNCTION risky_public.update_liability(fn_liability_id uuid,fn_name varchar, fn_description varchar, fn_quantity DOUBLE PRECISION, fn_business_id uuid, fn_mitigation_id uuid, fn_resource_id uuid, fn_threat_id uuid, fn_impact_id uuid)
 RETURNS void 
 AS $$
     declare
-        v_resource_cost DOUBLE PRECISION
-        v_total_cost DOUBLE PRECISION
+        v_resource_cost DOUBLE PRECISION;
+        v_total_cost DOUBLE PRECISION;
     begin
         IF fn_resource_id IS NOT NULL AND fn_quantity IS NOT NULL 
         THEN

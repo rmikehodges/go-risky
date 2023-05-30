@@ -54,7 +54,7 @@ func (m *DBManager) GetThreat(id string) (threatOutput ThreatModel, err error) {
 
 func (m *DBManager) DeleteThreat(id string) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_threat(fn_threat_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_threat(fn_threat_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -63,16 +63,16 @@ func (m *DBManager) DeleteThreat(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateThreat(threatInput ThreatModel) (err error) {
+func (m *DBManager) CreateThreat(threatInput ThreatModel) (threatId string, err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
-		`select risky_public.create_threat(
+	err = m.DBPool.QueryRow(context.Background(),
+		`select * FROM risky_public.create_threat(
 			fn_name => $1, 
 			fn_description => $2, 
 			fn_business_id => $3)`,
 		threatInput.Name,
 		threatInput.Description,
-		threatInput.BusinessID)
+		threatInput.BusinessID).Scan(&threatId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -83,11 +83,11 @@ func (m *DBManager) CreateThreat(threatInput ThreatModel) (err error) {
 
 func (m *DBManager) UpdateThreat(threatInput ThreatModel) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
+	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_threat(
-			fn_threat_id => $1
+			fn_threat_id => $1,
 			fn_name => $2, 
-			fn_description => $3
+			fn_description => $3,
 			fn_business_id => $4)`,
 		threatInput.ID,
 		threatInput.Name,

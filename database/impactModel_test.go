@@ -21,7 +21,7 @@ func TestGetImpacts(t *testing.T) {
 	impacts, _ := dbManager.GetImpacts(businessId)
 
 	for _, impact := range impacts {
-		assert.IsEqual(impact.BusinessID.String(), businessId)
+		assert.Equal(t, impact.BusinessID.String(), businessId)
 	}
 }
 
@@ -36,7 +36,7 @@ func TestGetImpact(t *testing.T) {
 	dbManager := &database.DBManager{DBPool: pgPool}
 	impact, _ := dbManager.GetImpact(impactId)
 
-	assert.IsEqual(impact.ID.String(), impactId)
+	assert.Equal(t, impact.ID.String(), impactId)
 }
 
 func TestCreateImpact(t *testing.T) {

@@ -41,7 +41,7 @@ func (m *DBManager) GetResources(businessID string) (resourceOutput []ResourceMo
 
 func (m *DBManager) GetResource(id string) (resourceOutput ResourceModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, cost, unit, total, resource_type, business_id, create_at FROM risky_public.get_resource(fn_resource_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, cost, unit, total, resource_type, business_id, created_at FROM risky_public.get_resource(fn_resource_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -58,7 +58,7 @@ func (m *DBManager) GetResource(id string) (resourceOutput ResourceModel, err er
 
 func (m *DBManager) DeleteResource(id string) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_resource(fn_resource_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_resource(fn_resource_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -67,24 +67,26 @@ func (m *DBManager) DeleteResource(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateResource(resourceInput ResourceModel) (err error) {
+func (m *DBManager) CreateResource(resourceInput ResourceModel) (resourceId string, err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
-		`select risky_public.create_resource(
+	err = m.DBPool.QueryRow(context.Background(),
+		`select * FROM risky_public.create_resource(
 			fn_name => $1, 
 			fn_description => $2, 
-			fn_cost=> $3, 
+			fn_cost => $3, 
 			fn_unit => $4, 
-			fn_total => $5, 
-			business_id => $6)`,
+			fn_total => $5,
+			fn_resource_type => $6, 
+			fn_business_id => $7)`,
 		resourceInput.Name,
 		resourceInput.Description,
 		resourceInput.Cost,
 		resourceInput.Unit,
 		resourceInput.Total,
-		resourceInput.BusinessID)
+		resourceInput.ResourceType,
+		resourceInput.BusinessID).Scan(&resourceId)
 	if err != nil {
-		log.Println(err)
+		log.Printf("CreateResource error: %s", err)
 		return
 	}
 
@@ -93,21 +95,23 @@ func (m *DBManager) CreateResource(resourceInput ResourceModel) (err error) {
 
 func (m *DBManager) UpdateResource(resourceInput ResourceModel) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
+	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_resource(
-			fn_resource_id => $1
+			fn_resource_id => $1,
 			fn_name => $2, 
 			fn_description => $3, 
 			fn_cost=> $4, 
 			fn_unit => $5, 
 			fn_total => $6, 
-			business_id => $7)`,
+			fn_resource_type => $7,
+			fn_business_id => $8)`,
 		resourceInput.ID,
 		resourceInput.Name,
 		resourceInput.Description,
 		resourceInput.Cost,
 		resourceInput.Unit,
 		resourceInput.Total,
+		resourceInput.ResourceType,
 		resourceInput.BusinessID)
 	if err != nil {
 		log.Println(err)

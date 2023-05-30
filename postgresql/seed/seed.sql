@@ -20,8 +20,7 @@ INSERT INTO risky_public.capability (name, description, business_id) VALUES ('De
 
 -- Create Seed Data for Resource using common resources someone would have in technology such as an employee's time or the businesses' money
 INSERT INTO risky_public.resource (name, description, business_id) VALUES ('Employee Time', 'The time of an employee', '23628819-59dd-45f3-8395-aceeca86bc9c');
-INSERT INTO risky_public.resource (name, description, business_id) VALUES ('Business Money', 'The money of the business', '23628819-59dd-45f3-8395-aceeca86bc9c');
-
+INSERT INTO risky_public.resource (name, description, business_id, cost, unit, total, resource_type) VALUES ('Business Money', 'The money of the business', '23628819-59dd-45f3-8395-aceeca86bc9c', 1.0, 'dollar', 1000000, 'CASH');
 -- Create Seed Data for action using common actions a hacker would take attacking a system
 INSERT INTO risky_public.action (name, description, business_id) VALUES ('Exploit', 'The ability to exploit a vulnerability', '23628819-59dd-45f3-8395-aceeca86bc9c');
 INSERT INTO risky_public.action (name, description, business_id) VALUES ('Use', 'The ability to use a capability', '23628819-59dd-45f3-8395-aceeca86bc9c');

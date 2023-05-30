@@ -21,12 +21,12 @@ func TestGetLiabilities(t *testing.T) {
 	liabilities, _ := dbManager.GetLiabilities(businessId)
 
 	for _, liability := range liabilities {
-		assert.IsEqual(liability.BusinessID.String(), businessId)
+		assert.Equal(t, liability.BusinessID.String(), businessId)
 	}
 }
 
 func TestGetLiability(t *testing.T) {
-	var liabilityId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
+	var liabilityId = "67be251e-33d7-45ab-8577-a5f0e6f32cdf"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -36,7 +36,27 @@ func TestGetLiability(t *testing.T) {
 	dbManager := &database.DBManager{DBPool: pgPool}
 	liability, _ := dbManager.GetLiability(liabilityId)
 
-	assert.IsEqual(liability.ID.String(), liabilityId)
+	assert.Equal(t, liability.ID.String(), liabilityId)
+}
+
+func TestCreateLiability(t *testing.T) {
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	liabilityInput := database.LiabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	liabilityId, err := dbManager.CreateLiability(liabilityInput)
+
+	assert.Equal(t, err, nil)
+
+	liability, err := dbManager.GetLiability(liabilityId)
+
+	assert.Equal(t, err, nil)
+
+	assert.Equal(t, liability.ID.String(), liabilityId)
 }
 
 func TestDeleteLiability(t *testing.T) {
@@ -58,26 +78,6 @@ func TestDeleteLiability(t *testing.T) {
 
 	assert.NotEqual(t, err, nil)
 
-}
-
-func TestCreateLiability(t *testing.T) {
-	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		panic(err)
-	}
-	defer pgPool.Close()
-	dbManager := &database.DBManager{DBPool: pgPool}
-	liabilityInput := database.LiabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	liabilityId, err := dbManager.CreateLiability(liabilityInput)
-
-	assert.Equal(t, err, nil)
-
-	liability, err := dbManager.GetLiability(liabilityId)
-
-	assert.Equal(t, err, nil)
-
-	assert.Equal(t, liability.ID.String(), liabilityId)
 }
 
 func TestUpdateLiability(t *testing.T) {

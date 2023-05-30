@@ -23,7 +23,7 @@ func TestGetAttackChains(t *testing.T) {
 	attackChains, _ := dbManager.GetAttackChains(businessId)
 
 	for _, attackChain := range attackChains {
-		assert.IsEqual(attackChain.BusinessID.String(), businessId)
+		assert.Equal(t, attackChain.BusinessID.String(), businessId)
 	}
 }
 
@@ -37,7 +37,7 @@ func TestGetAttackChain(t *testing.T) {
 	dbManager := &database.DBManager{DBPool: pgPool}
 	attackChain, _ := dbManager.GetAttackChain(attackChainId)
 
-	assert.IsEqual(attackChain.ID.String(), attackChainId)
+	assert.Equal(t, attackChain.ID.String(), attackChainId)
 }
 
 func TestDeleteAttackChain(t *testing.T) {
