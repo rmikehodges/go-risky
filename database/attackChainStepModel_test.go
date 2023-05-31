@@ -1,102 +1,131 @@
 package database_test
 
-// func TestGetAttackChainSteps(t *testing.T) {
-// 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-// 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	defer pgPool.Close()
-// 	dbManager := &database.DBManager{DBPool: pgPool}
-// 	attackChainSteps, _ := dbManager.GetAttackChainSteps(businessId)
+import (
+	"context"
+	"go-risky/database"
+	"testing"
 
-// 	for _, attackChainStep := range attackChainSteps {
-// 		assert.IsEqual(attackChainStep.BusinessID.String(), businessId)
-// 	}
-// }
+	"github.com/go-playground/assert"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
 
-// func TestGetAttackChainStep(t *testing.T) {
-// 	var actionId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
-// 	var attackChainId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
-// 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-// 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	defer pgPool.Close()
-// 	dbManager := &database.DBManager{DBPool: pgPool}
-// 	attackChainStep, _ := dbManager.GetAttackChainStep(actionId, attackChainId)
+func TestGetAttackChainSteps(t *testing.T) {
+	var attackChainId = "20036fa3-45c6-47b2-a343-f88bcd4f5e07"
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	attackChainSteps, _ := dbManager.GetAttackChainSteps(attackChainId, businessId)
 
-// 	assert.IsEqual(attackChainStep.ActionID.String(), actionId)
-// 	assert.IsEqual(attackChainStep.AttackChainID.String(), attackChainId)
-// }
+	for _, attackChainStep := range attackChainSteps {
+		assert.Equal(t, attackChainStep.BusinessID.String(), businessId)
+	}
+}
 
-// func TestDeleteAttackChainStep(t *testing.T) {
-// 	var actionId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
-// 	var attackChainId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
-// 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-// 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	defer pgPool.Close()
-// 	dbManager := &database.DBManager{DBPool: pgPool}
-// 	attackChainStepInput := database.AttackChainStepModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-// 	createAttackChainStepOutput, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
+func TestGetAttackChainStep(t *testing.T) {
+	var actionId = "cdf5e362-da33-48aa-8d93-a4358b05789e"
+	var attackChainId = "20036fa3-45c6-47b2-a343-f88bcd4f5e07"
+	var assetId = uuid.MustParse("1c1c31ce-70aa-47aa-a0e3-fdeabcb4957c")
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	attackChainStepInput := database.AttackChainStepModel{ActionID: uuid.MustParse(actionId), AttackChainID: uuid.MustParse(attackChainId), AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	dbManager.CreateAttackChainStep(attackChainStepInput)
+	attackChainStep, _ := dbManager.GetAttackChainStep(actionId, attackChainId, assetId.String())
+	dbManager.DeleteAttackChainStep(actionId, attackChainId, assetId.String())
 
-// 	tempAttackChainStepId := createAttackChainStepOutput.ID.String()
+	assert.Equal(t, attackChainStep.ActionID.String(), actionId)
+	assert.Equal(t, attackChainStep.AttackChainID.String(), attackChainId)
 
-// 	err = dbManager.DeleteAttackChainStep(tempAttackChainStepId)
+}
 
-// 	assert.Equal(t, err, nil)
+func TestCreateAttackChainStep(t *testing.T) {
+	var actionId = uuid.MustParse("cdf5e362-da33-48aa-8d93-a4358b05789e")
+	var attackChainId = uuid.MustParse("20036fa3-45c6-47b2-a343-f88bcd4f5e07")
+	var assetId = uuid.MustParse("465804b9-e5aa-49e1-b844-61ba3d928b84")
 
-// 	_, err = dbManager.GetAttackChainStep(tempAttackChainStepId)
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	dbManager.DeleteAttackChainStep(actionId.String(), attackChainId.String(), assetId.String())
+	attackChainStepInput := database.AttackChainStepModel{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	attack_chain_step, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
-// 	assert.NotEqual(t, err, nil)
+	assert.Equal(t, err, nil)
 
-// }
+	attackChainStep, err := dbManager.GetAttackChainStep(attack_chain_step.ActionID.String(), attack_chain_step.AttackChainID.String(), attack_chain_step.AssetID.String())
 
-// func TestCreateAttackChainStep(t *testing.T) {
-// 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-// 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	defer pgPool.Close()
-// 	dbManager := &database.DBManager{DBPool: pgPool}
-// 	attackChainStepInput := database.AttackChainStepModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-// 	createAttackChainStepOutput, err := dbManager.CreateAttackChainStep(attackChainStepInput)
+	assert.Equal(t, err, nil)
 
-// 	assert.Equal(t, err, nil)
+	assert.Equal(t, attackChainStepInput.ActionID, attackChainStep.ActionID)
+	assert.Equal(t, attackChainStepInput.AttackChainID, attackChainStep.AttackChainID)
+}
 
-// 	attackChainStep, err := dbManager.GetAttackChainStep(createAttackChainStepOutput.ID.String())
+func TestDeleteAttackChainStep(t *testing.T) {
+	var actionId = uuid.MustParse("cdf5e362-da33-48aa-8d93-a4358b05789e")
+	var attackChainId = uuid.MustParse("20036fa3-45c6-47b2-a343-f88bcd4f5e07")
+	var assetId = uuid.MustParse("465804b9-e5aa-49e1-b844-61ba3d928b84")
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	attackChainStepInput := database.AttackChainStepModel{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	attack_chain_step, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
-// 	assert.Equal(t, err, nil)
+	err = dbManager.DeleteAttackChainStep(attack_chain_step.ActionID.String(), attack_chain_step.AttackChainID.String(), attack_chain_step.AssetID.String())
 
-// 	assert.Equal(t, attackChainStep, createAttackChainStepOutput)
-// }
+	assert.Equal(t, err, nil)
 
-// func TestUpdateAttackChainStep(t *testing.T) {
+	_, err = dbManager.GetAttackChainStep(attack_chain_step.ActionID.String(), attack_chain_step.AttackChainID.String(), attack_chain_step.AssetID.String())
 
-// 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-// 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	defer pgPool.Close()
-// 	dbManager := &database.DBManager{DBPool: pgPool}
-// 	createAttackChainStepInput := database.AttackChainStepModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-// 	createAttackChainStepOutput, _ := dbManager.CreateAttackChainStep(createAttackChainStepInput)
+	assert.NotEqual(t, err, nil)
 
-// 	createAttackChainStepOutput.Name = "test2"
+}
 
-// 	updateAttackChainStepInput := createAttackChainStepOutput
+func TestUpdateAttackChainStep(t *testing.T) {
+	var actionId = uuid.MustParse("cdf5e362-da33-48aa-8d93-a4358b05789e")
+	var attackChainId = uuid.MustParse("20036fa3-45c6-47b2-a343-f88bcd4f5e07")
+	var assetId = uuid.MustParse("465804b9-e5aa-49e1-b844-61ba3d928b84")
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	attackChainStepInput := database.AttackChainStepModel{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	dbManager.DeleteAttackChainStep(attackChainStepInput.ActionID.String(), attackChainStepInput.AttackChainID.String(), attackChainStepInput.AssetID.String())
 
-// 	err = dbManager.UpdateAttackChainStep(updateAttackChainStepInput)
+	attack_chain_step, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
-// 	assert.Equal(t, err, nil)
+	updateAttackChainStepInput := attackChainStepInput
+	updateAttackChainStepInput.AttackChainID = (attack_chain_step.AttackChainID)
+	updateAttackChainStepInput.ActionID = uuid.MustParse("73088b69-dbc2-4f93-bf4a-de292af69102")
+	updateAttackChainStepInput.Position = 1
 
-// 	updatedAttackChainStep, _ := dbManager.GetAttackChainStep(createAttackChainStepOutput.ID.String())
+	err = dbManager.UpdateAttackChainStep(updateAttackChainStepInput)
 
-// 	assert.Equal(t, updateAttackChainStepInput.Name, updatedAttackChainStep.Name)
-// }
+	assert.Equal(t, err, nil)
+
+	updatedAttackChainStep, _ := dbManager.GetAttackChainStep(updateAttackChainStepInput.ActionID.String(), updateAttackChainStepInput.AttackChainID.String(), updateAttackChainStepInput.AssetID.String())
+
+	assert.Equal(t, updateAttackChainStepInput.ActionID, updatedAttackChainStep.ActionID)
+	assert.Equal(t, updateAttackChainStepInput.AttackChainID, updatedAttackChainStep.AttackChainID)
+	assert.Equal(t, updateAttackChainStepInput.Position, updatedAttackChainStep.Position)
+	dbManager.DeleteAttackChainStep(updateAttackChainStepInput.ActionID.String(), updateAttackChainStepInput.AttackChainID.String(), updateAttackChainStepInput.AssetID.String())
+}

@@ -13,6 +13,7 @@ import (
 type AttackChainStepInput struct {
 	BusinessID    uuid.UUID `json:"businessId"`
 	ActionID      uuid.UUID `json:"actionId"`
+	AssetID       uuid.UUID `json:"assetId"`
 	AttackChainID uuid.UUID `json:"attackChainId"`
 	Postion       int       `json:"position"`
 	CreatedAt     time.Time `json:"createdAt"`
@@ -21,6 +22,7 @@ type AttackChainStepInput struct {
 type AttackChainStepOutput struct {
 	BusinessID    uuid.UUID `json:"businessId"`
 	ActionID      uuid.UUID `json:"actionId"`
+	AssetID       uuid.UUID `json:"assetId"`
 	AttackChainID uuid.UUID `json:"attackChainId"`
 	Position      int       `json:"position"`
 	CreatedAt     time.Time `json:"createdAt"`
