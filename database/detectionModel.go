@@ -15,13 +15,12 @@ type DetectionModel struct {
 	Name        string        `json:"name"`
 	Description zeronull.Text `json:"description"`
 	BusinessID  uuid.UUID     `json:"businessId" db:"business_id"`
-	ActionID    *uuid.UUID    `json:"actionId" db:"action_id"` //Note: Handling null relationships is hard here
 	Implemented bool          `json:"complexity"`
 	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
 }
 
 func (m *DBManager) GetDetections(businessID string) (detectionOutput []DetectionModel, err error) {
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented ,created_at FROM risky_public.detections(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, implemented ,created_at FROM risky_public.detections(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -37,7 +36,7 @@ func (m *DBManager) GetDetections(businessID string) (detectionOutput []Detectio
 }
 
 func (m *DBManager) GetDetection(id string) (detectionOutput DetectionModel, err error) {
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented ,created_at FROM risky_public.get_detection(fn_detection_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, implemented ,created_at FROM risky_public.get_detection(fn_detection_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -68,12 +67,10 @@ func (m *DBManager) CreateDetection(detectionInput DetectionModel) (detectionId 
 			fn_name => $1, 
 			fn_description => $2, 
 			fn_business_id => $3, 
-			fn_action_id => $4, 
-			fn_implemented => $5)`,
+			fn_implemented => $4)`,
 		detectionInput.Name,
 		detectionInput.Description,
 		detectionInput.BusinessID,
-		detectionInput.ActionID,
 		detectionInput.Implemented).Scan(&detectionId)
 	if err != nil {
 		log.Printf("CreateDetection Error: %s", err)
@@ -91,13 +88,11 @@ func (m *DBManager) UpdateDetection(detectionInput DetectionModel) (err error) {
 			fn_name => $2, 
 			fn_description => $3, 
 			fn_business_id => $4, 
-			fn_action_id => $5, 
 			fn_implemented => $6)`,
 		detectionInput.ID,
 		detectionInput.Name,
 		detectionInput.Description,
 		detectionInput.BusinessID,
-		detectionInput.ActionID,
 		detectionInput.Implemented)
 	if err != nil {
 		log.Println(err)

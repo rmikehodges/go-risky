@@ -15,13 +15,13 @@ type AttackChainModel struct {
 	Name        string        `json:"name"`
 	Description zeronull.Text `json:"description"`
 	BusinessID  uuid.UUID     `json:"businessId" db:"business_id"`
-	ThreatID    uuid.UUID     `json:"assetId" db:"asset_id"`
+	ThreatID    uuid.UUID     `json:"assetId" db:"threat_id"`
 	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
 }
 
 func (m *DBManager) GetAttackChains(businessID string) (attackChainOutput []AttackChainModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.attackChains(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, threat_id, created_at FROM risky_public.attackChain(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -38,7 +38,7 @@ func (m *DBManager) GetAttackChains(businessID string) (attackChainOutput []Atta
 
 func (m *DBManager) GetAttackChain(id string) (attackChainOutput AttackChainModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.get_attack_chain(fn_attack_chain_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, threat_id, business_id, created_at FROM risky_public.get_attack_chain(fn_attack_chain_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -55,7 +55,7 @@ func (m *DBManager) GetAttackChain(id string) (attackChainOutput AttackChainMode
 
 func (m *DBManager) DeleteAttackChain(id string) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(), "select risky_public.delete_attack_chain(fn_attack_chain_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_attack_chain(fn_attack_chain_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -86,9 +86,9 @@ func (m *DBManager) CreateAttackChain(attackChainInput AttackChainModel) (attack
 
 func (m *DBManager) UpdateAttackChain(attackChainInput AttackChainModel) (err error) {
 
-	_, err = m.DBPool.Query(context.Background(),
+	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_attack_chain(
-			fn_attack_chain_id => $1
+			fn_attack_chain_id => $1,
 			fn_name => $2, 
 			fn_description => $3, 
 			fn_business_id => $4, 

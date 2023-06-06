@@ -40,7 +40,6 @@ func TestGetMitigation(t *testing.T) {
 }
 
 func TestCreateMitigation(t *testing.T) {
-	var actionId = uuid.MustParse("535705bc-fddb-4e2a-8c1c-196755ce16b6")
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -48,7 +47,7 @@ func TestCreateMitigation(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	mitigationInput := database.MitigationModel{Name: "test", BusinessID: uuid.MustParse(businessId), ActionID: &actionId}
+	mitigationInput := database.MitigationModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	mitigationId, err := dbManager.CreateMitigation(mitigationInput)
 
 	assert.Equal(t, err, nil)
@@ -82,7 +81,6 @@ func TestDeleteMitigation(t *testing.T) {
 }
 
 func TestUpdateMitigation(t *testing.T) {
-	var actionId = uuid.MustParse("535705bc-fddb-4e2a-8c1c-196755ce16b6")
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -90,7 +88,7 @@ func TestUpdateMitigation(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createMitigationInput := database.MitigationModel{Name: "test", BusinessID: uuid.MustParse(businessId), ActionID: &actionId}
+	createMitigationInput := database.MitigationModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	mitigationId, _ := dbManager.CreateMitigation(createMitigationInput)
 
 	updateMitigationInput := createMitigationInput

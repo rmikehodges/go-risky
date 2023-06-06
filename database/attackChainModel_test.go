@@ -10,8 +10,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var attackChainId = "535705bc-fddb-4e2a-8c1c-196755ce16b6"
-
 func TestGetAttackChains(t *testing.T) {
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
@@ -28,6 +26,7 @@ func TestGetAttackChains(t *testing.T) {
 }
 
 func TestGetAttackChain(t *testing.T) {
+	var attackChainId = "20036fa3-45c6-47b2-a343-f88bcd4f5e07"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -40,7 +39,8 @@ func TestGetAttackChain(t *testing.T) {
 	assert.Equal(t, attackChain.ID.String(), attackChainId)
 }
 
-func TestDeleteAttackChain(t *testing.T) {
+func TestCreateAttackChain(t *testing.T) {
+	var threatId = "f56d66b6-2543-435b-84da-51cdab340a01"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -48,7 +48,28 @@ func TestDeleteAttackChain(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainInput := database.AttackChainModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	attackChainInput := database.AttackChainModel{Name: "test", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
+	attackChainId, err := dbManager.CreateAttackChain(attackChainInput)
+
+	assert.Equal(t, err, nil)
+
+	attackChain, err := dbManager.GetAttackChain(attackChainId)
+
+	assert.Equal(t, err, nil)
+
+	assert.Equal(t, attackChain.ID.String(), attackChainId)
+}
+
+func TestDeleteAttackChain(t *testing.T) {
+	var threatId = "f56d66b6-2543-435b-84da-51cdab340a01"
+	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
+	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer pgPool.Close()
+	dbManager := &database.DBManager{DBPool: pgPool}
+	attackChainInput := database.AttackChainModel{Name: "test", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
 	attackChainId, _ := dbManager.CreateAttackChain(attackChainInput)
 
 	err = dbManager.DeleteAttackChain(attackChainId)
@@ -61,28 +82,8 @@ func TestDeleteAttackChain(t *testing.T) {
 
 }
 
-func TestCreateAttackChain(t *testing.T) {
-	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
-	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		panic(err)
-	}
-	defer pgPool.Close()
-	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainInput := database.AttackChainModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
-	attackChainId, err := dbManager.CreateAttackChain(attackChainInput)
-
-	assert.Equal(t, err, nil)
-
-	attackChain, err := dbManager.GetAttackChain(attackChainId)
-
-	assert.Equal(t, err, nil)
-
-	assert.Equal(t, attackChain.ID.String(), attackChainId)
-}
-
 func TestUpdateAttackChain(t *testing.T) {
-
+	var threatId = "f56d66b6-2543-435b-84da-51cdab340a01"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -90,18 +91,18 @@ func TestUpdateAttackChain(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createAttackChainInput := database.AttackChainModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	createAttackChainInput := database.AttackChainModel{Name: "test", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
+
 	attackChainId, _ := dbManager.CreateAttackChain(createAttackChainInput)
 
-	updateAttackChainInput := createAttackChainInput
-	updateAttackChainInput.Name = "test2"
-	updateAttackChainInput.ID = uuid.MustParse(attackChainId)
+	updateAttackChainInput := database.AttackChainModel{ID: uuid.MustParse(attackChainId), Name: "test2", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
 
 	err = dbManager.UpdateAttackChain(updateAttackChainInput)
 
 	assert.Equal(t, err, nil)
 
-	updatedAttackChain, _ := dbManager.GetAttackChain(attackChainId)
+	updatedAttackChain, err := dbManager.GetAttackChain(updateAttackChainInput.ID.String())
 
+	assert.Equal(t, err, nil)
 	assert.Equal(t, updateAttackChainInput.Name, updatedAttackChain.Name)
 }

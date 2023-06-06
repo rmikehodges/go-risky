@@ -66,6 +66,7 @@ func (m *DBManager) DeleteImpact(id string) (err error) {
 }
 
 func (m *DBManager) CreateImpact(impactInput ImpactModel) (impactId string, err error) {
+	//TODO: Add impact exploitation and mitigation cost
 
 	err = m.DBPool.QueryRow(context.Background(),
 		`select risky_public.create_impact(
@@ -100,7 +101,7 @@ func (m *DBManager) UpdateImpact(impactInput ImpactModel) (err error) {
 		impactInput.BusinessID,
 		impactInput.ThreatID)
 	if err != nil {
-		log.Printf("UpdateImpacts Error: %s", err)
+		log.Printf("UpdateImpact Error: %s", err)
 		return
 	}
 

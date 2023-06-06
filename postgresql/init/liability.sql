@@ -5,6 +5,13 @@ AS $$
     SELECT * FROM risky_public.liability WHERE business_id = fn_business_id;
 $$ LANGUAGE sql;
 
+DROP FUNCTION  risky_public.liabilities_by_threat_id;
+CREATE FUNCTION risky_public.liabilities(fn_business_id uuid, fn_threat_id uuid) 
+RETURNS SETOF risky_public.liability 
+AS $$
+   
+$$ LANGUAGE sql;
+
 DROP FUNCTION risky_public.get_liability;
 CREATE FUNCTION risky_public.get_liability(fn_liability_id uuid) 
 RETURNS risky_public.liability 

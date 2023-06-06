@@ -72,7 +72,6 @@ CREATE TABLE risky_public.mitigation (
     name varchar not null,
     description varchar default '',
     business_id uuid references risky_public.business(id) NOT NULL,
-    action_id uuid references risky_public.action(id),
     implemented boolean default FALSE,
     created_at       timestamp default now()
 );
@@ -82,7 +81,6 @@ CREATE TABLE risky_public.detection (
     name varchar not null,
     description varchar default '',
     business_id uuid references risky_public.business(id) NOT NULL,
-    action_id uuid references risky_public.action(id),
     implemented boolean default FALSE,
     created_at       timestamp default now()
 );
@@ -133,11 +131,13 @@ CREATE TABLE risky_public.liability (
 );
 
 CREATE TABLE risky_public.attack_chain_step (
+    id uuid primary key default gen_random_uuid(),
     attack_chain_id uuid constraint attack_chain_mapping_attack_chain_id_fkey references risky_public.attack_chain (id) NOT NULL,
     action_id uuid  constraint attack_chain_mapping_action_id_fkey references risky_public.action (id) NOT NULL,
     asset_id uuid  constraint attack_chain_mapping_asset_id_fkey references risky_public.asset (id),
     business_id uuid references risky_public.business(id) NOT NULL,
-    primary key (attack_chain_id, action_id, asset_id),
+    detection_id uuid references risky_public.detection(id),
+    mitigation_id uuid references risky_public.mitigation(id),
     position INT NOT NULL,
     created_at       timestamp default now()
 );

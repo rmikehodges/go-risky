@@ -15,14 +15,13 @@ type MitigationModel struct {
 	Name        string        `json:"name"`
 	Description zeronull.Text `json:"description"`
 	BusinessID  uuid.UUID     `json:"businessId" db:"business_id"`
-	ActionID    *uuid.UUID    `json:"actionId" db:"action_id"`
 	Implemented bool          `json:"implemented"`
 	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
 }
 
 func (m *DBManager) GetMitigations(businessID string) (mitigationOutput []MitigationModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented, created_at FROM risky_public.mitigations(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, implemented, created_at FROM risky_public.mitigations(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -39,7 +38,7 @@ func (m *DBManager) GetMitigations(businessID string) (mitigationOutput []Mitiga
 
 func (m *DBManager) GetMitigation(id string) (mitigationOutput MitigationModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, action_id, implemented, created_at FROM risky_public.get_mitigation(fn_mitigation_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, implemented, created_at FROM risky_public.get_mitigation(fn_mitigation_id => $1)", id)
 	if err != nil {
 		log.Printf("GetMitigation database error: %s", err)
 		return
@@ -72,12 +71,10 @@ func (m *DBManager) CreateMitigation(mitigationInput MitigationModel) (mitigatio
 			fn_name => $1, 
 			fn_description => $2, 
 			fn_business_id => $3, 
-			fn_action_id => $4, 
-			fn_implemented => $5)`,
+			fn_implemented => $4)`,
 		mitigationInput.Name,
 		mitigationInput.Description,
 		mitigationInput.BusinessID,
-		mitigationInput.ActionID,
 		mitigationInput.Implemented).Scan(&mitigationId)
 	if err != nil {
 		log.Printf("CreateMitigation error: %s", err)
@@ -95,13 +92,11 @@ func (m *DBManager) UpdateMitigation(mitigationInput MitigationModel) (err error
 			fn_name => $2, 
 			fn_description => $3, 
 			fn_business_id => $4, 
-			fn_action_id => $5, 
-			fn_implemented => $6)`,
+			fn_implemented => $5)`,
 		mitigationInput.ID,
 		mitigationInput.Name,
 		mitigationInput.Description,
 		mitigationInput.BusinessID,
-		mitigationInput.ActionID,
 		mitigationInput.Implemented)
 	if err != nil {
 		log.Printf("UpdateMitigation error: %s", err)
