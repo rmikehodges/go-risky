@@ -188,14 +188,14 @@ func createAttackChain(context *gin.Context) {
 		return
 	}
 
-	err = db.CreateAttackChain(attackChainModel)
+	attackChainId, err := db.CreateAttackChain(attackChainModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, "Success")
+	context.IndentedJSON(http.StatusOK, attackChainId)
 }
 
 func updateAttackChain(context *gin.Context) {

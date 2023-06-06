@@ -188,14 +188,14 @@ func createResource(context *gin.Context) {
 		return
 	}
 
-	err = db.CreateResource(resourceModel)
+	resourceId, err := db.CreateResource(resourceModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, "Success")
+	context.IndentedJSON(http.StatusOK, resourceId)
 }
 
 func updateResource(context *gin.Context) {

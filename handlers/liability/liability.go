@@ -18,10 +18,11 @@ type LiabilityInput struct {
 	Quantity     float32       `json:"quantity"`
 	Cost         float32       `json:"cost"`
 	BusinessID   uuid.UUID     `json:"businessId"`
-	MitigationID uuid.UUID     `json:"mitigationId"`
-	ResourceID   uuid.UUID     `json:"resourceId"`
-	ThreatID     uuid.UUID     `json:"threatId"`
-	ImpactID     uuid.UUID     `json:"impactId"`
+	DetectionID  *uuid.UUID    `json:"detectionId"`
+	MitigationID *uuid.UUID    `json:"mitigationId"`
+	ResourceID   *uuid.UUID    `json:"resourceId"`
+	ThreatID     *uuid.UUID    `json:"threatId"`
+	ImpactID     *uuid.UUID    `json:"impactId"`
 	CreatedAt    time.Time     `json:"createdAt"`
 }
 
@@ -32,10 +33,11 @@ type LiabilityOutput struct {
 	Quantity     float32       `json:"quantity"`
 	Cost         float32       `json:"cost"`
 	BusinessID   uuid.UUID     `json:"businessId"`
-	MitigationID uuid.UUID     `json:"mitigationId"`
-	ResourceID   uuid.UUID     `json:"resourceId"`
-	ThreatID     uuid.UUID     `json:"threatId"`
-	ImpactID     uuid.UUID     `json:"impactId"`
+	DetectionID  *uuid.UUID    `json:"detectionId"`
+	MitigationID *uuid.UUID    `json:"mitigationId"`
+	ResourceID   *uuid.UUID    `json:"resourceId"`
+	ThreatID     *uuid.UUID    `json:"threatId"`
+	ImpactID     *uuid.UUID    `json:"impactId"`
 	CreatedAt    time.Time     `json:"createdAt"`
 }
 
@@ -232,14 +234,14 @@ func createLiability(context *gin.Context) {
 		return
 	}
 
-	err = db.CreateLiability(liabilityModel)
+	liabilityId, err := db.CreateLiability(liabilityModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, "Success")
+	context.IndentedJSON(http.StatusOK, liabilityId)
 }
 
 func updateLiability(context *gin.Context) {

@@ -176,10 +176,10 @@ func createAsset(context *gin.Context) {
 		return
 	}
 
-	err = db.CreateAsset(assetModel)
+	assetId, err := db.CreateAsset(assetModel)
 	if err != nil {
 		log.Println(err)
-		context.IndentedJSON(http.StatusNotFound, "Not Found")
+		context.IndentedJSON(http.StatusNotFound, assetId)
 		return
 	}
 

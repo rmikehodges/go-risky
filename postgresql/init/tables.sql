@@ -123,6 +123,7 @@ CREATE TABLE risky_public.liability (
     quantity DOUBLE PRECISION,
     cost DOUBLE precision,
     business_id uuid references risky_public.business(id) NOT NULL,
+    detection_id uuid references risky_public.detection(id),
     mitigation_id uuid references risky_public.mitigation(id),
     resource_id uuid references risky_public.resource(id),
     threat_id uuid references risky_public.threat(id),

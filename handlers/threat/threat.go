@@ -167,14 +167,14 @@ func createThreat(context *gin.Context) {
 		return
 	}
 
-	err = db.CreateThreat(threatModel)
+	threatId, err := db.CreateThreat(threatModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, "Success")
+	context.IndentedJSON(http.StatusOK, threatId)
 }
 
 func updateThreat(context *gin.Context) {

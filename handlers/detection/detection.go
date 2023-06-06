@@ -18,7 +18,6 @@ type DetectionInput struct { //This is the input type that will be received from
 	Name        string        `json:"name"`
 	Description zeronull.Text `json:"description"`
 	BusinessID  uuid.UUID     `json:"businessId"`
-	ActionID    uuid.UUID     `json:"actionId" db:"action_id"`
 	Implemented bool          `json:"complexity"`
 	CreatedAt   time.Time     `json:"createdAt"`
 }
@@ -28,7 +27,6 @@ type DetectionOutput struct { //This is the output type that will be returned to
 	Name        string        `json:"name"`
 	Description zeronull.Text `json:"description"`
 	BusinessID  uuid.UUID     `json:"businessId"`
-	ActionID    uuid.UUID     `json:"actionId" db:"action_id"`
 	Implemented bool          `json:"complexity"`
 	CreatedAt   time.Time     `json:"createdAt"`
 }
@@ -41,7 +39,6 @@ func inputToModel(detectionInput DetectionInput) (detectionModel database.Detect
 	detectionModel.Name = detectionInput.Name
 	detectionModel.Description = detectionInput.Description
 	detectionModel.BusinessID = detectionInput.BusinessID
-	detectionModel.ActionID = detectionInput.ActionID
 	detectionModel.Implemented = detectionInput.Implemented
 	detectionModel.CreatedAt = detectionInput.CreatedAt
 	return
@@ -53,7 +50,6 @@ func modelToOutput(detectionModel database.DetectionModel) (detectionOutput Dete
 	detectionOutput.Name = detectionModel.Name
 	detectionOutput.Description = detectionModel.Description
 	detectionOutput.BusinessID = detectionModel.BusinessID
-	detectionOutput.ActionID = detectionModel.ActionID
 	detectionOutput.Implemented = detectionModel.Implemented
 	detectionOutput.CreatedAt = detectionModel.CreatedAt
 	return
@@ -188,14 +184,14 @@ func createDetection(context *gin.Context) {
 		return
 	}
 
-	err = db.CreateDetection(detectionModel)
+	detectionId, err := db.CreateDetection(detectionModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, "Success")
+	context.IndentedJSON(http.StatusOK, detectionId)
 }
 
 func updateDetection(context *gin.Context) {

@@ -64,7 +64,8 @@ func modelsToOutput(attackChainStepModels []database.AttackChainStepModel) (atta
 func getAttackChainSteps(context *gin.Context) {
 	db := context.MustGet("DBManager").(*database.DBManager)
 	businessID := context.Query("businessId")
-	attackChainStepModels, err := db.GetAttackChainSteps(businessID)
+	attackChainId := context.Query("attackChainId")
+	attackChainStepModels, err := db.GetAttackChainSteps(businessID, attackChainId)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -144,7 +145,7 @@ func createAttackChainStep(context *gin.Context) {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	err = db.CreateAttackChainStep(attackChainStepModel)
+	attackChainStepModel, err = db.CreateAttackChainStep(attackChainStepModel)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return

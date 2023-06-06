@@ -218,7 +218,7 @@ func updateAction(context *gin.Context) {
 		return
 	}
 
-	_, err = db.UpdateAction(actionModel)
+	err = db.UpdateAction(actionModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

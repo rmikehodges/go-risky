@@ -48,7 +48,7 @@ func TestCreateImpact(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	impactInput := database.ImpactModel{Name: "test", BusinessID: uuid.MustParse(businessId), ThreatID: &threatId}
+	impactInput := database.ImpactModel{Name: "test", BusinessID: uuid.MustParse(businessId), ThreatID: threatId}
 	impactId, err := dbManager.CreateImpact(impactInput)
 
 	assert.Equal(t, err, nil)
@@ -91,7 +91,7 @@ func TestUpdateImpact(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createImpactInput := database.ImpactModel{Name: "test", BusinessID: uuid.MustParse(businessId), ThreatID: &threatId}
+	createImpactInput := database.ImpactModel{Name: "test", BusinessID: uuid.MustParse(businessId), ThreatID: threatId}
 	impactId, _ := dbManager.CreateImpact(createImpactInput)
 
 	updateImpactInput := createImpactInput

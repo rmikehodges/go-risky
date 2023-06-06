@@ -18,9 +18,10 @@ type LiabilityModel struct {
 	Cost         float32       `json:"cost"`
 	BusinessID   uuid.UUID     `json:"businessId" db:"business_id"`
 	MitigationID *uuid.UUID    `json:"mitigationId" db:"mitigation_id"`
+	DetectionID  *uuid.UUID    `json:"detectionId" db:"detection_id"`
 	ResourceID   *uuid.UUID    `json:"resourceId" db:"resource_id"`
-	ThreatID     *uuid.UUID    `json:"threatId" db:"threat_id"`
 	ImpactID     *uuid.UUID    `json:"impactId" db:"impact_id"`
+	ThreatID     *uuid.UUID    `json:"threatId" db:"threat_id"`
 	CreatedAt    time.Time     `json:"createdAt" db:"created_at"`
 }
 
@@ -85,16 +86,18 @@ func (m *DBManager) CreateLiability(liabilityInput LiabilityModel) (liabilityId 
 			fn_business_id => $4, 
 			fn_mitigation_id => $5, 
 			fn_resource_id => $6, 
-			fn_threat_id => $7, 
-			fn_impact_id => $8)`,
+			fn_detection_id => $7, 
+			fn_resource_id => $8, 
+			fn_detection_id => $9)`,
 		liabilityInput.Name,
 		liabilityInput.Description,
 		liabilityInput.Quantity,
 		liabilityInput.BusinessID,
 		liabilityInput.MitigationID,
 		liabilityInput.ResourceID,
-		liabilityInput.ThreatID,
-		liabilityInput.ImpactID).Scan(&liabilityId)
+		liabilityInput.DetectionID,
+		liabilityInput.ImpactID,
+		liabilityInput.ThreatID).Scan(&liabilityId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -125,8 +128,9 @@ func (m *DBManager) UpdateLiability(liabilityInput LiabilityModel) (err error) {
 			fn_business_id => $5, 
 			fn_mitigation_id => $6, 
 			fn_resource_id => $7, 
-			fn_threat_id => $8, 
-			fn_impact_id => $9)`,
+			fn_detection_id => $8, 
+			fn_impact_id => $9, 
+			fn_threat_id => $10)`,
 		liabilityInput.ID,
 		liabilityInput.Name,
 		liabilityInput.Description,
@@ -134,8 +138,9 @@ func (m *DBManager) UpdateLiability(liabilityInput LiabilityModel) (err error) {
 		liabilityInput.BusinessID,
 		liabilityInput.MitigationID,
 		liabilityInput.ResourceID,
-		liabilityInput.ThreatID,
-		liabilityInput.ImpactID)
+		liabilityInput.DetectionID,
+		liabilityInput.ImpactID,
+		liabilityInput.ThreatID)
 	if err != nil {
 		log.Println(err)
 		return

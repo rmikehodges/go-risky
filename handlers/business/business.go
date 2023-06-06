@@ -126,7 +126,7 @@ func deleteBusiness(context *gin.Context) {
 		return
 	}
 
-	businessOutput, err := db.DeleteBusiness(businessId.String())
+	err = db.DeleteBusiness(businessId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -134,7 +134,7 @@ func deleteBusiness(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, businessOutput)
+	context.JSON(http.StatusOK, businessId.String()+" deleted")
 }
 
 func createBusiness(context *gin.Context) {
@@ -184,14 +184,14 @@ func updateBusiness(context *gin.Context) {
 		return
 	}
 
-	businessOutput, err := db.UpdateBusiness(businessModel)
+	err = db.UpdateBusiness(businessModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, businessOutput)
+	context.IndentedJSON(http.StatusOK, businessModel.ID.String()+" updated")
 }
 
 func BusinessRoutes(router *gin.Engine) {

@@ -26,7 +26,6 @@ type MitigationOutput struct {
 	Name        string        `json:"name"`
 	Description zeronull.Text `json:"description"`
 	BusinessID  uuid.UUID     `json:"businessId"`
-	ActionID    uuid.UUID     `json:"actionId"`
 	Implemented bool          `json:"implemented"`
 	CreatedAt   time.Time     `json:"createdAt"`
 }
@@ -36,7 +35,6 @@ func inputToModel(mitigationInput MitigationInput) (mitigationModel database.Mit
 	mitigationModel.Name = mitigationInput.Name
 	mitigationModel.Description = mitigationInput.Description
 	mitigationModel.BusinessID = mitigationInput.BusinessID
-	mitigationModel.ActionID = mitigationInput.ActionID
 	mitigationModel.Implemented = mitigationInput.Implemented
 	mitigationModel.CreatedAt = mitigationInput.CreatedAt
 	return
@@ -47,7 +45,6 @@ func modelToOutput(mitigationModel database.MitigationModel) (mitigationOutput M
 	mitigationOutput.Name = mitigationModel.Name
 	mitigationOutput.Description = mitigationModel.Description
 	mitigationOutput.BusinessID = mitigationModel.BusinessID
-	mitigationOutput.ActionID = mitigationModel.ActionID
 	mitigationOutput.Implemented = mitigationModel.Implemented
 	mitigationOutput.CreatedAt = mitigationModel.CreatedAt
 	return
@@ -182,14 +179,14 @@ func createMitigation(context *gin.Context) {
 		return
 	}
 
-	err = db.CreateMitigation(mitigationModel)
+	mitigationId, err := db.CreateMitigation(mitigationModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, "Success")
+	context.IndentedJSON(http.StatusOK, mitigationId)
 }
 
 func updateMitigation(context *gin.Context) {

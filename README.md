@@ -46,20 +46,20 @@ Accountants go by revenue / employee hours. This means
 
 5/29 - I figured out that I need to do pointers to uuid.UUID instead of the value since I will need represent nil values coming from the database to deal with optional relationships. Otherwise the all 0 uuid value will be rejected. 
 
-5/30 - finished unit tests for model with the exception of updateImpact and updateAttackChainStep, the step has the issue of the combined primary key that I need to figure out.
+5/30 - finished unit tests for model with the exception of updateImpact and updateAttackChainStep, the step has the issue of the combined primary key that I need to figure out. I solved this by adding in a unique primary key and also refining the logic in the impact calculation.
+
+06/05 - finished all tests for model and updated the handler
 
 
 ## TODO
 2. Write tests for database models and handlers (postgresql should probably be last)
 - Wrote example tests for actions on the model and determined that I need to return more data for create and update in order to test them effectively (or do I? Since I can just get them after create and update)
-3. Think about struct creation for input structs and database structs
 3. Create Seed Script for DB
 
 
 ## TODO Testing
-1. pgTap for Postgresql Functions
 2. Handlers
-3. Database functions
+4. pgTap testing of more complex database logic (calculate_impact etc.)
 
 ## pgTAP Installation
 1. make PERL=PATH to Perl

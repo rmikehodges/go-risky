@@ -34,7 +34,7 @@ AS $$
 $$ LANGUAGE sql VOLATILE;
 
 DROP FUNCTION risky_public.create_liability;
-CREATE FUNCTION risky_public.create_liability(fn_name varchar, fn_description varchar, fn_quantity DOUBLE PRECISION, fn_business_id uuid, fn_mitigation_id uuid, fn_resource_id uuid, fn_threat_id uuid, fn_impact_id uuid) 
+CREATE FUNCTION risky_public.create_liability(fn_name varchar, fn_description varchar, fn_quantity DOUBLE PRECISION, fn_business_id uuid, fn_mitigation_id uuid, fn_resource_id uuid, fn_detection_id uuid, fn_impact_id uuid, fn_threat_id uuid) 
 RETURNS uuid
 AS $$
     declare
@@ -50,14 +50,14 @@ AS $$
             v_total_cost := 0.0;
         END IF;
 
-        INSERT INTO risky_public.liability(name, description, quantity, cost, business_id, mitigation_id, resource_id, threat_id, impact_id) values(fn_name, fn_description, fn_quantity, v_total_cost, fn_business_id, fn_mitigation_id, fn_resource_id, fn_threat_id, fn_impact_id) RETURNING id INTO v_liability_id ;
+        INSERT INTO risky_public.liability(name, description, quantity, cost, business_id, mitigation_id, detection_id, resource_id, impact_id, threat_id) values(fn_name, fn_description, fn_quantity, v_total_cost, fn_business_id, fn_mitigation_id, fn_resource_id, fn_detection_id, fn_impact_id, fn_threat_id) RETURNING id INTO v_liability_id ;
     
         RETURN v_liability_id;
     end;
 $$ LANGUAGE plpgsql VOLATILE;
 
 DROP FUNCTION risky_public.update_liability;
-CREATE FUNCTION risky_public.update_liability(fn_liability_id uuid,fn_name varchar, fn_description varchar, fn_quantity DOUBLE PRECISION, fn_business_id uuid, fn_mitigation_id uuid, fn_resource_id uuid, fn_threat_id uuid, fn_impact_id uuid)
+CREATE FUNCTION risky_public.update_liability(fn_liability_id uuid,fn_name varchar, fn_description varchar, fn_quantity DOUBLE PRECISION, fn_business_id uuid, fn_mitigation_id uuid, fn_resource_id uuid, fn_detection_id uuid, fn_impact_id uuid, fn_threat_id uuid)
 RETURNS void 
 AS $$
     declare
@@ -71,7 +71,7 @@ AS $$
         ELSE
             v_total_cost := 0.0;
         END IF;
-        UPDATE risky_public.liability SET name = fn_name, description = fn_description, quantity = fn_quantity, cost = v_total_cost, business_id = fn_business_id, mitigation_id = fn_mitigation_id, resource_id = fn_resource_id, threat_id = fn_threat_id, impact_id = fn_impact_id WHERE id = fn_liability_id;
+        UPDATE risky_public.liability SET name = fn_name, description = fn_description, quantity = fn_quantity, cost = v_total_cost, business_id = fn_business_id, mitigation_id = fn_mitigation_id, resource_id = fn_resource_id, detection_id = fn_detection_id, impact_id = fn_impact_id, threat_id = fn_threat_id WHERE id = fn_liability_id;
         RETURN;
     end;
 $$ LANGUAGE plpgsql VOLATILE;

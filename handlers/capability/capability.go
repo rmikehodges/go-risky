@@ -171,14 +171,14 @@ func createCapability(context *gin.Context) {
 		return
 	}
 
-	err = db.CreateCapability(capabilityModel)
+	capabilityId, err := db.CreateCapability(capabilityModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, "Success")
+	context.IndentedJSON(http.StatusOK, capabilityId)
 }
 
 func updateCapability(context *gin.Context) {

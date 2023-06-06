@@ -8,29 +8,28 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
 
 type ImpactInput struct {
-	ID               uuid.UUID       `json:"id"`
-	Name             string          `json:"name"`
-	Description      zeronull.Text   `json:"description"`
-	BusinessID       uuid.UUID       `json:"businessId"`
-	ThreatID         uuid.UUID       `json:"threatId"`
-	ExploitationCost zeronull.Float8 `json:"exploitationCost"`
-	MitigationCost   zeronull.Float8 `json:"mitigationCost"`
-	CreatedAt        time.Time       `json:"createdAt"`
+	ID               uuid.UUID `json:"id"`
+	Name             string    `json:"name"`
+	Description      *string   `json:"description"`
+	BusinessID       uuid.UUID `json:"businessId"`
+	ThreatID         uuid.UUID `json:"threatId"`
+	ExploitationCost *float32  `json:"exploitationCost"`
+	MitigationCost   *float32  `json:"mitigationCost"`
+	CreatedAt        time.Time `json:"createdAt"`
 }
 
 type ImpactOutput struct {
-	ID               uuid.UUID       `json:"id"`
-	Name             string          `json:"name"`
-	Description      zeronull.Text   `json:"description"`
-	BusinessID       uuid.UUID       `json:"businessId"`
-	ThreatID         uuid.UUID       `json:"threatId"`
-	ExploitationCost zeronull.Float8 `json:"exploitationCost"`
-	MitigationCost   zeronull.Float8 `json:"mitigationCost"`
-	CreatedAt        time.Time       `json:"createdAt"`
+	ID               uuid.UUID `json:"id"`
+	Name             string    `json:"name"`
+	Description      *string   `json:"description"`
+	BusinessID       uuid.UUID `json:"businessId"`
+	ThreatID         uuid.UUID `json:"threatId"`
+	ExploitationCost *float32  `json:"exploitationCost"`
+	MitigationCost   *float32  `json:"mitigationCost"`
+	CreatedAt        time.Time `json:"createdAt"`
 }
 
 func inputToModel(impactInput ImpactInput) (impactModel database.ImpactModel, err error) {
@@ -185,14 +184,14 @@ func createImpact(context *gin.Context) {
 		return
 	}
 
-	err = db.CreateImpact(impactModel)
+	impactId, err := db.CreateImpact(impactModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, "Success")
+	context.IndentedJSON(http.StatusOK, impactId)
 }
 
 func updateImpact(context *gin.Context) {
