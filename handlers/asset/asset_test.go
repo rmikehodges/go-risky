@@ -4,6 +4,7 @@ package asset
 
 import (
 	"bytes"
+	"go-risky/riskyrouter"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,7 +20,7 @@ var businessId = "568d1c21-c83f-4f4f-815b-9ee6490fe8f7"
 var assetId = "465804b9-e5aa-49e1-b844-61ba3d928b84"
 
 func TestGetAssets(t *testing.T) {
-	router := gin.Default()
+	router := riskyrouter.InitializeRouter()
 	router.GET("/assets", getAssets)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/assets?businessId="+businessId, nil)
