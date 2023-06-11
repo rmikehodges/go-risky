@@ -1,4 +1,4 @@
-package impact
+package handlers
 
 import (
 	"go-risky/database"
@@ -32,7 +32,9 @@ type ImpactOutput struct {
 	CreatedAt        time.Time `json:"createdAt"`
 }
 
-func inputToModel(impactInput ImpactInput) (impactModel database.ImpactModel, err error) {
+type ImpactOutputs []ImpactOutput
+
+func (impactInput ImpactInput) inputToModel() (impactModel database.ImpactModel, err error) {
 	impactModel.ID = impactInput.ID
 	impactModel.Name = impactInput.Name
 	impactModel.Description = impactInput.Description
@@ -44,7 +46,7 @@ func inputToModel(impactInput ImpactInput) (impactModel database.ImpactModel, er
 	return
 }
 
-func modelToOutput(impactModel database.ImpactModel) (impactOutput ImpactOutput, err error) {
+func (impactOutput *ImpactOutput) modelToOutput(impactModel database.ImpactModel) (err error) {
 	impactOutput.ID = impactModel.ID
 	impactOutput.Name = impactModel.Name
 	impactOutput.Description = impactModel.Description
@@ -56,9 +58,10 @@ func modelToOutput(impactModel database.ImpactModel) (impactOutput ImpactOutput,
 	return
 }
 
-func modelsToOutput(impactModels []database.ImpactModel) (impactOutputs []ImpactOutput, err error) {
+func impactModelsToOutput(impactModels []database.ImpactModel) (impactOutputs ImpactOutputs, err error) {
 	for _, impactModel := range impactModels {
-		impactOutput, err := modelToOutput(impactModel)
+		impactOutput := ImpactOutput{}
+		err := impactOutput.modelToOutput(impactModel)
 		if err != nil {
 			return nil, err
 		}
@@ -67,8 +70,7 @@ func modelsToOutput(impactModels []database.ImpactModel) (impactOutputs []Impact
 	return
 }
 
-func getImpacts(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetImpacts(context *gin.Context) {
 
 	id, ok := context.GetQuery("businessId")
 	if !ok {
@@ -84,7 +86,7 @@ func getImpacts(context *gin.Context) {
 		return
 	}
 
-	impactModel, err := db.GetImpacts(businessId.String())
+	impactModel, err := controller.DBManager.GetImpacts(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -92,18 +94,17 @@ func getImpacts(context *gin.Context) {
 		return
 	}
 
-	impactOutput, err := modelsToOutput(impactModel)
+	impactOutputs, err := impactModelsToOutput(impactModel)
 	if err != nil {
 		log.Println(err)
-		context.JSON(http.StatusNotFound, impactOutput)
+		context.JSON(http.StatusNotFound, impactOutputs)
 		return
 	}
 
-	context.JSON(http.StatusOK, impactOutput)
+	context.JSON(http.StatusOK, impactOutputs)
 }
 
-func getImpact(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetImpact(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -119,7 +120,7 @@ func getImpact(context *gin.Context) {
 		return
 	}
 
-	impactModel, err := db.GetImpact(impactId.String())
+	impactModel, err := controller.DBManager.GetImpact(impactId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -127,7 +128,8 @@ func getImpact(context *gin.Context) {
 		return
 	}
 
-	impactOutput, err := modelToOutput(impactModel)
+	var impactOutput ImpactOutput
+	err = impactOutput.modelToOutput(impactModel)
 
 	if err != nil {
 		log.Println(err)
@@ -138,8 +140,7 @@ func getImpact(context *gin.Context) {
 	context.JSON(http.StatusOK, impactOutput)
 }
 
-func deleteImpact(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) DeleteImpact(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -155,7 +156,7 @@ func deleteImpact(context *gin.Context) {
 		return
 	}
 
-	err = db.DeleteImpact(impactId.String())
+	err = controller.DBManager.DeleteImpact(impactId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -166,8 +167,7 @@ func deleteImpact(context *gin.Context) {
 	context.JSON(http.StatusOK, "Success")
 }
 
-func createImpact(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateImpact(context *gin.Context) {
 
 	impactInput := ImpactInput{}
 	err := context.ShouldBindJSON(&impactInput)
@@ -176,7 +176,7 @@ func createImpact(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	impactModel, err := inputToModel(impactInput)
+	impactModel, err := impactInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -184,7 +184,7 @@ func createImpact(context *gin.Context) {
 		return
 	}
 
-	impactId, err := db.CreateImpact(impactModel)
+	impactId, err := controller.DBManager.CreateImpact(impactModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -194,8 +194,7 @@ func createImpact(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, impactId)
 }
 
-func updateImpact(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateImpact(context *gin.Context) {
 
 	impactInput := ImpactInput{}
 	err := context.ShouldBindJSON(&impactInput)
@@ -204,7 +203,7 @@ func updateImpact(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	impactModel, err := inputToModel(impactInput)
+	impactModel, err := impactInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -212,7 +211,7 @@ func updateImpact(context *gin.Context) {
 		return
 	}
 
-	err = db.UpdateImpact(impactModel)
+	err = controller.DBManager.UpdateImpact(impactModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -220,12 +219,4 @@ func updateImpact(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, "Success")
-}
-
-func ImpactRoutes(router *gin.Engine) {
-	router.GET("/impacts", getImpacts)
-	router.GET("/impact/:id", getImpact)
-	router.DELETE("/impact/:id", deleteImpact)
-	router.PATCH("/impact/:id", updateImpact)
-	router.POST("/impacts", createImpact)
 }

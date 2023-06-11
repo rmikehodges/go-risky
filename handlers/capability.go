@@ -1,4 +1,4 @@
-package capability
+package handlers
 
 import (
 	"go-risky/database"
@@ -29,19 +29,9 @@ type CapabilityOutput struct {
 	CreatedAt   time.Time     `json:"createdAt"`
 }
 
-//Create functions modelToOutput, inputToModel, and modelsToOutput that convert between the database model and the input/output types
+type CapabilityOutputs []CapabilityOutput
 
-func modelToOutput(capabilityModel database.CapabilityModel) (capabilityOutput CapabilityOutput, err error) {
-	//This is where you do input validation sanitization
-	capabilityOutput.ID = capabilityModel.ID
-	capabilityOutput.Name = capabilityModel.Name
-	capabilityOutput.Description = capabilityModel.Description
-	capabilityOutput.BusinessID = capabilityModel.BusinessID
-	capabilityOutput.CreatedAt = capabilityModel.CreatedAt
-	return
-}
-
-func inputToModel(capabilityInput CapabilityInput) (capabilityModel database.CapabilityModel, err error) {
+func (capabilityInput CapabilityInput) inputToModel() (capabilityModel database.CapabilityModel, err error) {
 	//This is where you do input validation sanitization
 	capabilityModel.ID = capabilityInput.ID
 	capabilityModel.Name = capabilityInput.Name
@@ -51,19 +41,29 @@ func inputToModel(capabilityInput CapabilityInput) (capabilityModel database.Cap
 	return
 }
 
-func modelsToOutput(capabilityModels []database.CapabilityModel) (capabilityOutputs []CapabilityOutput, err error) {
+func (capabilityOutput *CapabilityOutput) modelToOutput(capabilityModel database.CapabilityModel) (err error) {
+	//This is where you do input validation sanitization
+	capabilityOutput.ID = capabilityModel.ID
+	capabilityOutput.Name = capabilityModel.Name
+	capabilityOutput.Description = capabilityModel.Description
+	capabilityOutput.BusinessID = capabilityModel.BusinessID
+	capabilityOutput.CreatedAt = capabilityModel.CreatedAt
+	return
+}
+
+func capabilityModelsToOutput(capabilityModels []database.CapabilityModel) (capabilityOutputs CapabilityOutputs, err error) {
 	for _, capabilityModel := range capabilityModels {
-		capabilityOutput, err := modelToOutput(capabilityModel)
+		capabilityOutput := CapabilityOutput{}
+		err = capabilityOutput.modelToOutput(capabilityModel)
 		if err != nil {
-			return capabilityOutputs, err
+			return nil, err
 		}
 		capabilityOutputs = append(capabilityOutputs, capabilityOutput)
 	}
 	return
 }
 
-func getCapabilities(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetCapabilities(context *gin.Context) {
 
 	id, ok := context.GetQuery("businessId")
 	if !ok {
@@ -79,27 +79,25 @@ func getCapabilities(context *gin.Context) {
 		return
 	}
 
-	capabilityModel, err := db.GetCapabilities(businessId.String())
+	capabilityModel, err := controller.DBManager.GetCapabilities(businessId.String())
 
 	if err != nil {
 		log.Println(err)
 		context.JSON(http.StatusNotFound, capabilityModel)
 		return
 	}
-
-	capabilityOutput, err := modelsToOutput(capabilityModel)
+	capabilityOutputs, err := capabilityModelsToOutput(capabilityModel)
 
 	if err != nil {
 		log.Println(err)
-		context.JSON(http.StatusNotFound, capabilityOutput)
+		context.JSON(http.StatusNotFound, capabilityOutputs)
 		return
 	}
 
-	context.JSON(http.StatusOK, capabilityOutput)
+	context.JSON(http.StatusOK, capabilityOutputs)
 }
 
-func getCapability(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetCapability(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -115,7 +113,7 @@ func getCapability(context *gin.Context) {
 		return
 	}
 
-	capabilityOutput, err := db.GetCapability(capabilityId.String())
+	capabilityOutput, err := controller.DBManager.GetCapability(capabilityId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -126,8 +124,7 @@ func getCapability(context *gin.Context) {
 	context.JSON(http.StatusOK, capabilityOutput)
 }
 
-func deleteCapability(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) DeleteCapability(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -143,7 +140,7 @@ func deleteCapability(context *gin.Context) {
 		return
 	}
 
-	err = db.DeleteCapability(capabilityId.String())
+	err = controller.DBManager.DeleteCapability(capabilityId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -154,8 +151,7 @@ func deleteCapability(context *gin.Context) {
 	context.JSON(http.StatusOK, "Success")
 }
 
-func createCapability(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateCapability(context *gin.Context) {
 
 	capabilityInput := CapabilityInput{}
 	err := context.ShouldBindJSON(&capabilityInput)
@@ -163,7 +159,7 @@ func createCapability(context *gin.Context) {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
-	capabilityModel, err := inputToModel(capabilityInput)
+	capabilityModel, err := capabilityInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -171,7 +167,7 @@ func createCapability(context *gin.Context) {
 		return
 	}
 
-	capabilityId, err := db.CreateCapability(capabilityModel)
+	capabilityId, err := controller.DBManager.CreateCapability(capabilityModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -181,8 +177,7 @@ func createCapability(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, capabilityId)
 }
 
-func updateCapability(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateCapability(context *gin.Context) {
 
 	capabilityInput := CapabilityInput{}
 	err := context.ShouldBindJSON(&capabilityInput)
@@ -191,14 +186,14 @@ func updateCapability(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	capabilityModel, err := inputToModel(capabilityInput)
+	capabilityModel, err := capabilityInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 		return
 	}
-	err = db.UpdateCapability(capabilityModel)
+	err = controller.DBManager.UpdateCapability(capabilityModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -206,12 +201,4 @@ func updateCapability(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, "Success")
-}
-
-func CapabilityRoutes(router *gin.Engine) {
-	router.GET("/capabilities", getCapabilities)
-	router.GET("/capability", getCapability)
-	router.DELETE("/capability", deleteCapability)
-	router.PATCH("/capability", updateCapability)
-	router.POST("/capabilities", createCapability)
 }

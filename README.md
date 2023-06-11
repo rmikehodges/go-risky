@@ -50,6 +50,12 @@ Accountants go by revenue / employee hours. This means
 
 06/05 - finished all tests for model and updated the handler
 
+06/10 refactored a ton of code and go all the handlers and database tests working. Looking at impaact builder. I need a few things
+- creating a new attack chain flow
+- connecting edges to nodes creating attackChainSteps
+- a workable sidebar view with input filtering and collapsable lists, likely split out capabilities and vulnerabilities.
+- 
+
 
 ## TODO
 2. Write tests for database models and handlers (postgresql should probably be last)

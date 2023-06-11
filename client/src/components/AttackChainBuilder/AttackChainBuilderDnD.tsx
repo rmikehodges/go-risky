@@ -120,8 +120,8 @@ const AttackChainBuilderDnD = () => {
             <Controls />
           </ReactFlow>
         </div>
-        <Sidebar />
       </ReactFlowProvider>
+      <div className="sidebar">        <Sidebar /></div>
     </div>
   );
 };

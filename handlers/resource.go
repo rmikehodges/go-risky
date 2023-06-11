@@ -1,4 +1,4 @@
-package resource
+package handlers
 
 import (
 	"go-risky/database"
@@ -34,7 +34,9 @@ type ResourceOutput struct {
 	CreatedAt    time.Time     `json:"createdAt" db:"created_at"`
 }
 
-func inputToModel(resourceInput ResourceInput) (resourceModel database.ResourceModel, err error) {
+type ResourceOutputs []ResourceOutput
+
+func (resourceInput ResourceInput) inputToModel() (resourceModel database.ResourceModel, err error) {
 	resourceModel.ID = resourceInput.ID
 	resourceModel.Name = resourceInput.Name
 	resourceModel.Description = resourceInput.Description
@@ -46,7 +48,7 @@ func inputToModel(resourceInput ResourceInput) (resourceModel database.ResourceM
 	return
 }
 
-func modelToOutput(resourceModel database.ResourceModel) (resourceOutput ResourceOutput, err error) {
+func (resourceOutput *ResourceOutput) modelToOutput(resourceModel database.ResourceModel) (err error) {
 	resourceOutput.ID = resourceModel.ID
 	resourceOutput.Name = resourceModel.Name
 	resourceOutput.Description = resourceModel.Description
@@ -59,19 +61,19 @@ func modelToOutput(resourceModel database.ResourceModel) (resourceOutput Resourc
 	return
 }
 
-func modelsToOutputs(resourceModels []database.ResourceModel) (resourceOutputs []ResourceOutput, err error) {
+func resourceModelsToOutputs(resourceModels []database.ResourceModel) (resourceOutputs ResourceOutputs, err error) {
 	for _, resourceModel := range resourceModels {
-		resourceOutput, err := modelToOutput(resourceModel)
+		resourceOutput := ResourceOutput{}
+		err := resourceOutput.modelToOutput(resourceModel)
 		if err != nil {
-			return resourceOutputs, err
+			return nil, err
 		}
 		resourceOutputs = append(resourceOutputs, resourceOutput)
 	}
 	return
 }
 
-func getResources(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetResources(context *gin.Context) {
 
 	id, ok := context.GetQuery("businessId")
 	if !ok {
@@ -87,7 +89,7 @@ func getResources(context *gin.Context) {
 		return
 	}
 
-	resourcesModels, err := db.GetResources(businessId.String())
+	resourcesModels, err := controller.DBManager.GetResources(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -95,7 +97,7 @@ func getResources(context *gin.Context) {
 		return
 	}
 
-	resourceOutput, err := modelsToOutputs(resourcesModels)
+	resourceOutputs, err := resourceModelsToOutputs(resourcesModels)
 
 	if err != nil {
 		log.Println(err)
@@ -103,11 +105,10 @@ func getResources(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, resourceOutput)
+	context.JSON(http.StatusOK, resourceOutputs)
 }
 
-func getResource(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetResource(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -123,7 +124,7 @@ func getResource(context *gin.Context) {
 		return
 	}
 
-	resourceModel, err := db.GetResource(resourceId.String())
+	resourceModel, err := controller.DBManager.GetResource(resourceId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -131,7 +132,9 @@ func getResource(context *gin.Context) {
 		return
 	}
 
-	resourceOutput, err := modelToOutput(resourceModel)
+	var resourceOutput ResourceOutput
+
+	err = resourceOutput.modelToOutput(resourceModel)
 
 	if err != nil {
 		log.Println(err)
@@ -142,8 +145,7 @@ func getResource(context *gin.Context) {
 	context.JSON(http.StatusOK, resourceOutput)
 }
 
-func deleteResource(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) DeleteResource(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -159,7 +161,7 @@ func deleteResource(context *gin.Context) {
 		return
 	}
 
-	err = db.DeleteResource(resourceId.String())
+	err = controller.DBManager.DeleteResource(resourceId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -170,8 +172,7 @@ func deleteResource(context *gin.Context) {
 	context.JSON(http.StatusOK, "Success")
 }
 
-func createResource(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateResource(context *gin.Context) {
 
 	resourceInput := ResourceInput{}
 	err := context.ShouldBindJSON(&resourceInput)
@@ -180,7 +181,7 @@ func createResource(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	resourceModel, err := inputToModel(resourceInput)
+	resourceModel, err := resourceInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -188,7 +189,7 @@ func createResource(context *gin.Context) {
 		return
 	}
 
-	resourceId, err := db.CreateResource(resourceModel)
+	resourceId, err := controller.DBManager.CreateResource(resourceModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -198,8 +199,7 @@ func createResource(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, resourceId)
 }
 
-func updateResource(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateResource(context *gin.Context) {
 
 	resourceInput := ResourceInput{}
 	err := context.ShouldBindJSON(&resourceInput)
@@ -208,7 +208,7 @@ func updateResource(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	resourceModel, err := inputToModel(resourceInput)
+	resourceModel, err := resourceInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -216,7 +216,7 @@ func updateResource(context *gin.Context) {
 		return
 	}
 
-	err = db.UpdateResource(resourceModel)
+	err = controller.DBManager.UpdateResource(resourceModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -224,12 +224,4 @@ func updateResource(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, "Success")
-}
-
-func ResourceRoutes(router *gin.Engine) {
-	router.GET("/resources", getResources)
-	router.GET("/resource/:id", getResource)
-	router.DELETE("/resource/:id", deleteResource)
-	router.PATCH("/resource/:id", updateResource)
-	router.POST("/resources", createResource)
 }

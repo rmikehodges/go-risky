@@ -31,7 +31,7 @@ code {
 }
 
 .dndflow .dndnode {
-  height: 20px;
+  height: 10px;
   padding: 4px;
   border: 1px solid #1a192b;
   border-radius: 2px;
@@ -92,4 +92,27 @@ code {
   border: 1px solid #555;
   border-radius: 5px;
   text-align: center;
+}
+
+
+.wrapper {
+  display: flex;
+  height: 100vh;
+}
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 200px;
+  overflow-y: auto;
+  border-right: 1px solid #ccc;
+  padding: 20px;
+}
+.main {
+  flex-grow: 1;
+  margin-left: 200px;
+}
+.content {
+  padding: 20px;
 }

@@ -1,4 +1,4 @@
-package asset
+package handlers
 
 import (
 	"log"
@@ -27,7 +27,9 @@ type AssetOutput struct {
 	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
 }
 
-func inputToModel(assetInput AssetInput) (assetModel database.AssetModel, err error) {
+type AssetOutputs []AssetOutput
+
+func (assetInput AssetInput) inputToModel() (assetModel database.AssetModel, err error) {
 	//This is where you do input validation sanitization
 	assetModel.ID = assetInput.ID
 	assetModel.Name = assetInput.Name
@@ -38,7 +40,7 @@ func inputToModel(assetInput AssetInput) (assetModel database.AssetModel, err er
 
 }
 
-func modelToOutput(assetModel database.AssetModel) (assetOutput AssetOutput, err error) {
+func (assetOutput *AssetOutput) modelToOutput(assetModel database.AssetModel) (err error) {
 	//This is where you do input validation sanitization
 	assetOutput.ID = assetModel.ID
 	assetOutput.Name = assetModel.Name
@@ -49,21 +51,21 @@ func modelToOutput(assetModel database.AssetModel) (assetOutput AssetOutput, err
 	return
 }
 
-func modelsToOutput(assetModels []database.AssetModel) (assetOutput []AssetOutput, err error) {
+func assetModelsToOutput(assetModels []database.AssetModel) (assetOutputs AssetOutputs, err error) {
 	//This is where you do input validation sanitization
 	for _, model := range assetModels {
-		output, err := modelToOutput(model)
+		assetOutput := AssetOutput{}
+		err := assetOutput.modelToOutput(model)
 		if err != nil {
-			return []AssetOutput{}, err
+			return nil, err
 		}
-		assetOutput = append(assetOutput, output)
+		assetOutputs = append(assetOutputs, assetOutput)
 	}
 
 	return
 }
 
-func getAssets(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetAssets(context *gin.Context) {
 
 	id, ok := context.GetQuery("businessId")
 	if !ok {
@@ -79,26 +81,25 @@ func getAssets(context *gin.Context) {
 		return
 	}
 
-	assetModel, err := db.GetAssets(businessId.String())
+	assetModel, err := controller.DBManager.GetAssets(businessId.String())
 	if err != nil {
 		log.Println(err)
 		context.JSON(http.StatusNotFound, assetModel)
 		return
 	}
 
-	assetOutput, err := modelsToOutput(assetModel)
+	assetOutputs, err := assetModelsToOutput(assetModel)
 
 	if err != nil {
 		log.Println(err)
-		context.JSON(http.StatusNotFound, assetOutput)
+		context.JSON(http.StatusNotFound, assetOutputs)
 		return
 	}
 
-	context.JSON(http.StatusOK, assetOutput)
+	context.JSON(http.StatusOK, assetOutputs)
 }
 
-func getAsset(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetAsset(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -114,14 +115,15 @@ func getAsset(context *gin.Context) {
 		return
 	}
 
-	assetModel, err := db.GetAsset(assetId.String())
+	assetModel, err := controller.DBManager.GetAsset(assetId.String())
 	if err != nil {
 		log.Println(err)
 		context.JSON(http.StatusNotFound, assetModel)
 		return
 	}
 
-	assetOutput, err := modelToOutput(assetModel)
+	var assetOutput AssetOutput
+	err = assetOutput.modelToOutput(assetModel)
 
 	if err != nil {
 		log.Println(err)
@@ -131,8 +133,7 @@ func getAsset(context *gin.Context) {
 	context.JSON(http.StatusOK, assetOutput)
 }
 
-func deleteAsset(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) DeleteAsset(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -148,7 +149,7 @@ func deleteAsset(context *gin.Context) {
 		return
 	}
 
-	err = db.DeleteAsset(assetId.String())
+	err = controller.DBManager.DeleteAsset(assetId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -159,8 +160,7 @@ func deleteAsset(context *gin.Context) {
 	context.JSON(http.StatusOK, "Success")
 }
 
-func createAsset(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateAsset(context *gin.Context) {
 
 	assetInput := AssetInput{}
 	err := context.ShouldBindJSON(&assetInput)
@@ -169,14 +169,14 @@ func createAsset(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	assetModel, err := inputToModel(assetInput)
+	assetModel, err := assetInput.inputToModel()
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	assetId, err := db.CreateAsset(assetModel)
+	assetId, err := controller.DBManager.CreateAsset(assetModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, assetId)
@@ -186,8 +186,7 @@ func createAsset(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, "Success")
 }
 
-func updateAsset(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateAsset(context *gin.Context) {
 
 	assetInput := AssetInput{}
 	err := context.ShouldBindJSON(&assetInput)
@@ -196,7 +195,7 @@ func updateAsset(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	assetModel, err := inputToModel(assetInput)
+	assetModel, err := assetInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -204,7 +203,7 @@ func updateAsset(context *gin.Context) {
 		return
 	}
 
-	err = db.UpdateAsset(assetModel)
+	err = controller.DBManager.UpdateAsset(assetModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -212,11 +211,4 @@ func updateAsset(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, "Success")
-}
-func AssetRoutes(router *gin.Engine) {
-	router.GET("/assets", getAssets)
-	router.GET("/asset", getAsset)
-	router.DELETE("/asset", deleteAsset)
-	router.PUT("/asset", updateAsset)
-	router.POST("/assets", createAsset)
 }

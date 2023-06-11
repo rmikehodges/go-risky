@@ -1,4 +1,4 @@
-package liability
+package handlers
 
 import (
 	"go-risky/database"
@@ -40,8 +40,9 @@ type LiabilityOutput struct {
 	ImpactID     *uuid.UUID    `json:"impactId"`
 	CreatedAt    time.Time     `json:"createdAt"`
 }
+type LiabilityOutputs []LiabilityOutput
 
-func inputToModel(liabilityInput LiabilityInput) (liabilityModel database.LiabilityModel, err error) {
+func (liabilityInput LiabilityInput) inputToModel() (liabilityModel database.LiabilityModel, err error) {
 	liabilityModel.ID = liabilityInput.ID
 	liabilityModel.Name = liabilityInput.Name
 	liabilityModel.Description = liabilityInput.Description
@@ -56,7 +57,7 @@ func inputToModel(liabilityInput LiabilityInput) (liabilityModel database.Liabil
 	return
 }
 
-func modelToOutput(liabilityModel database.LiabilityModel) (liabilityOutput LiabilityOutput, err error) {
+func (liabilityOutput *LiabilityOutput) modelToOutput(liabilityModel database.LiabilityModel) (err error) {
 	liabilityOutput.ID = liabilityModel.ID
 	liabilityOutput.Name = liabilityModel.Name
 	liabilityOutput.Description = liabilityModel.Description
@@ -71,9 +72,10 @@ func modelToOutput(liabilityModel database.LiabilityModel) (liabilityOutput Liab
 	return
 }
 
-func modelsToOutputs(liabilityModels []database.LiabilityModel) (liabilityOutputs []LiabilityOutput, err error) {
+func liabilityModelsToOutputs(liabilityModels []database.LiabilityModel) (liabilityOutputs LiabilityOutputs, err error) {
 	for _, liabilityModel := range liabilityModels {
-		liabilityOutput, err := modelToOutput(liabilityModel)
+		liabilityOutput := LiabilityOutput{}
+		err := liabilityOutput.modelToOutput(liabilityModel)
 		if err != nil {
 			return nil, err
 		}
@@ -82,8 +84,7 @@ func modelsToOutputs(liabilityModels []database.LiabilityModel) (liabilityOutput
 	return
 }
 
-func getLiabilities(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetLiabilities(context *gin.Context) {
 
 	id, ok := context.GetQuery("businessId")
 	if !ok {
@@ -99,7 +100,7 @@ func getLiabilities(context *gin.Context) {
 		return
 	}
 
-	liabilityModels, err := db.GetLiabilities(businessId.String())
+	liabilityModels, err := controller.DBManager.GetLiabilities(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -107,7 +108,7 @@ func getLiabilities(context *gin.Context) {
 		return
 	}
 
-	liabilityOutput, err := modelsToOutputs(liabilityModels)
+	liabilityOutputs, err := liabilityModelsToOutputs(liabilityModels)
 
 	if err != nil {
 		log.Println(err)
@@ -115,11 +116,10 @@ func getLiabilities(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, liabilityOutput)
+	context.JSON(http.StatusOK, liabilityOutputs)
 }
 
-func getLiability(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetLiability(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -135,50 +135,16 @@ func getLiability(context *gin.Context) {
 		return
 	}
 
-	liabilityModel, err := db.GetLiability(liabilityId.String())
+	liabilityModel, err := controller.DBManager.GetLiability(liabilityId.String())
 
 	if err != nil {
 		log.Println(err)
 		context.JSON(http.StatusNotFound, "Not Found")
 		return
 	}
+	var liabilityOutput LiabilityOutput
 
-	liabilityOutput, err := modelToOutput(liabilityModel)
-
-	if err != nil {
-		log.Println(err)
-		context.JSON(http.StatusNotFound, "Not Found")
-		return
-	}
-	context.JSON(http.StatusOK, liabilityOutput)
-}
-
-func getLiabilityByImpactId(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
-
-	id, ok := context.GetQuery("impactId")
-	if !ok {
-		log.Println("Parameter impactId not found")
-		context.JSON(http.StatusNotFound, "Not found")
-		return
-	}
-
-	liabilityId, err := uuid.Parse(id)
-	if err != nil {
-		log.Println("impactId is not a uuid")
-		context.JSON(http.StatusNotFound, "Not found")
-		return
-	}
-
-	liabilityModel, err := db.GetLiabilityByImpactId(liabilityId.String())
-
-	if err != nil {
-		log.Println(err)
-		context.JSON(http.StatusNotFound, "Not Found")
-		return
-	}
-
-	liabilityOutput, err := modelsToOutputs(liabilityModel)
+	err = liabilityOutput.modelToOutput(liabilityModel)
 
 	if err != nil {
 		log.Println(err)
@@ -188,8 +154,41 @@ func getLiabilityByImpactId(context *gin.Context) {
 	context.JSON(http.StatusOK, liabilityOutput)
 }
 
-func deleteLiability(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+// func (controller PublicController) GetLiabilityByImpactId(context *gin.Context) {
+
+// 	id, ok := context.GetQuery("impactId")
+// 	if !ok {
+// 		log.Println("Parameter impactId not found")
+// 		context.JSON(http.StatusNotFound, "Not found")
+// 		return
+// 	}
+
+// 	liabilityId, err := uuid.Parse(id)
+// 	if err != nil {
+// 		log.Println("impactId is not a uuid")
+// 		context.JSON(http.StatusNotFound, "Not found")
+// 		return
+// 	}
+
+// 	liabilityModel, err := controller.DBManager.GetLiabilityByImpactId(liabilityId.String())
+
+// 	if err != nil {
+// 		log.Println(err)
+// 		context.JSON(http.StatusNotFound, "Not Found")
+// 		return
+// 	}
+// 	var liabilityOutputs LiabilityOutputs
+// 	err = liabilityOutputs.modelsToOutputs(liabilityModel)
+
+// 	if err != nil {
+// 		log.Println(err)
+// 		context.JSON(http.StatusNotFound, "Not Found")
+// 		return
+// 	}
+// 	context.JSON(http.StatusOK, liabilityOutputs)
+// }
+
+func (controller PublicController) DeleteLiability(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -205,7 +204,7 @@ func deleteLiability(context *gin.Context) {
 		return
 	}
 
-	err = db.DeleteLiability(liabilityId.String())
+	err = controller.DBManager.DeleteLiability(liabilityId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -216,8 +215,7 @@ func deleteLiability(context *gin.Context) {
 	context.JSON(http.StatusOK, "Success")
 }
 
-func createLiability(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateLiability(context *gin.Context) {
 
 	liabilityInput := LiabilityInput{}
 	err := context.ShouldBindJSON(&liabilityInput)
@@ -226,7 +224,7 @@ func createLiability(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	liabilityModel, err := inputToModel(liabilityInput)
+	liabilityModel, err := liabilityInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -234,7 +232,7 @@ func createLiability(context *gin.Context) {
 		return
 	}
 
-	liabilityId, err := db.CreateLiability(liabilityModel)
+	liabilityId, err := controller.DBManager.CreateLiability(liabilityModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -244,8 +242,7 @@ func createLiability(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, liabilityId)
 }
 
-func updateLiability(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateLiability(context *gin.Context) {
 
 	liabilityInput := LiabilityInput{}
 	err := context.ShouldBindJSON(&liabilityInput)
@@ -253,7 +250,7 @@ func updateLiability(context *gin.Context) {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
-	liabilityModel, err := inputToModel(liabilityInput)
+	liabilityModel, err := liabilityInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -261,7 +258,7 @@ func updateLiability(context *gin.Context) {
 		return
 	}
 
-	err = db.UpdateLiability(liabilityModel)
+	err = controller.DBManager.UpdateLiability(liabilityModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -269,12 +266,4 @@ func updateLiability(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, "Success")
-}
-func LiabilityRoutes(router *gin.Engine) {
-	router.GET("/liabilities", getLiabilities)
-	router.GET("/liability", getLiability)
-	router.GET("/liabilityByImpactId", getLiabilityByImpactId)
-	router.DELETE("/liability", deleteLiability)
-	router.PATCH("/liability", updateLiability)
-	router.POST("/liabilities", createLiability)
 }

@@ -1,4 +1,4 @@
-package detection
+package handlers
 
 import (
 	"go-risky/database"
@@ -31,9 +31,9 @@ type DetectionOutput struct { //This is the output type that will be returned to
 	CreatedAt   time.Time     `json:"createdAt"`
 }
 
-//Create functions modelToOutput, inputToModel, and modelsToOutput that convert between the database model and the input/output types
+type DetectionOutputs []DetectionOutput
 
-func inputToModel(detectionInput DetectionInput) (detectionModel database.DetectionModel, err error) {
+func (detectionInput DetectionInput) inputToModel() (detectionModel database.DetectionModel, err error) {
 	//This is where you do input validation sanitization
 	detectionModel.ID = detectionInput.ID
 	detectionModel.Name = detectionInput.Name
@@ -44,7 +44,7 @@ func inputToModel(detectionInput DetectionInput) (detectionModel database.Detect
 	return
 }
 
-func modelToOutput(detectionModel database.DetectionModel) (detectionOutput DetectionOutput, err error) {
+func (detectionOutput *DetectionOutput) modelToOutput(detectionModel database.DetectionModel) (err error) {
 	//This is where you do input validation sanitization
 	detectionOutput.ID = detectionModel.ID
 	detectionOutput.Name = detectionModel.Name
@@ -55,19 +55,19 @@ func modelToOutput(detectionModel database.DetectionModel) (detectionOutput Dete
 	return
 }
 
-func modelsToOutput(detectionModels []database.DetectionModel) (detectionOutputs []DetectionOutput, err error) {
+func detectionModelsToOutput(detectionModels []database.DetectionModel) (detectionOutputs DetectionOutputs, err error) {
 	for _, detectionModel := range detectionModels {
-		detectionOutput, err := modelToOutput(detectionModel)
+		detectionOutput := DetectionOutput{}
+		err := detectionOutput.modelToOutput(detectionModel)
 		if err != nil {
-			return detectionOutputs, err
+			return nil, err
 		}
 		detectionOutputs = append(detectionOutputs, detectionOutput)
 	}
 	return
 }
 
-func getDetections(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetDetections(context *gin.Context) {
 
 	id, ok := context.GetQuery("businessId")
 	if !ok {
@@ -83,7 +83,7 @@ func getDetections(context *gin.Context) {
 		return
 	}
 
-	detectionModels, err := db.GetDetections(businessId.String())
+	detectionModels, err := controller.DBManager.GetDetections(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -91,7 +91,7 @@ func getDetections(context *gin.Context) {
 		return
 	}
 
-	detectionOutput, err := modelsToOutput(detectionModels)
+	detectionOutput, err := detectionModelsToOutput(detectionModels)
 
 	if err != nil {
 		log.Println(err)
@@ -102,8 +102,7 @@ func getDetections(context *gin.Context) {
 	context.JSON(http.StatusOK, detectionOutput)
 }
 
-func getDetection(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetDetection(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -119,15 +118,15 @@ func getDetection(context *gin.Context) {
 		return
 	}
 
-	detectionModel, err := db.GetDetection(detectionId.String())
+	detectionModel, err := controller.DBManager.GetDetection(detectionId.String())
 
 	if err != nil {
 		log.Println(err)
 		context.JSON(http.StatusNotFound, detectionModel)
 		return
 	}
-
-	detectionOutput, err := modelToOutput(detectionModel)
+	var detectionOutput DetectionOutput
+	err = detectionOutput.modelToOutput(detectionModel)
 
 	if err != nil {
 		log.Println(err)
@@ -138,8 +137,7 @@ func getDetection(context *gin.Context) {
 	context.JSON(http.StatusOK, detectionOutput)
 }
 
-func deleteDetection(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) DeleteDetection(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -155,7 +153,7 @@ func deleteDetection(context *gin.Context) {
 		return
 	}
 
-	err = db.DeleteDetection(detectionId.String())
+	err = controller.DBManager.DeleteDetection(detectionId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -166,8 +164,7 @@ func deleteDetection(context *gin.Context) {
 	context.JSON(http.StatusOK, "Success")
 }
 
-func createDetection(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateDetection(context *gin.Context) {
 
 	detectionInput := DetectionInput{}
 	err := context.ShouldBindJSON(&detectionInput)
@@ -176,7 +173,7 @@ func createDetection(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	detectionModel, err := inputToModel(detectionInput)
+	detectionModel, err := detectionInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -184,7 +181,7 @@ func createDetection(context *gin.Context) {
 		return
 	}
 
-	detectionId, err := db.CreateDetection(detectionModel)
+	detectionId, err := controller.DBManager.CreateDetection(detectionModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -194,8 +191,7 @@ func createDetection(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, detectionId)
 }
 
-func updateDetection(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateDetection(context *gin.Context) {
 
 	detectionInput := DetectionInput{}
 	err := context.ShouldBindJSON(&detectionInput)
@@ -204,7 +200,7 @@ func updateDetection(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	detectionModel, err := inputToModel(detectionInput)
+	detectionModel, err := detectionInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -212,7 +208,7 @@ func updateDetection(context *gin.Context) {
 		return
 	}
 
-	err = db.UpdateDetection(detectionModel)
+	err = controller.DBManager.UpdateDetection(detectionModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -220,12 +216,4 @@ func updateDetection(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, "Success")
-}
-
-func DetectionRoutes(router *gin.Engine) {
-	router.GET("/detections", getDetections)
-	router.GET("/detection", getDetection)
-	router.DELETE("/detection", deleteDetection)
-	router.PATCH("/detection", updateDetection)
-	router.POST("/detections", createDetection)
 }

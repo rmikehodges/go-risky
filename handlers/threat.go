@@ -1,4 +1,4 @@
-package threat
+package handlers
 
 import (
 	"go-risky/database"
@@ -26,7 +26,9 @@ type ThreatOutput struct {
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
-func inputToModel(threatInput ThreatInput) (threatModel database.ThreatModel, err error) {
+type ThreatOutputs []ThreatOutput
+
+func (threatInput ThreatInput) inputToModel() (threatModel database.ThreatModel, err error) {
 	//This is where you do input validation sanitization
 	threatModel.ID = threatInput.ID
 	threatModel.Name = threatInput.Name
@@ -37,7 +39,7 @@ func inputToModel(threatInput ThreatInput) (threatModel database.ThreatModel, er
 
 }
 
-func modelToOutput(threatModel database.ThreatModel) (threatOutput ThreatOutput, err error) {
+func (threatOutput *ThreatOutput) modelToOutput(threatModel database.ThreatModel) (err error) {
 	//This is where you do input validation sanitization
 	threatOutput.ID = threatModel.ID
 	threatOutput.Name = threatModel.Name
@@ -47,21 +49,21 @@ func modelToOutput(threatModel database.ThreatModel) (threatOutput ThreatOutput,
 	return
 }
 
-func modelsToOutput(threatModels []database.ThreatModel) (threatOutput []ThreatOutput, err error) {
+func threatModelsToOutput(threatModels []database.ThreatModel) (threatOutputs ThreatOutputs, err error) {
 	//This is where you do input validation sanitization
 	for _, model := range threatModels {
-		output, err := modelToOutput(model)
+		threatOutput := ThreatOutput{}
+		err := threatOutput.modelToOutput(model)
 		if err != nil {
-			return []ThreatOutput{}, err
+			return nil, err
 		}
-		threatOutput = append(threatOutput, output)
+		threatOutputs = append(threatOutputs, threatOutput)
 	}
 
 	return
 }
 
-func getThreats(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetThreats(context *gin.Context) {
 
 	id, ok := context.GetQuery("businessId")
 	if !ok {
@@ -77,26 +79,25 @@ func getThreats(context *gin.Context) {
 		return
 	}
 
-	threatmodel, err := db.GetThreats(businessId.String())
+	threatModel, err := controller.DBManager.GetThreats(businessId.String())
 
 	if err != nil {
 		log.Println(err)
-		context.JSON(http.StatusNotFound, threatmodel)
+		context.JSON(http.StatusNotFound, threatModel)
 		return
 	}
 
-	threatOutput, err := modelsToOutput(threatmodel)
+	threatOutputs, err := threatModelsToOutput(threatModel)
 
 	if err != nil {
-		context.JSON(http.StatusNotFound, threatOutput)
+		context.JSON(http.StatusNotFound, threatOutputs)
 		return
 	}
 
-	context.JSON(http.StatusOK, threatOutput)
+	context.JSON(http.StatusOK, threatOutputs)
 }
 
-func getThreat(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetThreat(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -112,7 +113,16 @@ func getThreat(context *gin.Context) {
 		return
 	}
 
-	threatOutput, err := db.GetThreat(threatId.String())
+	threatModel, err := controller.DBManager.GetThreat(threatId.String())
+
+	if err != nil {
+		log.Println(err)
+		context.JSON(http.StatusNotFound, nil)
+		return
+	}
+
+	var threatOutput ThreatOutput
+	err = threatOutput.modelToOutput(threatModel)
 
 	if err != nil {
 		log.Println(err)
@@ -123,8 +133,7 @@ func getThreat(context *gin.Context) {
 	context.JSON(http.StatusOK, threatOutput)
 }
 
-func deleteThreat(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) DeleteThreat(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -140,7 +149,7 @@ func deleteThreat(context *gin.Context) {
 		return
 	}
 
-	err = db.DeleteThreat(threatId.String())
+	err = controller.DBManager.DeleteThreat(threatId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -151,8 +160,7 @@ func deleteThreat(context *gin.Context) {
 	context.JSON(http.StatusOK, "Success")
 }
 
-func createThreat(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateThreat(context *gin.Context) {
 
 	threatInput := ThreatInput{}
 	err := context.ShouldBindJSON(&threatInput)
@@ -160,14 +168,14 @@ func createThreat(context *gin.Context) {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
-	threatModel, err := inputToModel(threatInput)
+	threatModel, err := threatInput.inputToModel()
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	threatId, err := db.CreateThreat(threatModel)
+	threatId, err := controller.DBManager.CreateThreat(threatModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -177,8 +185,7 @@ func createThreat(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, threatId)
 }
 
-func updateThreat(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateThreat(context *gin.Context) {
 
 	threatInput := ThreatInput{}
 	err := context.ShouldBindJSON(&threatInput)
@@ -187,7 +194,7 @@ func updateThreat(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	threatModel, err := inputToModel(threatInput)
+	threatModel, err := threatInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -195,7 +202,7 @@ func updateThreat(context *gin.Context) {
 		return
 	}
 
-	err = db.UpdateThreat(threatModel)
+	err = controller.DBManager.UpdateThreat(threatModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -203,12 +210,4 @@ func updateThreat(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, "Success")
-}
-
-func ThreatRoutes(router *gin.Engine) {
-	router.GET("/threats", getThreats)
-	router.GET("/threat/:id", getThreat)
-	router.DELETE("/threat/:id", deleteThreat)
-	router.PATCH("/threat/:id", updateThreat)
-	router.POST("/threats", createThreat)
 }

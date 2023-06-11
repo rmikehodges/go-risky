@@ -1,4 +1,4 @@
-package business
+package handlers
 
 import (
 	"fmt"
@@ -26,7 +26,9 @@ type BusinessOutput struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-func inputToModel(businessInput BusinessInput) (businessModel database.BusinessModel, err error) {
+type BusinessOutputs []BusinessOutput
+
+func (businessInput BusinessInput) inputToModel() (businessModel database.BusinessModel, err error) {
 	//This is where you do input validation sanitization
 	businessModel.ID = businessInput.ID
 	businessModel.Name = businessInput.Name
@@ -37,7 +39,7 @@ func inputToModel(businessInput BusinessInput) (businessModel database.BusinessM
 
 }
 
-func modelToOutput(businessModel database.BusinessModel) (businessOutput BusinessOutput, err error) {
+func (businessOutput *BusinessOutput) modelToOutput(businessModel database.BusinessModel) (err error) {
 	//This is where you do input validation sanitization
 	businessOutput.ID = businessModel.ID
 	businessOutput.Name = businessModel.Name
@@ -47,23 +49,23 @@ func modelToOutput(businessModel database.BusinessModel) (businessOutput Busines
 	return
 }
 
-func modelsToOutput(businessModels []database.BusinessModel) (businessOutput []BusinessOutput, err error) {
+func businessModelsToOutput(businessModels []database.BusinessModel) (businessOutputs BusinessOutputs, err error) {
 	//This is where you do input validation sanitization
 	for _, model := range businessModels {
-		output, err := modelToOutput(model)
+		businessOutput := BusinessOutput{}
+		err := businessOutput.modelToOutput(model)
 		if err != nil {
-			return []BusinessOutput{}, err
+			return nil, err
 		}
-		businessOutput = append(businessOutput, output)
+		businessOutputs = append(businessOutputs, businessOutput)
 	}
 
 	return
 }
 
-func getBusinesses(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetBusinesses(context *gin.Context) {
 
-	businessmodel, err := db.GetBusinesses()
+	businessmodel, err := controller.DBManager.GetBusinesses()
 
 	if err != nil {
 		log.Println(err)
@@ -71,18 +73,17 @@ func getBusinesses(context *gin.Context) {
 		return
 	}
 
-	businessOutput, err := modelsToOutput(businessmodel)
+	businessOutputs, err := businessModelsToOutput(businessmodel)
 
 	if err != nil {
-		context.JSON(http.StatusNotFound, businessOutput)
+		context.JSON(http.StatusNotFound, businessOutputs)
 		return
 	}
 
-	context.JSON(http.StatusOK, businessOutput)
+	context.JSON(http.StatusOK, businessOutputs)
 }
 
-func getBusiness(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetBusiness(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -98,7 +99,7 @@ func getBusiness(context *gin.Context) {
 		return
 	}
 
-	businessOutput, err := db.GetBusiness(businessId.String())
+	businessOutput, err := controller.DBManager.GetBusiness(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -109,8 +110,7 @@ func getBusiness(context *gin.Context) {
 	context.JSON(http.StatusOK, businessOutput)
 }
 
-func deleteBusiness(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) DeleteBusiness(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -126,7 +126,7 @@ func deleteBusiness(context *gin.Context) {
 		return
 	}
 
-	err = db.DeleteBusiness(businessId.String())
+	err = controller.DBManager.DeleteBusiness(businessId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -137,8 +137,7 @@ func deleteBusiness(context *gin.Context) {
 	context.JSON(http.StatusOK, businessId.String()+" deleted")
 }
 
-func createBusiness(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateBusiness(context *gin.Context) {
 
 	businessInput := BusinessInput{}
 	err := context.ShouldBindJSON(&businessInput)
@@ -147,14 +146,14 @@ func createBusiness(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 		return
 	}
-	businessModel, err := inputToModel(businessInput)
+	businessModel, err := businessInput.inputToModel()
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	businessOutput, err := db.CreateBusiness(businessModel)
+	businessOutput, err := controller.DBManager.CreateBusiness(businessModel)
 	fmt.Println("returned from create business")
 	if err != nil {
 		log.Println(err)
@@ -166,8 +165,7 @@ func createBusiness(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, businessOutput)
 }
 
-func updateBusiness(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateBusiness(context *gin.Context) {
 
 	businessInput := BusinessInput{}
 	err := context.ShouldBindJSON(&businessInput)
@@ -176,7 +174,7 @@ func updateBusiness(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	businessModel, err := inputToModel(businessInput)
+	businessModel, err := businessInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -184,7 +182,7 @@ func updateBusiness(context *gin.Context) {
 		return
 	}
 
-	err = db.UpdateBusiness(businessModel)
+	err = controller.DBManager.UpdateBusiness(businessModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -192,12 +190,4 @@ func updateBusiness(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, businessModel.ID.String()+" updated")
-}
-
-func BusinessRoutes(router *gin.Engine) {
-	router.GET("/businesses", getBusinesses)
-	router.GET("/business", getBusiness)
-	router.DELETE("/business", deleteBusiness)
-	router.PATCH("/business", updateBusiness)
-	router.POST("/business", createBusiness)
 }

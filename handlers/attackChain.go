@@ -1,4 +1,4 @@
-package attackChain
+package handlers
 
 import (
 	"log"
@@ -33,9 +33,11 @@ type AttackChainOutput struct {
 	CreatedAt   time.Time     `json:"createdAt"`
 }
 
+type AttackChainOutputs []AttackChainOutput
+
 //Create functions modelToOutput, inputToModel, and modelsToOutput that convert between the database model and the input/output types
 
-func inputToModel(attackChainInput AttackChainInput) (attackChainModel database.AttackChainModel, err error) {
+func (attackChainInput AttackChainInput) inputToModel() (attackChainModel database.AttackChainModel, err error) {
 	//This is where you do input validation sanitization
 	attackChainModel.ID = attackChainInput.ID
 	attackChainModel.Name = attackChainInput.Name
@@ -48,7 +50,7 @@ func inputToModel(attackChainInput AttackChainInput) (attackChainModel database.
 
 }
 
-func modelToOutput(attackChainModel database.AttackChainModel) (attackChainOutput AttackChainOutput, err error) {
+func (attackChainOutput *AttackChainOutput) modelToOutput(attackChainModel database.AttackChainModel) (err error) {
 	//This is where you do input validation sanitization
 	attackChainOutput.ID = attackChainModel.ID
 	attackChainOutput.Name = attackChainModel.Name
@@ -59,19 +61,19 @@ func modelToOutput(attackChainModel database.AttackChainModel) (attackChainOutpu
 	return
 }
 
-func modelsToOutput(attackChainModels []database.AttackChainModel) (attackChainOutputs []AttackChainOutput, err error) {
+func attackChainModelsToOutput(attackChainModels []database.AttackChainModel) (attackChainOutputs AttackChainOutputs, err error) {
 	for _, attackChainModel := range attackChainModels {
-		attackChainOutput, err := modelToOutput(attackChainModel)
+		attackChainOutput := AttackChainOutput{}
+		err := attackChainOutput.modelToOutput(attackChainModel)
 		if err != nil {
-			return attackChainOutputs, err
+			return nil, err
 		}
 		attackChainOutputs = append(attackChainOutputs, attackChainOutput)
 	}
 	return
 }
 
-func getAttackChains(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetAttackChains(context *gin.Context) {
 
 	id, ok := context.GetQuery("businessId")
 	if !ok {
@@ -87,7 +89,7 @@ func getAttackChains(context *gin.Context) {
 		return
 	}
 
-	attackChainModel, err := db.GetAttackChains(businessId.String())
+	attackChainModel, err := controller.DBManager.GetAttackChains(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -95,7 +97,7 @@ func getAttackChains(context *gin.Context) {
 		return
 	}
 
-	attackChainOutput, err := modelsToOutput(attackChainModel)
+	attackChainOutputs, err := attackChainModelsToOutput(attackChainModel)
 
 	if err != nil {
 		log.Println(err)
@@ -103,11 +105,10 @@ func getAttackChains(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, attackChainOutput)
+	context.JSON(http.StatusOK, attackChainOutputs)
 }
 
-func getAttackChain(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetAttackChain(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -123,7 +124,7 @@ func getAttackChain(context *gin.Context) {
 		return
 	}
 
-	attackChainModel, err := db.GetAttackChain(attackChainId.String())
+	attackChainModel, err := controller.DBManager.GetAttackChain(attackChainId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -131,7 +132,8 @@ func getAttackChain(context *gin.Context) {
 		return
 	}
 
-	attackChainOutput, err := modelToOutput(attackChainModel)
+	var attackChainOutput AttackChainOutput
+	err = attackChainOutput.modelToOutput(attackChainModel)
 
 	if err != nil {
 		log.Println(err)
@@ -142,8 +144,7 @@ func getAttackChain(context *gin.Context) {
 	context.JSON(http.StatusOK, attackChainOutput)
 }
 
-func deleteAttackChain(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) DeleteAttackChain(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -159,7 +160,7 @@ func deleteAttackChain(context *gin.Context) {
 		return
 	}
 
-	err = db.DeleteAttackChain(attackChainId.String())
+	err = controller.DBManager.DeleteAttackChain(attackChainId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -170,8 +171,7 @@ func deleteAttackChain(context *gin.Context) {
 	context.JSON(http.StatusOK, "Success")
 }
 
-func createAttackChain(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateAttackChain(context *gin.Context) {
 
 	attackChainInput := AttackChainInput{}
 	err := context.ShouldBindJSON(&attackChainInput)
@@ -180,7 +180,7 @@ func createAttackChain(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	attackChainModel, err := inputToModel(attackChainInput)
+	attackChainModel, err := attackChainInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -188,7 +188,7 @@ func createAttackChain(context *gin.Context) {
 		return
 	}
 
-	attackChainId, err := db.CreateAttackChain(attackChainModel)
+	attackChainId, err := controller.DBManager.CreateAttackChain(attackChainModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -198,8 +198,7 @@ func createAttackChain(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, attackChainId)
 }
 
-func updateAttackChain(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateAttackChain(context *gin.Context) {
 
 	attackChainInput := AttackChainInput{}
 	err := context.ShouldBindJSON(&attackChainInput)
@@ -208,7 +207,7 @@ func updateAttackChain(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	attackChainModel, err := inputToModel(attackChainInput)
+	attackChainModel, err := attackChainInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -216,7 +215,7 @@ func updateAttackChain(context *gin.Context) {
 		return
 	}
 
-	err = db.UpdateAttackChain(attackChainModel)
+	err = controller.DBManager.UpdateAttackChain(attackChainModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -224,12 +223,4 @@ func updateAttackChain(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, "Success")
-}
-
-func AttackChainRoutes(router *gin.Engine) {
-	router.GET("/attackChains", getAttackChains)
-	router.GET("/attackChain", getAttackChain)
-	router.DELETE("/attackChain", deleteAttackChain)
-	router.PATCH("/attackChain", updateAttackChain)
-	router.POST("/attackChain", createAttackChain)
 }

@@ -18,6 +18,7 @@ type CapabilityModel struct {
 	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
 }
 
+
 func (m *DBManager) GetCapabilities(businessID string) (capabilityOutput []CapabilityModel, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, created_at FROM risky_public.capabilities(fn_business_id => $1)", businessID)

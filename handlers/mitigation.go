@@ -1,4 +1,4 @@
-package mitigation
+package handlers
 
 import (
 	"go-risky/database"
@@ -29,8 +29,9 @@ type MitigationOutput struct {
 	Implemented bool          `json:"implemented"`
 	CreatedAt   time.Time     `json:"createdAt"`
 }
+type MitigationOutputs []MitigationOutput
 
-func inputToModel(mitigationInput MitigationInput) (mitigationModel database.MitigationModel, err error) {
+func (mitigationInput MitigationInput) inputToModel() (mitigationModel database.MitigationModel, err error) {
 	mitigationModel.ID = mitigationInput.ID
 	mitigationModel.Name = mitigationInput.Name
 	mitigationModel.Description = mitigationInput.Description
@@ -40,7 +41,7 @@ func inputToModel(mitigationInput MitigationInput) (mitigationModel database.Mit
 	return
 }
 
-func modelToOutput(mitigationModel database.MitigationModel) (mitigationOutput MitigationOutput, err error) {
+func (mitigationOutput *MitigationOutput) modelToOutput(mitigationModel database.MitigationModel) (err error) {
 	mitigationOutput.ID = mitigationModel.ID
 	mitigationOutput.Name = mitigationModel.Name
 	mitigationOutput.Description = mitigationModel.Description
@@ -50,19 +51,19 @@ func modelToOutput(mitigationModel database.MitigationModel) (mitigationOutput M
 	return
 }
 
-func modelsToOutput(mitigationModels []database.MitigationModel) (mitigationOutputs []MitigationOutput, err error) {
+func mitigationModelsToOutput(mitigationModels []database.MitigationModel) (mitigationOutputs MitigationOutputs, err error) {
 	for _, mitigationModel := range mitigationModels {
-		mitigationOutput, err := modelToOutput(mitigationModel)
+		mitigationOutput := MitigationOutput{}
+		err := mitigationOutput.modelToOutput(mitigationModel)
 		if err != nil {
-			return mitigationOutputs, err
+			return nil, err
 		}
 		mitigationOutputs = append(mitigationOutputs, mitigationOutput)
 	}
 	return
 }
 
-func getMitigations(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetMitigations(context *gin.Context) {
 
 	id, ok := context.GetQuery("businessId")
 	if !ok {
@@ -78,7 +79,7 @@ func getMitigations(context *gin.Context) {
 		return
 	}
 
-	mitigationModels, err := db.GetMitigations(businessId.String())
+	mitigationModels, err := controller.DBManager.GetMitigations(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -86,7 +87,7 @@ func getMitigations(context *gin.Context) {
 		return
 	}
 
-	mitigationOutput, err := modelsToOutput(mitigationModels)
+	mitigationOutputs, err := mitigationModelsToOutput(mitigationModels)
 
 	if err != nil {
 		log.Println(err)
@@ -94,11 +95,10 @@ func getMitigations(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, mitigationOutput)
+	context.JSON(http.StatusOK, mitigationOutputs)
 }
 
-func getMitigation(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetMitigation(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -114,7 +114,7 @@ func getMitigation(context *gin.Context) {
 		return
 	}
 
-	mitigationModel, err := db.GetMitigation(mitigationId.String())
+	mitigationModel, err := controller.DBManager.GetMitigation(mitigationId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -122,7 +122,8 @@ func getMitigation(context *gin.Context) {
 		return
 	}
 
-	mitigationOutput, err := modelToOutput(mitigationModel)
+	var mitigationOutput MitigationOutput
+	err = mitigationOutput.modelToOutput(mitigationModel)
 
 	if err != nil {
 		log.Println(err)
@@ -133,8 +134,7 @@ func getMitigation(context *gin.Context) {
 	context.JSON(http.StatusOK, mitigationOutput)
 }
 
-func deleteMitigation(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) DeleteMitigation(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -150,7 +150,7 @@ func deleteMitigation(context *gin.Context) {
 		return
 	}
 
-	err = db.DeleteMitigation(mitigationId.String())
+	err = controller.DBManager.DeleteMitigation(mitigationId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -161,8 +161,7 @@ func deleteMitigation(context *gin.Context) {
 	context.JSON(http.StatusOK, "Success")
 }
 
-func createMitigation(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateMitigation(context *gin.Context) {
 
 	mitigationInput := MitigationInput{}
 	err := context.ShouldBindJSON(&mitigationInput)
@@ -171,7 +170,7 @@ func createMitigation(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	mitigationModel, err := inputToModel(mitigationInput)
+	mitigationModel, err := mitigationInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -179,7 +178,7 @@ func createMitigation(context *gin.Context) {
 		return
 	}
 
-	mitigationId, err := db.CreateMitigation(mitigationModel)
+	mitigationId, err := controller.DBManager.CreateMitigation(mitigationModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -189,8 +188,7 @@ func createMitigation(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, mitigationId)
 }
 
-func updateMitigation(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateMitigation(context *gin.Context) {
 
 	mitigationInput := MitigationInput{}
 	err := context.ShouldBindJSON(&mitigationInput)
@@ -198,7 +196,7 @@ func updateMitigation(context *gin.Context) {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
-	mitigationModel, err := inputToModel(mitigationInput)
+	mitigationModel, err := mitigationInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -206,7 +204,7 @@ func updateMitigation(context *gin.Context) {
 		return
 	}
 
-	err = db.UpdateMitigation(mitigationModel)
+	err = controller.DBManager.UpdateMitigation(mitigationModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -214,12 +212,4 @@ func updateMitigation(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, "Success")
-}
-
-func MitigationRoutes(router *gin.Engine) {
-	router.GET("/mitigations", getMitigations)
-	router.GET("/mitigation/:id", getMitigation)
-	router.DELETE("/mitigation/:id", deleteMitigation)
-	router.PATCH("/mitigation/:id", updateMitigation)
-	router.POST("/mitigations", createMitigation)
 }

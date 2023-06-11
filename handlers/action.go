@@ -1,4 +1,4 @@
-package action
+package handlers
 
 import (
 	"fmt"
@@ -37,7 +37,9 @@ type ActionOutput struct {
 	CreatedAt       time.Time     `json:"createdAt" db:"created_at"`
 }
 
-func inputToModel(actionInput ActionInput) (actionModel database.ActionModel, err error) {
+type ActionOutputs []ActionOutput
+
+func (actionInput ActionInput) inputToModel() (actionModel database.ActionModel, err error) {
 	//This is where you do input validation sanitization
 	actionModel.ID = actionInput.ID
 	actionModel.Name = actionInput.Name
@@ -54,7 +56,7 @@ func inputToModel(actionInput ActionInput) (actionModel database.ActionModel, er
 
 }
 
-func modelToOutput(actionModel database.ActionModel) (actionOutput ActionOutput, err error) {
+func (actionOutput *ActionOutput) modelToOutput(actionModel database.ActionModel) (err error) {
 	//This is where you do input validation sanitization
 	actionOutput.ID = actionModel.ID
 	actionOutput.Name = actionModel.Name
@@ -69,21 +71,22 @@ func modelToOutput(actionModel database.ActionModel) (actionOutput ActionOutput,
 	return
 }
 
-func modelsToOutput(actionModels []database.ActionModel) (actionOutput []ActionOutput, err error) {
+func actionModelsToOutput(actionModels []database.ActionModel) (actionOutputs ActionOutputs, err error) {
 	//This is where you do input validation sanitization
 	for _, model := range actionModels {
-		output, err := modelToOutput(model)
+		actionOutput := ActionOutput{}
+		err = actionOutput.modelToOutput(model)
 		if err != nil {
-			return []ActionOutput{}, err
+			return
 		}
-		actionOutput = append(actionOutput, output)
+		fmt.Println(actionOutput)
+		actionOutputs = append(actionOutputs, actionOutput)
 	}
 
 	return
 }
 
-func getActions(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetActions(context *gin.Context) {
 	id, ok := context.GetQuery("businessId")
 	if !ok {
 		log.Println("Parameter businessId not found")
@@ -98,26 +101,26 @@ func getActions(context *gin.Context) {
 		return
 	}
 
-	actionmodel, err := db.GetActions(businessId.String())
+	actionmodel, err := controller.DBManager.GetActions(businessId.String())
 
 	if err != nil {
-		log.Println(err)
+		log.Printf("Get Actions Error %s", err)
 		context.JSON(http.StatusNotFound, actionmodel)
 		return
 	}
 
-	actionOutput, err := modelsToOutput(actionmodel)
+	actionOutputs, err := actionModelsToOutput(actionmodel)
 
 	if err != nil {
-		context.JSON(http.StatusNotFound, actionOutput)
+		context.JSON(http.StatusNotFound, actionOutputs)
 		return
 	}
 
-	context.JSON(http.StatusOK, actionOutput)
+	context.JSON(http.StatusOK, actionOutputs)
 }
 
-func getAction(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetAction(context *gin.Context) {
+
 	id, ok := context.GetQuery("id")
 	if !ok {
 		log.Println("Parameter id not found")
@@ -132,7 +135,7 @@ func getAction(context *gin.Context) {
 		return
 	}
 
-	actionOutput, err := db.GetAction(actionId.String())
+	actionOutput, err := controller.DBManager.GetAction(actionId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -143,8 +146,7 @@ func getAction(context *gin.Context) {
 	context.JSON(http.StatusOK, actionOutput)
 }
 
-func deleteAction(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) DeleteAction(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if !ok {
@@ -160,7 +162,7 @@ func deleteAction(context *gin.Context) {
 		return
 	}
 
-	err = db.DeleteAction(actionId.String())
+	err = controller.DBManager.DeleteAction(actionId.String())
 
 	if err != nil {
 		log.Println("Received Error from Database")
@@ -171,8 +173,7 @@ func deleteAction(context *gin.Context) {
 	context.JSON(http.StatusOK, "Success")
 }
 
-func createAction(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateAction(context *gin.Context) {
 
 	actionInput := ActionInput{}
 	err := context.ShouldBindJSON(&actionInput)
@@ -181,14 +182,14 @@ func createAction(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 		return
 	}
-	actionModel, err := inputToModel(actionInput)
+	actionModel, err := actionInput.inputToModel()
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	_, err = db.CreateAction(actionModel)
+	_, err = controller.DBManager.CreateAction(actionModel)
 	fmt.Println("returned from create action")
 	if err != nil {
 		log.Println(err)
@@ -200,8 +201,7 @@ func createAction(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, "Success")
 }
 
-func updateAction(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateAction(context *gin.Context) {
 
 	actionInput := ActionInput{}
 	err := context.ShouldBindJSON(&actionInput)
@@ -210,7 +210,7 @@ func updateAction(context *gin.Context) {
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	actionModel, err := inputToModel(actionInput)
+	actionModel, err := actionInput.inputToModel()
 
 	if err != nil {
 		log.Println(err)
@@ -218,7 +218,7 @@ func updateAction(context *gin.Context) {
 		return
 	}
 
-	err = db.UpdateAction(actionModel)
+	err = controller.DBManager.UpdateAction(actionModel)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -226,12 +226,4 @@ func updateAction(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, "Success")
-}
-
-func ActionRoutes(router *gin.Engine) {
-	router.GET("/actions", getActions)
-	router.GET("/action", getAction)
-	router.DELETE("/action", deleteAction)
-	router.PATCH("/action", updateAction)
-	router.POST("/action", createAction)
 }

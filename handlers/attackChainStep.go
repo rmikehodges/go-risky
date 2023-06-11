@@ -1,4 +1,4 @@
-package attackChainStep
+package handlers
 
 import (
 	"go-risky/database"
@@ -28,7 +28,9 @@ type AttackChainStepOutput struct {
 	CreatedAt     time.Time `json:"createdAt"`
 }
 
-func inputToModel(attackChainStepInput AttackChainStepInput) (attackChainStepModel database.AttackChainStepModel, err error) {
+type AttackChainStepOutputs []AttackChainStepOutput
+
+func (attackChainStepInput AttackChainStepInput) inputToModel() (attackChainStepModel database.AttackChainStepModel, err error) {
 	attackChainStepModel.BusinessID = attackChainStepInput.BusinessID
 	attackChainStepModel.ActionID = attackChainStepInput.ActionID
 	attackChainStepModel.AttackChainID = attackChainStepInput.AttackChainID
@@ -39,7 +41,7 @@ func inputToModel(attackChainStepInput AttackChainStepInput) (attackChainStepMod
 
 }
 
-func modelToOutput(attackChainStepModel database.AttackChainStepModel) (attackChainStepOutput AttackChainStepOutput, err error) {
+func (attackChainStepOutput *AttackChainStepOutput) modelToOutput(attackChainStepModel database.AttackChainStepModel) (err error) {
 	//This is where you do input validation sanitization
 	attackChainStepOutput.BusinessID = attackChainStepModel.BusinessID
 	attackChainStepOutput.ActionID = attackChainStepModel.ActionID
@@ -49,28 +51,47 @@ func modelToOutput(attackChainStepModel database.AttackChainStepModel) (attackCh
 	return
 }
 
-func modelsToOutput(attackChainStepModels []database.AttackChainStepModel) (attackChainStepOutput []AttackChainStepOutput, err error) {
+func attackChainStepModelsToOutput(attackChainStepModels []database.AttackChainStepModel) (attackChainStepOutputs AttackChainStepOutputs, err error) {
 	//This is where you do input validation sanitization
 	for _, model := range attackChainStepModels {
-		output, err := modelToOutput(model)
+		attackChainStepOutput := AttackChainStepOutput{}
+		err := attackChainStepOutput.modelToOutput(model)
 		if err != nil {
 			return nil, err
 		}
-		attackChainStepOutput = append(attackChainStepOutput, output)
+		attackChainStepOutputs = append(attackChainStepOutputs, attackChainStepOutput)
 	}
 	return
 }
 
-func getAttackChainSteps(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) GetAttackChainSteps(context *gin.Context) {
+
 	businessID := context.Query("businessId")
 	attackChainId := context.Query("attackChainId")
-	attackChainStepModels, err := db.GetAttackChainSteps(businessID, attackChainId)
+	attackChainStepModels, err := controller.DBManager.GetAttackChainSteps(businessID, attackChainId)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainStepOutput, err := modelsToOutput(attackChainStepModels)
+
+	attackChainStepOutputs, err := attackChainStepModelsToOutput(attackChainStepModels)
+	if err != nil {
+		context.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	context.JSON(200, attackChainStepOutputs)
+}
+
+func (controller PublicController) GetAttackChainStep(context *gin.Context) {
+
+	id := context.Param("id")
+	attackChainStepModel, err := controller.DBManager.GetAttackChainStep(id)
+	if err != nil {
+		context.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	var attackChainStepOutput AttackChainStepOutput
+	err = attackChainStepOutput.modelToOutput(attackChainStepModel)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -78,26 +99,10 @@ func getAttackChainSteps(context *gin.Context) {
 	context.JSON(200, attackChainStepOutput)
 }
 
-func getAttackChainStep(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
-	id := context.Param("id")
-	attackChainStepModel, err := db.GetAttackChainStep(id)
-	if err != nil {
-		context.JSON(500, gin.H{"error": err.Error()})
-		return
-	}
-	attackChainStepOutput, err := modelToOutput(attackChainStepModel)
-	if err != nil {
-		context.JSON(500, gin.H{"error": err.Error()})
-		return
-	}
-	context.JSON(200, attackChainStepOutput)
-}
+func (controller PublicController) DeleteAttackChainStep(context *gin.Context) {
 
-func deleteAttackChainStep(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
 	id := context.Param("id")
-	err := db.DeleteAttackChainStep(id)
+	err := controller.DBManager.DeleteAttackChainStep(id)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -105,26 +110,27 @@ func deleteAttackChainStep(context *gin.Context) {
 	context.JSON(200, gin.H{})
 }
 
-func updateAttackChainStep(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) UpdateAttackChainStep(context *gin.Context) {
+
 	var attackChainStepInput AttackChainStepInput
 	err := context.ShouldBindJSON(&attackChainStepInput)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainStepModel, err := inputToModel(attackChainStepInput)
+	attackChainStepModel, err := attackChainStepInput.inputToModel()
 	if err != nil {
 
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	err = db.UpdateAttackChainStep(attackChainStepModel)
+	err = controller.DBManager.UpdateAttackChainStep(attackChainStepModel)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainStepOutput, err := modelToOutput(attackChainStepModel)
+	var attackChainStepOutput AttackChainStepOutput
+	err = attackChainStepOutput.modelToOutput(attackChainStepModel)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -132,25 +138,26 @@ func updateAttackChainStep(context *gin.Context) {
 	context.JSON(200, attackChainStepOutput)
 }
 
-func createAttackChainStep(context *gin.Context) {
-	db := context.MustGet("DBManager").(*database.DBManager)
+func (controller PublicController) CreateAttackChainStep(context *gin.Context) {
+
 	var attackChainStepInput AttackChainStepInput
 	err := context.ShouldBindJSON(&attackChainStepInput)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainStepModel, err := inputToModel(attackChainStepInput)
+	attackChainStepModel, err := attackChainStepInput.inputToModel()
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainStepModel, err = db.CreateAttackChainStep(attackChainStepModel)
+	attackChainStepModel, err = controller.DBManager.CreateAttackChainStep(attackChainStepModel)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainStepOutput, err := modelToOutput(attackChainStepModel)
+	var attackChainStepOutput AttackChainStepOutput
+	err = attackChainStepOutput.modelToOutput(attackChainStepModel)
 	if err != nil {
 
 		context.JSON(500, gin.H{"error": err.Error()})
@@ -160,11 +167,3 @@ func createAttackChainStep(context *gin.Context) {
 }
 
 //Create the handlers for the AttackChainStep that matches the format of AttackChain handlers
-
-func AttackChainStepRoutes(router *gin.Engine) {
-	router.GET("/attackChainSteps", getAttackChainSteps)
-	router.GET("/attackChainStep/:id", getAttackChainStep)
-	router.DELETE("/attackChainStep/:id", deleteAttackChainStep)
-	router.PATCH("/attackChainStep/:id", updateAttackChainStep)
-	router.POST("/attackChainSteps", createAttackChainStep)
-}
