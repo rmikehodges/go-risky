@@ -25,6 +25,8 @@ func TestGetLiabilities(t *testing.T) {
 	}
 }
 
+//TODO: Write Test for GetLiabilitiesByImpactId and GetLiabilitiesByThreatId
+
 func TestGetLiability(t *testing.T) {
 	var liabilityId = "67be251e-33d7-45ab-8577-a5f0e6f32cdf"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")

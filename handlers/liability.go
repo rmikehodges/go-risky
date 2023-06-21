@@ -85,27 +85,74 @@ func liabilityModelsToOutputs(liabilityModels []database.LiabilityModel) (liabil
 }
 
 func (controller PublicController) GetLiabilities(context *gin.Context) {
+	var liabilityModels []database.LiabilityModel
 
-	id, ok := context.GetQuery("businessId")
+	rawBusinessId, ok := context.GetQuery("businessId")
 	if !ok {
 		log.Println("Parameter businessId not found")
 		context.JSON(http.StatusNotFound, "Not found")
 		return
 	}
 
-	businessId, err := uuid.Parse(id)
+	businessId, err := uuid.Parse(rawBusinessId)
 	if err != nil {
 		log.Println("businessId is not a uuid")
 		context.JSON(http.StatusNotFound, "Not found")
 		return
 	}
 
-	liabilityModels, err := controller.DBManager.GetLiabilities(businessId.String())
+	rawImpactId, impactIdPresent := context.GetQuery("impactId")
+	rawMitigationId, mitigationIdPresent := context.GetQuery("mitigationId")
+	rawThreatId, threatIdPresent := context.GetQuery("threatId")
 
-	if err != nil {
-		log.Println(err)
-		context.JSON(http.StatusNotFound, "Not Found")
-		return
+	switch {
+	case threatIdPresent:
+		threatId, err := uuid.Parse(rawThreatId)
+		if err != nil {
+			log.Println("threatId is not a uuid")
+			context.JSON(http.StatusNotFound, "Not found")
+			return
+		}
+		liabilityModels, err = controller.DBManager.GetLiabilitiesByThreatId(businessId.String(), threatId.String())
+		if err != nil {
+			log.Println(err)
+			context.JSON(http.StatusNotFound, "Not Found")
+			return
+		}
+	case mitigationIdPresent:
+		mitigationId, err := uuid.Parse(rawMitigationId)
+		if err != nil {
+			log.Println("mitigationId is not a uuid")
+			context.JSON(http.StatusNotFound, "Not found")
+			return
+		}
+		liabilityModels, err = controller.DBManager.GetLiabilitiesByMitigationId(businessId.String(), mitigationId.String())
+		if err != nil {
+			log.Println(err)
+			context.JSON(http.StatusNotFound, "Not Found")
+			return
+		}
+	case impactIdPresent:
+		impactId, err := uuid.Parse(rawImpactId)
+		if err != nil {
+			log.Println("impactId is not a uuid")
+			context.JSON(http.StatusNotFound, "Not found")
+			return
+		}
+		liabilityModels, err = controller.DBManager.GetLiabilitiesByImpactId(businessId.String(), impactId.String())
+		if err != nil {
+			log.Println(err)
+			context.JSON(http.StatusNotFound, "Not Found")
+			return
+		}
+	default:
+		liabilityModels, err = controller.DBManager.GetLiabilities(businessId.String())
+		if err != nil {
+			log.Println(err)
+			context.JSON(http.StatusNotFound, "Not Found")
+			return
+		}
+
 	}
 
 	liabilityOutputs, err := liabilityModelsToOutputs(liabilityModels)

@@ -6,7 +6,7 @@ import ReactFlow, {
   useEdgesState,
   Controls,
   ReactFlowInstance,
-  NodeTypes,
+  ConnectionLineType,
   Node,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -21,6 +21,7 @@ import { ThreatOutput } from '../Threats/Threats';
 import { AssetOutput } from '../Assets/Assets';
 import AssetNode from './AssetNode';
 import ThreatNode from './ThreatNode';
+import ImpactBuilder from '../ImpactBuilder/ImpactBuilder';
 
 const initialNodes: Node[] = [];
 
@@ -49,7 +50,7 @@ const AttackChainBuilderDnD = () => {
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
 
-  const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
+  const onConnect = useCallback((params: any) => setEdges((eds) => addEdge({...params,type:"smoothstep"}, eds)), []);
 
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
@@ -112,6 +113,7 @@ const AttackChainBuilderDnD = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            connectionLineType={ConnectionLineType.Step}
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
@@ -121,7 +123,8 @@ const AttackChainBuilderDnD = () => {
           </ReactFlow>
         </div>
       </ReactFlowProvider>
-      <div className="sidebar">        <Sidebar /></div>
+      <div className="sidebar"><Sidebar /></div>
+      <div className="impactBuilder"><ImpactBuilder /></div>
     </div>
   );
 };

@@ -1,9 +1,10 @@
 import './App.css';
 import React from 'react';
-import { BrowserRouter, RouterProvider, Route, Link, redirect, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Actions from './components/Actions/Actions';
 import AttackChainBuilderDnD from './components/AttackChainBuilder/AttackChainBuilderDnD';
 import Action from './components/Actions/Action';
+import ImpactBuilder from './components/ImpactBuilder/ImpactBuilder';
 // import AttackChains from '../old_code/AttackChains/AttackChains';
 // import Capabilities from './components/Capabilities/Capabilities';
 // import Businesses from './components/Businesses/Businesses';
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
     {
       path: "/attackChainBuilder",
       element: <AttackChainBuilderDnD />
+    },
+    {
+      path: "/impactBuilder",
+      element: <ImpactBuilder />
     },
     // {
     //   path: "/attackChain/:id",

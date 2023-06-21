@@ -57,12 +57,6 @@ Accountants go by revenue / employee hours. This means
 - 
 
 
-## TODO
-2. Write tests for database models and handlers (postgresql should probably be last)
-- Wrote example tests for actions on the model and determined that I need to return more data for create and update in order to test them effectively (or do I? Since I can just get them after create and update)
-3. Create Seed Script for DB
-
-
 ## TODO Testing
 2. Handlers
 4. pgTap testing of more complex database logic (calculate_impact etc.)
@@ -71,10 +65,12 @@ Accountants go by revenue / employee hours. This means
 1. make PERL=PATH to Perl
 
 
-## UI Flows
-1. Create Business
-2. Create Threat
-3. Create Action - check, Delete acts weird
-4. Create Attack Chain
-5. Create Liabilities
-6. Create Impact
+## TODO UI Flows
+1. ImpactBuilder
+- Once a user inputs a threat, the existing liabilities for that threat should populate. The plus sign will trigger a createLiability popup modal where the user can input liabilities 
+- Work out flow on creating attackChainSteps on node connection
+- Specify threat and then get the listing of Attack Chains based on the threat to choose from or create new. This will create an option to show all attack chains for a threat so you can identify critical assets and actions.
+
+
+## TODO Backend
+1. Import MITRE Attack into Actions once the builder is in working order.

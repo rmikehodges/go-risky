@@ -4,12 +4,19 @@ import { useEffect, useState } from 'react';
 import { ActionOutput } from '../Actions/Actions';
 import { ThreatOutput } from '../Threats/Threats';
 import { AssetOutput } from '../Assets/Assets';
+import ThreatDropdown from './ThreatDropdown';
 
 export default (props:any) => {
     var businessId = "23628819-59dd-45f3-8395-aceeca86bc9c"
     const [actions, setActions] = useState<ActionOutput[] | null>(null);
     const [threats, setThreats] = useState<ThreatOutput[] | null>(null);
     const [assets, setAssets] = useState<AssetOutput[] | null>(null);
+
+    const [selectedThreat, setSelectedThreat] = useState<string>('');
+
+    const handleSelectThreat = (option: string) => {
+      setSelectedThreat(option);
+    }
     useEffect(() => {
         axios.get<ActionOutput[]>(`http://localhost:8081/actions?businessId=${businessId}`)
           .then(res => {
@@ -32,11 +39,11 @@ export default (props:any) => {
     event.dataTransfer.effectAllowed = 'move';
   };
 
-  const onThreatDragStart = (event: any, nodeType: any, threat: ThreatOutput) => {
-    event.dataTransfer.setData('application/reactflow', nodeType);
-    event.dataTransfer.setData('application/json', JSON.stringify(threat));
-    event.dataTransfer.effectAllowed = 'move';
-  };
+  // const onThreatDragStart = (event: any, nodeType: any, threat: ThreatOutput) => {
+  //   event.dataTransfer.setData('application/reactflow', nodeType);
+  //   event.dataTransfer.setData('application/json', JSON.stringify(threat));
+  //   event.dataTransfer.effectAllowed = 'move';
+  // };
 
   const onAssetDragStart = (event: any, nodeType: any, asset: AssetOutput) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
@@ -45,6 +52,13 @@ export default (props:any) => {
   };
 
   return (
+    <div>
+      Threat
+      <ThreatDropdown options={threats} onSelectOption={handleSelectThreat}/>
+      <div>
+      <br></br>
+        Attack Chain
+      </div>
     <aside>
       <div className="description">Actions</div>
       {actions?.map(action => {
@@ -57,7 +71,7 @@ export default (props:any) => {
           
       })}
 
-    <div className="description">Threats</div>
+    {/* <div className="description">Threats</div>
       {threats?.map(threat => {
         return (
            <div  key={threat.id} className="dndnode" onDragStart={(event) => onThreatDragStart(event, 'threat', threat)} draggable>
@@ -65,7 +79,7 @@ export default (props:any) => {
           </div>
 
         )
-      })}
+      })} */}
     <div className="description">Assets</div>
       {assets?.map(asset => {
         return (
@@ -76,5 +90,6 @@ export default (props:any) => {
         )
     })}
     </aside>
+    </div>
   );
 };

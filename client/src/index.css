@@ -42,6 +42,10 @@ code {
   cursor: grab;
 }
 
+.dndnode {
+  width: 100px;
+}
+
 .dndflow .dndnode.input {
   border-color: #0041d0;
 }
@@ -76,6 +80,7 @@ code {
   border: 1px solid #555;
   border-radius: 5px;
   text-align: center;
+  width: 100px;
 }
 
 .react-flow__node-threat {
@@ -92,6 +97,7 @@ code {
   border: 1px solid #555;
   border-radius: 5px;
   text-align: center;
+  width: 100px;
 }
 
 

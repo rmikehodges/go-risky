@@ -5,12 +5,34 @@ AS $$
     SELECT * FROM risky_public.liability WHERE business_id = fn_business_id;
 $$ LANGUAGE sql;
 
-DROP FUNCTION  risky_public.liabilities_by_threat_id;
-CREATE FUNCTION risky_public.liabilities(fn_business_id uuid, fn_threat_id uuid) 
+DROP FUNCTION risky_public.liabilities_by_threat_id;
+CREATE FUNCTION risky_public.liabilities_by_threat_id;(fn_business_id uuid, fn_threat_id uuid) 
 RETURNS SETOF risky_public.liability 
 AS $$
-   
+       SELECT * FROM risky_public.liability WHERE business_id = fn_business_id AND threat_id = fn_threat_id;
 $$ LANGUAGE sql;
+
+DROP FUNCTION risky_public.get_liabilities_by_impact_id;
+CREATE FUNCTION risky_public.liabilities_by_impact_id;(fn_business_id uuid, fn_threat_id uuid) 
+RETURNS SETOF risky_public.liability 
+AS $$
+    SELECT * FROM risky_public.liability WHERE business_id = fn_business_id AND impact_id = fn_impact_id;
+$$ LANGUAGE sql;
+
+DROP FUNCTION risky_public.get_liabilities_by_mitigation_id;
+CREATE FUNCTION risky_public.liabilities_by_impact_id;(fn_business_id uuid, fn_mitigation_id uuid) 
+RETURNS SETOF risky_public.liability 
+AS $$
+    SELECT * FROM risky_public.liability WHERE business_id = fn_business_id AND mitigation_id = fn_mitigation_id;
+$$ LANGUAGE sql;
+
+-- DROP FUNCTION risky_public.get_liability_by_resource_id;
+-- CREATE FUNCTION risky_public.get_liability_by_impact_id(fn_impact_id uuid) 
+-- RETURNS risky_public.liability 
+-- AS $$
+--     SELECT * FROM risky_public.liability WHERE impact_id = fn_impact_id;
+-- $$ LANGUAGE sql;
+
 
 DROP FUNCTION risky_public.get_liability;
 CREATE FUNCTION risky_public.get_liability(fn_liability_id uuid) 
@@ -18,13 +40,6 @@ RETURNS risky_public.liability
 AS $$
     SELECT * FROM risky_public.liability WHERE id = fn_liability_id;
 $$ LANGUAGE sql;
-
--- DROP FUNCTION risky_public.get_liability_by_impact_id;
--- CREATE FUNCTION risky_public.get_liability_by_impact_id(fn_impact_id uuid) 
--- RETURNS risky_public.liability 
--- AS $$
---     SELECT * FROM risky_public.liability WHERE impact_id = fn_impact_id;
--- $$ LANGUAGE sql;
 
 DROP FUNCTION risky_public.delete_liability;
 CREATE FUNCTION risky_public.delete_liability(fn_liability_id uuid) 

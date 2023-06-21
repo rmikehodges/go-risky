@@ -17,11 +17,14 @@ const ActionNode = ({ data, isConnectable }: ActionNodeProps) => {
   const actionName = data.action?.name;
   return (
     <>
+     <Handle type="source" position={Position.Left} />
+     <Handle type="target" position={Position.Right} />
       <Handle type="target" position={Position.Top} />
       <div>
         <label htmlFor="text">{actionName}</label><br></br>
       </div>
-      <Handle type="source" position={Position.Bottom} id="a" />
+      <Handle type="source" position={Position.Bottom}/>
+
     </>
   );
 }
