@@ -6,7 +6,9 @@ CREATE schema risky_secret;
 
 CREATE TYPE risky_public.action_complexity AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'EXTREME');
 
-CREATE TYPE risky_public.resources_type AS ENUM ('DEVELOPER', 'LEGAL', 'COMPLIANCE', 'ADMINISTRATIVE', 'CASH', 'OTHER');
+CREATE TYPE risky_public.resource_type AS ENUM ('REVENUE','OVERTIME','EMPLOYEE', 'LEGAL', 'COMPLIANCE', 'CONSULTING', 'CASH', 'OTHER');
+
+CREATE TYPE risky_public.liability_type AS ENUM ('EXPLICIT', 'BUSINESS INTERRUPTION LOSS');
 
 CREATE TABLE risky_public.business (
     id uuid primary key default gen_random_uuid(),
@@ -61,7 +63,7 @@ CREATE TABLE risky_public.resource (
     cost DOUBLE PRECISION NOT NULL,
     unit TEXT NOT NULL,
     total DOUBLE PRECISION NOT NULL,
-    resource_type risky_public.resources_type NOT NULL,
+    resource_type risky_public.resource_type NOT NULL,
     business_id uuid references risky_public.business(id) NOT NULL,
     created_at       timestamp default now()
 );
@@ -122,6 +124,8 @@ CREATE TABLE risky_public.liability (
     description varchar default '',
     quantity DOUBLE PRECISION,
     cost DOUBLE precision,
+    type risky_public.liability_type NOT NULL,
+    resource_type risky_public.resource_type,
     business_id uuid references risky_public.business(id) NOT NULL,
     detection_id uuid references risky_public.detection(id),
     mitigation_id uuid references risky_public.mitigation(id),

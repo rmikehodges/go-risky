@@ -51,11 +51,14 @@ INSERT INTO risky_public.detection (name, description, business_id) VALUES ('Det
 INSERT INTO risky_public.detection (name, description, business_id) VALUES ('Detect 2', 'Detect 2 of the attack chain', '23628819-59dd-45f3-8395-aceeca86bc9c');
 
 -- Create seed data for risky_public.liability using data describing the liability of an attack
-INSERT INTO risky_public.liability (name, description, business_id) VALUES ('Liability 1', 'Liability 1 of the attack chain', '23628819-59dd-45f3-8395-aceeca86bc9c');
-INSERT INTO risky_public.liability (name, description, business_id) VALUES ('Liability 2', 'Liability 2 of the attack chain', '23628819-59dd-45f3-8395-aceeca86bc9c');
+INSERT INTO risky_public.liability (name, description, business_id, type, resource_type) VALUES ('Liability 1', 'Liability 1 of the attack chain', '23628819-59dd-45f3-8395-aceeca86bc9c', 'EXPLICIT', 'CASH');
+INSERT INTO risky_public.liability (name, description, business_id, type, resource_type) VALUES ('Liability 2', 'Liability 2 of the attack chain', '23628819-59dd-45f3-8395-aceeca86bc9c', 'BUSINESS INTERRUPTION LOSS', 'REVENUE');
 
 -- create seed data for risky_public.mitigation using data describing the mitigation of an attack
 INSERT INTO risky_public.mitigation (name, description, business_id) VALUES ('Mitigation 1', 'Mitigation 1 of the attack chain', '23628819-59dd-45f3-8395-aceeca86bc9c');
 INSERT INTO risky_public.mitigation (name, description, business_id) VALUES ('Mitigation 2', 'Mitigation 2 of the attack chain', '23628819-59dd-45f3-8395-aceeca86bc9c');
+
+INSERT INTO risky_public.resource (name, description, cost, unit, total, resource_type, business_id) VALUES ('Overtime', 'Mitigation 1 of the attack chain', 10, 'hour', 100, 'OVERTIME', '23628819-59dd-45f3-8395-aceeca86bc9c');
+INSERT INTO risky_public.resource (name, description, cost, unit, total, resource_type, business_id) VALUES ('Lost Revenue', 'Mitigation 1 of the attack chain', 1, 'dollars', 1000, 'REVENUE', '23628819-59dd-45f3-8395-aceeca86bc9c');
 
 

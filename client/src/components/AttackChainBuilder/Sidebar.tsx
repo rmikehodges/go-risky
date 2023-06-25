@@ -4,28 +4,18 @@ import { useEffect, useState } from 'react';
 import { ActionOutput } from '../Actions/Actions';
 import { ThreatOutput } from '../Threats/Threats';
 import { AssetOutput } from '../Assets/Assets';
-import ThreatDropdown from './ThreatDropdown';
+import ThreatDropdown from '../ImpactBuilder/ThreatDropdown';
 
 export default (props:any) => {
     var businessId = "23628819-59dd-45f3-8395-aceeca86bc9c"
     const [actions, setActions] = useState<ActionOutput[] | null>(null);
-    const [threats, setThreats] = useState<ThreatOutput[] | null>(null);
     const [assets, setAssets] = useState<AssetOutput[] | null>(null);
 
-    const [selectedThreat, setSelectedThreat] = useState<string>('');
-
-    const handleSelectThreat = (option: string) => {
-      setSelectedThreat(option);
-    }
     useEffect(() => {
         axios.get<ActionOutput[]>(`http://localhost:8081/actions?businessId=${businessId}`)
           .then(res => {
           const actionsResp = res.data;
          setActions(actionsResp)});
-         axios.get<ThreatOutput[]>(`http://localhost:8081/threats?businessId=${businessId}`)
-         .then(res => {
-         const threatsResp = res.data;
-        setThreats(threatsResp)});
         axios.get<AssetOutput[]>(`http://localhost:8081/assets?businessId=${businessId}`)
         .then(res => {
         const assetsResp = res.data;
@@ -53,8 +43,6 @@ export default (props:any) => {
 
   return (
     <div>
-      Threat
-      <ThreatDropdown options={threats} onSelectOption={handleSelectThreat}/>
       <div>
       <br></br>
         Attack Chain

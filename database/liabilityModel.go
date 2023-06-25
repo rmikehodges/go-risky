@@ -16,6 +16,8 @@ type LiabilityModel struct {
 	Description  zeronull.Text `json:"description"`
 	Quantity     float32       `json:"quantity"`
 	Cost         float32       `json:"cost"`
+	Type         string        `json:"type"`
+	ResourceType string        `json:"resourceType" db:"resource_type"`
 	BusinessID   uuid.UUID     `json:"businessId" db:"business_id"`
 	MitigationID *uuid.UUID    `json:"mitigationId" db:"mitigation_id"`
 	DetectionID  *uuid.UUID    `json:"detectionId" db:"detection_id"`
@@ -27,7 +29,7 @@ type LiabilityModel struct {
 
 func (m *DBManager) GetLiabilities(businessID string) (liabilityOutput []LiabilityModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, quantity, cost, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, quantity, type, resource_type, cost, business_id, mitigation_id, detection_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -44,7 +46,7 @@ func (m *DBManager) GetLiabilities(businessID string) (liabilityOutput []Liabili
 
 func (m *DBManager) GetLiabilitiesByImpactId(businessID string, impactId string) (liabilityOutput []LiabilityModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities_by_impactId(fn_business_id => $1, fn_impact_id => $2)", businessID, impactId)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, quantity, type, resource_type, cost, business_id, mitigation_id, detection_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities_by_impactId(fn_business_id => $1, fn_impact_id => $2)", businessID, impactId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -61,7 +63,7 @@ func (m *DBManager) GetLiabilitiesByImpactId(businessID string, impactId string)
 
 func (m *DBManager) GetLiabilitiesByThreatId(businessID string, threatId string) (liabilityOutput []LiabilityModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities_by_threatId(fn_business_id => $1, fn_threat_id => $2)", businessID, threatId)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, quantity, type, resource_type, cost, business_id, mitigation_id, detection_id, resource_id, threat_id, impact_id, created_atFROM risky_public.liabilities_by_threatId(fn_business_id => $1, fn_threat_id => $2)", businessID, threatId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -78,7 +80,7 @@ func (m *DBManager) GetLiabilitiesByThreatId(businessID string, threatId string)
 
 func (m *DBManager) GetLiabilitiesByMitigationId(businessID string, mitigationId string) (liabilityOutput []LiabilityModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities_by_threatId(fn_business_id => $1, fn_mitigtation_id => $2)", businessID, mitigationId)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, quantity, type, resource_type, cost, business_id, mitigation_id, detection_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities_by_threatId(fn_business_id => $1, fn_mitigtation_id => $2)", businessID, mitigationId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -95,7 +97,7 @@ func (m *DBManager) GetLiabilitiesByMitigationId(businessID string, mitigationId
 
 func (m *DBManager) GetLiability(id string) (liabilityOutput LiabilityModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, quantity, cost, business_id, mitigation_id, resource_id, threat_id, impact_id, created_at FROM risky_public.get_liability(fn_liability_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, quantity, type, resource_type, cost, business_id, mitigation_id, detection_id, resource_id, threat_id, impact_id, created_at FROM risky_public.get_liability(fn_liability_id => $1)", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -117,15 +119,17 @@ func (m *DBManager) CreateLiability(liabilityInput LiabilityModel) (liabilityId 
 			fn_name => $1, 
 			fn_description => $2,
 			fn_quantity => $3,
-			fn_business_id => $4, 
-			fn_mitigation_id => $5, 
-			fn_resource_id => $6, 
-			fn_detection_id => $7, 
-			fn_resource_id => $8, 
-			fn_detection_id => $9)`,
+			fn_type => $4,
+			fn_business_id => $5, 
+			fn_mitigation_id => $6, 
+			fn_resource_id => $7, 
+			fn_detection_id => $8, 
+			fn_threat_id => $10)
+			fn_impact_id => $11)`,
 		liabilityInput.Name,
 		liabilityInput.Description,
 		liabilityInput.Quantity,
+		liabilityInput.Type,
 		liabilityInput.BusinessID,
 		liabilityInput.MitigationID,
 		liabilityInput.ResourceID,
@@ -159,16 +163,18 @@ func (m *DBManager) UpdateLiability(liabilityInput LiabilityModel) (err error) {
 			fn_name => $2, 
 			fn_description => $3,
 			fn_quantity => $4,
-			fn_business_id => $5, 
-			fn_mitigation_id => $6, 
-			fn_resource_id => $7, 
-			fn_detection_id => $8, 
-			fn_impact_id => $9, 
-			fn_threat_id => $10)`,
+			fn_type => $5,
+			fn_business_id => $6, 
+			fn_mitigation_id => $7, 
+			fn_resource_id => $8, 
+			fn_detection_id => $9, 
+			fn_impact_id => $10, 
+			fn_threat_id => $11)`,
 		liabilityInput.ID,
 		liabilityInput.Name,
 		liabilityInput.Description,
 		liabilityInput.Quantity,
+		liabilityInput.Type,
 		liabilityInput.BusinessID,
 		liabilityInput.MitigationID,
 		liabilityInput.ResourceID,

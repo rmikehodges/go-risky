@@ -16,6 +16,8 @@ type LiabilityInput struct {
 	Name         string        `json:"name"`
 	Description  zeronull.Text `json:"description"`
 	Quantity     float32       `json:"quantity"`
+	Type         string        `json:"type"`
+	ResourceType string        `json:"resourceType"`
 	Cost         float32       `json:"cost"`
 	BusinessID   uuid.UUID     `json:"businessId"`
 	DetectionID  *uuid.UUID    `json:"detectionId"`
@@ -31,6 +33,8 @@ type LiabilityOutput struct {
 	Name         string        `json:"name"`
 	Description  zeronull.Text `json:"description"`
 	Quantity     float32       `json:"quantity"`
+	Type         string        `json:"type"`
+	ResourceType string        `json:"resourceType"`
 	Cost         float32       `json:"cost"`
 	BusinessID   uuid.UUID     `json:"businessId"`
 	DetectionID  *uuid.UUID    `json:"detectionId"`
@@ -47,6 +51,8 @@ func (liabilityInput LiabilityInput) inputToModel() (liabilityModel database.Lia
 	liabilityModel.Name = liabilityInput.Name
 	liabilityModel.Description = liabilityInput.Description
 	liabilityModel.Quantity = liabilityInput.Quantity
+	liabilityModel.Type = liabilityInput.Type
+	liabilityModel.ResourceType = liabilityInput.ResourceType
 	liabilityModel.Cost = liabilityInput.Cost
 	liabilityModel.BusinessID = liabilityInput.BusinessID
 	liabilityModel.MitigationID = liabilityInput.MitigationID
@@ -62,6 +68,8 @@ func (liabilityOutput *LiabilityOutput) modelToOutput(liabilityModel database.Li
 	liabilityOutput.Name = liabilityModel.Name
 	liabilityOutput.Description = liabilityModel.Description
 	liabilityOutput.Quantity = liabilityModel.Quantity
+	liabilityOutput.Type = liabilityModel.Type
+	liabilityOutput.ResourceType = liabilityModel.ResourceType
 	liabilityOutput.Cost = liabilityModel.Cost
 	liabilityOutput.BusinessID = liabilityModel.BusinessID
 	liabilityOutput.MitigationID = liabilityModel.MitigationID

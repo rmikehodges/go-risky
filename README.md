@@ -56,6 +56,8 @@ Accountants go by revenue / employee hours. This means
 - a workable sidebar view with input filtering and collapsable lists, likely split out capabilities and vulnerabilities.
 - 
 
+06/24 TODO: See if automatic liability calculation is working by linking objects 
+
 
 ## TODO Testing
 2. Handlers
