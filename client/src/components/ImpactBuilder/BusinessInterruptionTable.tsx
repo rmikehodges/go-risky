@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { LiabilityOutput } from '../Liabilities/Liability';
 
 interface BusinessInterruptionTableProps {
@@ -7,47 +7,46 @@ interface BusinessInterruptionTableProps {
   }
 
 const BusinessInterruptionTable: React.FC<BusinessInterruptionTableProps> = ({ businessInterruptionLiabilities}) => {
-    const [employeeTotal, setEmployeeTotal] = useState<number>(0);
-    const [employeeRemediationTotal, setEmployeeRemediationTotal] = useState<number>(0);
-    const [overtimeTotal, setOvertimeTotal] = useState<number>(0);
-    const [overtimeRemediationTotal, setOvertimeRemediationTotal] = useState<number>(0);
-    const [revenueTotal, setRevenueTotal] = useState<number>(0);
-    const [revenueRemediationTotal, setRevenueRemediationTotal] = useState<number>(0);
-    const [otherTotal, setOtherTotal] = useState<number>(0);
-    const [otherRemediationTotal, setOtherRemediationTotal] = useState<number>(0);
+    let employeeTotal = 0;
+    let employeeRemediationTotal = 0;
+    let overtimeTotal = 0;
+    let overtimeRemediationTotal = 0;
+    let revenueTotal = 0;
+    let revenueRemediationTotal = 0;
+    let otherTotal = 0;
+    let otherRemediationTotal = 0;
 
 
-    useEffect(() => {
+
         if (businessInterruptionLiabilities != null) {
         for (let i = 0; i < businessInterruptionLiabilities!.length; i++) {
             if (businessInterruptionLiabilities![i].mitigationId != null || businessInterruptionLiabilities![i].detectionId != null) {
                 if (businessInterruptionLiabilities![i].resourceType === 'EMPLOYEE') {
-                    setEmployeeRemediationTotal(employeeRemediationTotal + businessInterruptionLiabilities![i].cost);
+                    (employeeRemediationTotal += businessInterruptionLiabilities![i].cost);
                 }
                 else if (businessInterruptionLiabilities![i].resourceType === 'OVERTIME') {
-                    setOvertimeRemediationTotal(overtimeRemediationTotal + businessInterruptionLiabilities![i].cost);
+                    (overtimeRemediationTotal += businessInterruptionLiabilities![i].cost);
                 }
                 else if (businessInterruptionLiabilities![i].resourceType === 'REVENUE') {
-                    setRevenueRemediationTotal(revenueRemediationTotal + businessInterruptionLiabilities![i].cost);
+                    (revenueRemediationTotal += businessInterruptionLiabilities![i].cost);
                 } else {
-                    setOtherRemediationTotal(otherRemediationTotal + businessInterruptionLiabilities![i].cost);
+                    (otherRemediationTotal += businessInterruptionLiabilities![i].cost);
                 }
             } else {
                 if (businessInterruptionLiabilities![i].resourceType === 'EMPLOYEE') {
-                    setEmployeeTotal(employeeTotal + businessInterruptionLiabilities![i].cost);
+                    (employeeTotal += businessInterruptionLiabilities![i].cost);
                 }
                 else if (businessInterruptionLiabilities![i].resourceType === 'OVERTIME') {
-                    setOvertimeTotal(overtimeTotal + businessInterruptionLiabilities![i].cost);
+                    (overtimeTotal += businessInterruptionLiabilities![i].cost);
                 }
                 else if (businessInterruptionLiabilities![i].resourceType === 'REVENUE') {
-                    setRevenueTotal(revenueTotal + businessInterruptionLiabilities![i].cost);
+                    (revenueTotal += businessInterruptionLiabilities![i].cost);
                 } else {
-                    setOtherTotal(otherTotal + businessInterruptionLiabilities![i].cost);
+                    (otherTotal += businessInterruptionLiabilities![i].cost);
                 }
             }
         }
     } 
-    }, [businessInterruptionLiabilities])
 
     return (
         <div className='BusinessInterruptionTable'>

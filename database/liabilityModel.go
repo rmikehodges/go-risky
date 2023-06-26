@@ -14,8 +14,8 @@ type LiabilityModel struct {
 	ID           uuid.UUID     `json:"id"`
 	Name         string        `json:"name"`
 	Description  zeronull.Text `json:"description"`
-	Quantity     float32       `json:"quantity"`
-	Cost         float32       `json:"cost"`
+	Quantity     *float32      `json:"quantity"`
+	Cost         *float32      `json:"cost"`
 	Type         string        `json:"type"`
 	ResourceType string        `json:"resourceType" db:"resource_type"`
 	BusinessID   uuid.UUID     `json:"businessId" db:"business_id"`
@@ -31,13 +31,13 @@ func (m *DBManager) GetLiabilities(businessID string) (liabilityOutput []Liabili
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, quantity, type, resource_type, cost, business_id, mitigation_id, detection_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities(fn_business_id => $1)", businessID)
 	if err != nil {
-		log.Println(err)
+		log.Printf("GetLiabilities query error: %s", err)
 		return
 	}
 
 	liabilityOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[LiabilityModel])
 	if err != nil {
-		log.Println(err)
+		log.Printf("GetLiabilities CollectRows error: %s", err)
 		return
 	}
 
@@ -48,13 +48,13 @@ func (m *DBManager) GetLiabilitiesByImpactId(businessID string, impactId string)
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, quantity, type, resource_type, cost, business_id, mitigation_id, detection_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities_by_impactId(fn_business_id => $1, fn_impact_id => $2)", businessID, impactId)
 	if err != nil {
-		log.Println(err)
+		log.Printf("GetLiabilitiesByImpactId Query error: %s", err)
 		return
 	}
 
 	liabilityOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[LiabilityModel])
 	if err != nil {
-		log.Println(err)
+		log.Printf("GetLiabilitiesByImpactId CollectRows error: %s", err)
 		return
 	}
 
@@ -63,15 +63,15 @@ func (m *DBManager) GetLiabilitiesByImpactId(businessID string, impactId string)
 
 func (m *DBManager) GetLiabilitiesByThreatId(businessID string, threatId string) (liabilityOutput []LiabilityModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, quantity, type, resource_type, cost, business_id, mitigation_id, detection_id, resource_id, threat_id, impact_id, created_atFROM risky_public.liabilities_by_threatId(fn_business_id => $1, fn_threat_id => $2)", businessID, threatId)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, quantity, type, resource_type, cost, business_id, mitigation_id, detection_id, resource_id, threat_id, impact_id, created_at FROM risky_public.liabilities_by_threat_Id(fn_business_id => $1, fn_threat_id => $2)", businessID, threatId)
 	if err != nil {
-		log.Println(err)
+		log.Printf("GetLiabilitiesByThreatId Query error: %s", err)
 		return
 	}
 
 	liabilityOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[LiabilityModel])
 	if err != nil {
-		log.Println(err)
+		log.Printf("GetLiabilitiesByThreatId CollectRows error: %s", err)
 		return
 	}
 

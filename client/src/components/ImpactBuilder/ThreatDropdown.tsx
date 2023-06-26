@@ -4,10 +4,11 @@ import { UUID } from 'crypto';
 
 interface DropdownProps {
   options: ThreatOutput[] | null;
+  selectedThreat: string;
   onSelectOption: (option: string) => void;
 }
 
-const ThreatDropdown: React.FC<DropdownProps> = ({ options, onSelectOption }) => {
+const ThreatDropdown: React.FC<DropdownProps> = ({ options, selectedThreat, onSelectOption }) => {
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedOption = event.target.value;
@@ -15,7 +16,7 @@ const ThreatDropdown: React.FC<DropdownProps> = ({ options, onSelectOption }) =>
   }
 
   return (
-    <select onChange={handleSelectChange}>
+    <select value={selectedThreat} onChange={handleSelectChange}>
       {options?.map((option, i) => (
         <option key={i} value={option.id}>{option.name}</option>
       ))}

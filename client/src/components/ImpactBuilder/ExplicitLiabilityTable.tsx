@@ -1,6 +1,6 @@
 import React from 'react';
 import { LiabilityOutput } from '../Liabilities/Liability';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 
 interface ExplicitLiabilityTableProps {
@@ -8,56 +8,55 @@ interface ExplicitLiabilityTableProps {
   }
   
 const ExplicitLiabilityTable: React.FC<ExplicitLiabilityTableProps> = ({ explicitLiabilities }) => {
-    const [complianceTotal, setComplianceTotal] = useState<number>(0);
-    const [complianceRemediationTotal, setComplianceRemediationTotal] = useState<number>(0);
-    const [legalTotal, setLegalTotal] = useState<number>(0);
-    const [legalRemediationTotal, setLegalRemediationTotal] = useState<number>(0);
-    const [headcountTotal, setHeadcountTotal] = useState<number>(0);
-    const [headcountRemediationTotal, setHeadcountRemediationTotal] = useState<number>(0);
-    const [consultingTotal, setConsultingTotal] = useState<number>(0);
-    const [consultingRemediationTotal, setConsultingRemediationTotal] = useState<number>(0);
-    const [cashTotal, setCashTotal] = useState<number>(0);
-    const [cashRemediationTotal, setCashRemediationTotal] = useState<number>(0);
-    const [otherTotal, setOtherTotal] = useState<number>(0);
-    const [otherRemediationTotal, setOtherRemediationTotal] = useState<number>(0);
+    let complianceTotal = 0;
+    let complianceRemediationTotal = 0;
+    let legalTotal = 0;
+    let legalRemediationTotal = 0;
+    let headcountTotal = 0;
+    let headcountRemediationTotal = 0;
+    let consultingTotal = 0;
+    let consultingRemediationTotal = 0;
+    let cashTotal = 0;
+    let cashRemediationTotal = 0;
+    let otherTotal = 0;
+    let otherRemediationTotal = 0;
 
-    useEffect(() => {
+
         if (explicitLiabilities != null) {
         for (let i = 0; i < explicitLiabilities!.length; i++) {
             if (explicitLiabilities![i].mitigationId != null || explicitLiabilities![i].detectionId != null) {
                 if (explicitLiabilities![i].resourceType === 'COMPLIANCE') {
-                    setComplianceRemediationTotal(complianceRemediationTotal + explicitLiabilities![i].cost);
+                    (complianceRemediationTotal += explicitLiabilities![i].cost);
                 } else if (explicitLiabilities![i].resourceType === 'LEGAL') {
-                    setLegalRemediationTotal(legalRemediationTotal + explicitLiabilities![i].cost);
+                    legalRemediationTotal += explicitLiabilities![i].cost;
                 } else if (explicitLiabilities![i].resourceType === 'EMPLOYEE') {
-                    setHeadcountRemediationTotal(headcountRemediationTotal + explicitLiabilities![i].cost);
+                    headcountRemediationTotal += explicitLiabilities![i].cost;
                 } else if (explicitLiabilities![i].resourceType === 'CONSULTING') {
-                    setConsultingRemediationTotal(consultingRemediationTotal + explicitLiabilities![i].cost);
+                    consultingRemediationTotal += explicitLiabilities![i].cost;
                 } else if (explicitLiabilities![i].resourceType === 'CASH') {
-                    setCashRemediationTotal(cashRemediationTotal + explicitLiabilities![i].cost);
+                    cashRemediationTotal += explicitLiabilities![i].cost;
                 } else {
-                    setOtherRemediationTotal(otherRemediationTotal + explicitLiabilities![i].cost);
+                    otherRemediationTotal += explicitLiabilities![i].cost;
                 }
 
             } else {
                 if (explicitLiabilities![i].resourceType === 'COMPLIANCE') {
-                    setComplianceTotal(complianceTotal + explicitLiabilities![i].cost);
+                    (complianceTotal += explicitLiabilities![i].cost);
                 } else if (explicitLiabilities![i].resourceType === 'LEGAL') {
-                    setLegalTotal(legalTotal + explicitLiabilities![i].cost);
+                    (legalTotal += explicitLiabilities![i].cost);
                 } else if (explicitLiabilities![i].resourceType === 'EMPLOYEE') {
-                    setHeadcountTotal(headcountTotal + explicitLiabilities![i].cost);
+                    (headcountTotal += explicitLiabilities![i].cost);
                 } else if (explicitLiabilities![i].resourceType === 'CONSULTING') {
-                    setConsultingTotal(consultingTotal + explicitLiabilities![i].cost);
+                    (consultingTotal += explicitLiabilities![i].cost);
                 } else if (explicitLiabilities![i].resourceType === 'CASH') {
-                    setCashTotal(cashTotal + explicitLiabilities![i].cost);
+                    (cashTotal += explicitLiabilities![i].cost);
                 } else {
-                    setOtherTotal(otherTotal + explicitLiabilities![i].cost);
+                    (otherTotal += explicitLiabilities![i].cost);
                 }
             }
 
         }
     }
-    });
 
     
     return (

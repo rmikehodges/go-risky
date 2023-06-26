@@ -20,36 +20,35 @@ const ImpactBuilder = () => {
     const [selectedThreat, setSelectedThreat] = useState<string>('');
 
     useEffect(() => {
+
       axios.get<ThreatOutput[]>(`http://localhost:8081/threats?businessId=${businessId}`)
       .then(res => {
      setThreats(res.data)});
+     axios.get<LiabilityOutput[]>(`http://localhost:8081/liabilities?businessId=${businessId}`).then(res => {
+        setLiabilities(res.data)}
+        );
       } , [businessId]);
 
 
     const handleSelectThreat = (option: string) => {
-      setSelectedThreat(option);
-      axios.get<LiabilityOutput[]>(`http://localhost:8081/liabilities?businessId=${businessId}&threatId=${option}`).then(res => { 
-        setLiabilities(res.data);
-      });
-
-      let explicit: LiabilityOutput[] = [];
-      let businessInterruption: LiabilityOutput[] = [];
-      if (liabilities === null) {
-        return;
-      }
-      for(let i=0; i<liabilities!.length; i++) {
-
-        if (liabilities![i].type === "EXPLICIT") {
-          explicit.push(liabilities![i]);
+        let explicit: LiabilityOutput[] = [];
+        let businessInterruption: LiabilityOutput[] = [];
+        if (liabilities != null) {
+          for(let i=0; i<liabilities!.length; i++) {
+            if (liabilities![i].threatId == option) {
+              if (liabilities![i].type === "EXPLICIT") {
+                explicit.push(liabilities![i]);
+              }
+              else if (liabilities![i].type === "BUSINESS INTERRUPTION LOSS") {
+                businessInterruption.push(liabilities![i]);
+              }
+            }
+          }
         }
-        else if (liabilities![i].type === "BUSINESS INTERRUPTION LOSS") {
-          businessInterruption.push(liabilities![i]);
-        }
+          setSelectedThreat(option)
+          setExplicitLiabilities(explicit)
+          setBusinessInterruptionLiabilities(businessInterruption)
       }
-      setExplicitLiabilities(explicit)
-      setBusinessInterruptionLiabilities(businessInterruption)
-    }
-
 
 
   return (
@@ -61,7 +60,7 @@ const ImpactBuilder = () => {
       <div className='ImpactBuilder__threat'>
         <h2>Threat</h2>
         <div>
-        <ThreatDropdown options={threats} onSelectOption={handleSelectThreat}/>
+        <ThreatDropdown options={threats} selectedThreat={selectedThreat} onSelectOption={handleSelectThreat}/>
         </div>
         </div>
         <div className='ImpactBuilder__body__left'>

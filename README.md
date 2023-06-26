@@ -56,7 +56,9 @@ Accountants go by revenue / employee hours. This means
 - a workable sidebar view with input filtering and collapsable lists, likely split out capabilities and vulnerabilities.
 - 
 
-06/24 TODO: See if automatic liability calculation is working by linking objects 
+06/24 TODO: See if automatic liability calculation is working by linking objects. I really need to make a good init script to create a sandbox env with correct object linking so frontend functionality can be tested.
+
+6/26: Fleshed out liability relation seed script in seed.sql and relevant database changes. Got the liability lookup working and calculating each table. Need to total everything up by passing the state up to the main component or just roll it all into one. Noticed that useEffect isnt always necesary and state is only really necessary for conditional rendering and passing around values.
 
 
 ## TODO Testing

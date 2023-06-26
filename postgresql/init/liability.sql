@@ -66,7 +66,7 @@ AS $$
             v_total_cost := 0.0;
         END IF;
 
-        INSERT INTO risky_public.liability(name, description, type, resource_type, quantity, cost, business_id, mitigation_id, detection_id, resource_id, impact_id, threat_id) values(fn_name, fn_description, fn_type, v_resource_type, fn_quantity, v_total_cost, fn_business_id, fn_mitigation_id, fn_resource_id, fn_detection_id, fn_impact_id, fn_threat_id) RETURNING id INTO v_liability_id ;
+        INSERT INTO risky_public.liability(name, description, type, resource_type, quantity, cost, business_id, mitigation_id, detection_id, resource_id, impact_id, threat_id) values(fn_name, fn_description, fn_type, v_resource_type, fn_quantity, v_total_cost, fn_business_id, fn_mitigation_id, fn_detection_id, fn_resource_id, fn_impact_id, fn_threat_id) RETURNING id INTO v_liability_id ;
     
         RETURN v_liability_id;
     end;

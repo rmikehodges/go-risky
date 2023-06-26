@@ -15,10 +15,10 @@ type LiabilityInput struct {
 	ID           uuid.UUID     `json:"id"`
 	Name         string        `json:"name"`
 	Description  zeronull.Text `json:"description"`
-	Quantity     float32       `json:"quantity"`
+	Quantity     *float32      `json:"quantity"`
 	Type         string        `json:"type"`
 	ResourceType string        `json:"resourceType"`
-	Cost         float32       `json:"cost"`
+	Cost         *float32      `json:"cost"`
 	BusinessID   uuid.UUID     `json:"businessId"`
 	DetectionID  *uuid.UUID    `json:"detectionId"`
 	MitigationID *uuid.UUID    `json:"mitigationId"`
@@ -32,10 +32,10 @@ type LiabilityOutput struct {
 	ID           uuid.UUID     `json:"id"`
 	Name         string        `json:"name"`
 	Description  zeronull.Text `json:"description"`
-	Quantity     float32       `json:"quantity"`
+	Quantity     *float32      `json:"quantity"`
 	Type         string        `json:"type"`
 	ResourceType string        `json:"resourceType"`
-	Cost         float32       `json:"cost"`
+	Cost         *float32      `json:"cost"`
 	BusinessID   uuid.UUID     `json:"businessId"`
 	DetectionID  *uuid.UUID    `json:"detectionId"`
 	MitigationID *uuid.UUID    `json:"mitigationId"`
