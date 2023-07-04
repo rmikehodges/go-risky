@@ -4,18 +4,7 @@ import { Formik, Field, Form, FormikHelpers } from 'formik';
 import { UUID } from 'crypto';
 import axios from "axios";
 import { useEffect, useState } from "react";
-
-export interface UpdateActionInput {
-  id: UUID | null
-  name: string
-  description: string | null
-  capabilityId: UUID | null
-  vulnerabilityId: UUID | null
-  businessId: string | null
-  complexity: string
-  assetId: UUID | null
-  }
-
+import Action from './Action';
 
 const customStyles = {
   content: {
@@ -32,7 +21,7 @@ const customStyles = {
 Modal.setAppElement('#root');
 
 
-const UpdateAction = (updateActionInput:UpdateActionInput) => {
+const UpdateAction = (updateActionInput:Action) => {
    const [modalIsOpen, setIsOpen] = React.useState(false);
    const [actionInput, setActionInput] = useState(updateActionInput);
 
@@ -65,10 +54,10 @@ const UpdateAction = (updateActionInput:UpdateActionInput) => {
         <Formik
           initialValues={actionInput}
           onSubmit={(
-            values: UpdateActionInput,
-            { setSubmitting }: FormikHelpers<UpdateActionInput> 
+            values: Action,
+            { setSubmitting }: FormikHelpers<Action> 
           ) => {
-            axios.patch<UpdateActionInput>(`http://localhost:8081/action`, values).catch((err) => console.log(err))
+            axios.patch<Action>(`http://localhost:8081/action`, values).catch((err) => console.log(err))
               closeModal()
           }}
         >

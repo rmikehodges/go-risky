@@ -1,9 +1,9 @@
 import React from 'react';
 import { useEffect, useState, useRef } from "react";
-import { LiabilityOutput } from '../Liabilities/Liability';
+import  Liability  from '../Liabilities/Liability';
 
 interface BusinessInterruptionTableProps {
-    businessInterruptionLiabilities: LiabilityOutput[] | null;
+    businessInterruptionLiabilities: Liability[] | null;
   }
 
 const BusinessInterruptionTable: React.FC<BusinessInterruptionTableProps> = ({ businessInterruptionLiabilities}) => {

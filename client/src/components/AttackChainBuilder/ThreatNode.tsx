@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-import { ThreatOutput } from '../Threats/Threats';
+import  Threat  from '../Threats/Threat';
 
 const handleStyle = { left: 10 };
 
 interface ThreatNodeData {
   label: string
-  threat: ThreatOutput | null
+  threat: Threat | null
 }
 
 interface ThreatNodeProps extends NodeProps {

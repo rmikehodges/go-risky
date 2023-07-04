@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-import { ActionOutput } from '../Actions/Actions';
+import  Action  from "../Actions/Action";
 
 const handleStyle = { left: 10 };
 
 interface ActionNodeData {
   label: string
-  action: ActionOutput | null
+  action: Action | null
 }
 
 interface ActionNodeProps extends NodeProps {
@@ -21,7 +21,10 @@ const ActionNode = ({ data, isConnectable }: ActionNodeProps) => {
      <Handle type="target" position={Position.Right} />
       <Handle type="target" position={Position.Top} />
       <div>
-        <label htmlFor="text">{actionName}</label><br></br>
+       Name: {actionName}
+       Description: {data.action?.description}
+        Complexity: {data.action?.complexity}
+        
       </div>
       <Handle type="source" position={Position.Bottom}/>
 

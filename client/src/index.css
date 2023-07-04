@@ -110,7 +110,7 @@ code {
   top: 0;
   left: 0;
   bottom: 0;
-  width: 200px;
+  width: 15%;
   overflow-y: auto;
   border-right: 1px solid #ccc;
   padding: 20px;
@@ -121,4 +121,39 @@ code {
 }
 .content {
   padding: 20px;
+}
+
+
+.sidebar-container {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  right:0;
+  width: 20%;
+}
+
+.flow-container {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  right:0;
+  width: 80%;
+}
+
+.bottomtoolbar-container {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.box {
+  width: 50%;
+  height: 200px;
+  background-color: #f2f2f2;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
 }

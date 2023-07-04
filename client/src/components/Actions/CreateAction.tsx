@@ -5,16 +5,7 @@ import { UUID } from 'crypto';
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-interface CreateActionInput {
-  name: string
-  description: string | null
-  capabilityId: UUID | null
-  vulnerabilityId: UUID | null
-  businessId: string | null
-  complexity: string
-  assetId: UUID | null
-  }
-
+import Action from './Action';
 
 const customStyles = {
   content: {
@@ -34,8 +25,8 @@ Modal.setAppElement('#root');
 
 const CreateAction = () => {
   const [modalIsOpen, setIsOpen] = React.useState(false);
-  // const [actionInput, setActionInput] = useState<CreateActionInput>();
-  const actionInput: CreateActionInput = {name: "", description : "", capabilityId: null, vulnerabilityId: null, businessId: null, complexity: "", assetId: null}
+  // const [actionInput, setActionInput] = useState<Action>();
+  const actionInput: Action = {id: null, name: "", description : "", capabilityId: null, vulnerabilityId: null, businessId: null, complexity: "", assetId: null, createdAt: null}
 
    const openModal = () => {
     setIsOpen(true)
@@ -65,10 +56,10 @@ const CreateAction = () => {
         <Formik
           initialValues={actionInput}
           onSubmit={(
-            values: CreateActionInput,
-            { setSubmitting }: FormikHelpers<CreateActionInput> 
+            values: Action,
+            { setSubmitting }: FormikHelpers<Action> 
           ) => {
-              axios.post<CreateActionInput>(`http://localhost:8081/action`, values).catch(err => console.log(err))
+              axios.post<Action>(`http://localhost:8081/action`, values).catch(err => console.log(err))
               closeModal()
           }}
         >

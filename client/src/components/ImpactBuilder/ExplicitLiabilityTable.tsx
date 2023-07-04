@@ -1,10 +1,10 @@
 import React from 'react';
-import { LiabilityOutput } from '../Liabilities/Liability';
+import  Liability  from '../Liabilities/Liability';
 import { useEffect, useState, useRef } from "react";
 
 
 interface ExplicitLiabilityTableProps {
-    explicitLiabilities: LiabilityOutput[] | null;
+    explicitLiabilities: Liability[] | null;
   }
   
 const ExplicitLiabilityTable: React.FC<ExplicitLiabilityTableProps> = ({ explicitLiabilities }) => {

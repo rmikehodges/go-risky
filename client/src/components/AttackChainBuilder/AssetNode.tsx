@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-import { AssetOutput } from '../Assets/Assets';
+import  Asset  from '../Assets/Asset';
 
 const handleStyle = { left: 10 };
 
 interface AssetNodeData {
   label: string
-  asset: AssetOutput | null
+  asset: Asset | null
 }
 
 interface AssetNodeProps extends NodeProps {

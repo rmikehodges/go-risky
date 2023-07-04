@@ -1,35 +1,33 @@
 import './App.css';
 import React from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import Actions from './components/Actions/Actions';
+
 import AttackChainBuilderDnD from './components/AttackChainBuilder/AttackChainBuilderDnD';
-import Action from './components/Actions/Action';
 import ImpactBuilder from './components/ImpactBuilder/ImpactBuilder';
-// import AttackChains from '../old_code/AttackChains/AttackChains';
-// import Capabilities from './components/Capabilities/Capabilities';
-// import Businesses from './components/Businesses/Businesses';
-// import Exposures from './components/Exposures/Exposures';
-// import Resources from './components/Resources/Resources';
-// import Threats from './components/Threats/Threats';
-// import Vulnerabilities from './components/Vulnerabilities/Vulnerabilities';
-// import AttackChain from '../old_code/AttackChains/AttackChain';
-// import Business from './components/Businesses/Business';
-// import Capability from './components/Capabilities/Capability';
-// import Exposure from './components/Exposures/Exposure';
-// import Resource from './components/Resources/Resource';
-// import Threat from './components/Threats/Threat';
-// import Vulnerability from './components/Vulnerabilities/Vulnerability';
+
+
+import GetAction from './components/Actions/GetAction';
+import ListActions from './components/Actions/ListActions';
+import GetAsset from './components/Assets/GetAsset';
+import ListAssets from './components/Assets/ListAssets';
+import GetThreat from './components/Threats/GetThreat';
+import ListThreats from './components/Threats/ListThreats';
+import GetVulnerability from './components/Vulnerabilities/GetVulnerability';
+import ListVulnerabilities from './components/Vulnerabilities/ListVulnerabilities';
+import GetBusiness from './components/Businesses/GetBusiness';
+import ListBusinesses from './components/Businesses/ListBusinesses';
+import GetCapability from './components/Capabilities/GetCapability';
+import ListCapabilities from './components/Capabilities/ListCapabilities';
+import GetResource from './components/Resources/GetResource';
+import ListResources from './components/Resources/ListResources';
+import GetAttackChain from './components/AttackChains/GetAttackChain';
+import ListAttackChains from './components/AttackChains/ListAttackChains';
+
+
+
 
 
 const router = createBrowserRouter([
-  {
-    path: "/action",
-    element: <Action />
-  },
-    {
-      path: "/actions",
-      element: <Actions />
-    },
     {
       path: "/attackChainBuilder",
       element: <AttackChainBuilderDnD />
@@ -38,62 +36,72 @@ const router = createBrowserRouter([
       path: "/impactBuilder",
       element: <ImpactBuilder />
     },
-    // {
-    //   path: "/attackChain/:id",
-    //   element: <AttackChain />
-    // },
-    // {
-    //   path: "/attackChains",
-    //   element: <AttackChains />
-    // },
-    // {
-    //   path: "/business/:id",
-    //   element: <Business />
-    // },
-    // {
-    //   path: "/businesses",
-    //   element: <Businesses />
-    // },
-    // {
-    //   path: "/capability/:id",
-    //   element: <Capability />
-    // },
-    // {
-    //   path: "/capabilities",
-    //   element: <Capabilities />
-    // },
-    // {
-    //   path: "/exposure/:id",
-    //   element: <Exposure />
-    // },
-    // {
-    //   path: "/exposures",
-    //   element: <Exposures />
-    // },
-    // {
-    //   path: "/resource/:id",
-    //   element: <Resource />
-    // },
-    // {
-    //   path: "/resources",
-    //   element: <Resources />
-    // },
-    // {
-    //   path: "/threat/:id",
-    //   element: <Threat />
-    // },
-    // {
-    //   path: "/threats",
-    //   element: <Threats />
-    // },
-    // {
-    //   path: "/vulnerability/:id",
-    //   element: <Vulnerability />
-    // },
-    // {
-    //   path: "/vulnerabilities",
-    //   element: <Vulnerabilities />
-    // },
+    {
+
+      path: "/action",
+      element: <GetAction />
+    },
+    {
+      path: "/actions",
+      element: <ListActions />
+    },
+
+    {
+      path: "/asset",
+      element: <GetAsset />
+    },
+    {
+      path: "/assets",
+      element: <ListAssets />
+    },
+    {
+      path: "/threat",
+      element: <GetThreat />
+    },
+    {
+      path: "/threats",
+      element: <ListThreats />
+    },
+    {
+      path: "/vulnerability",
+      element: <GetVulnerability />
+    },
+    {
+      path: "/vulnerabilities",
+      element: <ListVulnerabilities />
+    },
+    {
+      path: "/business",
+      element: <GetBusiness />
+    },
+    {
+      path: "/businesses",
+      element: <ListBusinesses />
+    },
+    {
+      path: "/capability",
+      element: <GetCapability />
+    },
+    {
+      path: "/capabilities",
+      element: <ListCapabilities />
+    },
+    {
+      path: "/resource",
+      element: <GetResource />
+    },
+    {
+      path: "/resources",
+      element: <ListResources />
+    },
+    {
+      path: "/attackChain",
+      element: <GetAttackChain />
+    },
+    {
+      path: "/attackChains",
+      element: <ListAttackChains />
+    },
   
 ])
 

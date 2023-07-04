@@ -39,14 +39,3 @@ const DeleteAction = (props:DeleteActionInput) => {
 };
 
 export default DeleteAction
-
-//Write code that will reload the page after the action is deleted.
-//Hint: You can use the window.location.reload() method.
-//Hint: You can use the finally() method on a promise to execute code after the promise is resolved or rejected.
-//Hint: You can use the catch() method on a promise to execute code if the promise is rejected.
-//Hint: You can use the then() method on a promise to execute code if the promise is resolved.
-//Hint: You can use the axios.delete() method to delete an action.
-//Hint: You can use the axios.delete() method to delete an action.
-//Hint: You can use the axios.delete() method to delete an action.
-//Hint: You can use the axios.delete() method to delete an action.
-//Hint: You can use the axios.delete() method to delete an action.

@@ -1,6 +1,12 @@
+import React from 'react';
 
-const TotalLiabilityTable = () => {
-    const queryParameters = new URLSearchParams(window.location.search)
+interface TotalLiabilityTableProps {
+    total: number;
+    remediationTotal: number;
+  }
+
+
+const TotalLiabilityTable: React.FC<TotalLiabilityTableProps> = ({total,remediationTotal}) => {
     
     return (
         <div className='TotalLiabilityTable'>
@@ -9,10 +15,10 @@ const TotalLiabilityTable = () => {
             <tr>
                 <th>Total Liabilities</th>
                 <td>
-                0
+                {total}
             </td>
             <td>
-                0
+                {remediationTotal}
             </td>
                 </tr>    
         </thead>

@@ -5,37 +5,48 @@ import BusinessInterruptionTable from "./BusinessInterruptionTable";
 import ExplicitLiabilityTable from "./ExplicitLiabilityTable";
 import TotalLiabilityTable from "./TotalLiabilityTable";
 import ThreatDropdown from "./ThreatDropdown";
-import { ThreatOutput } from "../Threats/Threats";
-import { LiabilityOutput } from "../Liabilities/Liability";
+import  Threat from "../Threats/Threat";
+import  Liability from "../Liabilities/Liability";
 
 
 
 const ImpactBuilder = () => {
-    const queryParameters = new URLSearchParams(window.location.search)
     const businessId: UUID = "23628819-59dd-45f3-8395-aceeca86bc9c"
-    const [threats, setThreats] = useState<ThreatOutput[] | null>(null);
-    const [liabilities, setLiabilities] = useState<LiabilityOutput[] | null>(null);
-    const [explicitLiabilities, setExplicitLiabilities] = useState<LiabilityOutput[] | null>(null);
-    const [businessInterruptionLiabilities, setBusinessInterruptionLiabilities] = useState<LiabilityOutput[] | null>(null);
+    const [threats, setThreats] = useState<Threat[] | null>(null);
+    const [liabilities, setLiabilities] = useState<Liability[] | null>(null);
+    const [explicitLiabilities, setExplicitLiabilities] = useState<Liability[] | null>(null);
+    const [businessInterruptionLiabilities, setBusinessInterruptionLiabilities] = useState<Liability[] | null>(null);
     const [selectedThreat, setSelectedThreat] = useState<string>('');
+    const [total, setTotal] = useState<number>(0);
+    const [remediationTotal, setRemediationTotal] = useState<number>(0);
+
 
     useEffect(() => {
 
-      axios.get<ThreatOutput[]>(`http://localhost:8081/threats?businessId=${businessId}`)
+      axios.get<Threat[]>(`http://localhost:8081/threats?businessId=${businessId}`)
       .then(res => {
      setThreats(res.data)});
-     axios.get<LiabilityOutput[]>(`http://localhost:8081/liabilities?businessId=${businessId}`).then(res => {
+     axios.get<Liability[]>(`http://localhost:8081/liabilities?businessId=${businessId}`).then(res => {
         setLiabilities(res.data)}
         );
       } , [businessId]);
 
 
     const handleSelectThreat = (option: string) => {
-        let explicit: LiabilityOutput[] = [];
-        let businessInterruption: LiabilityOutput[] = [];
+      let localRemediationTotal = 0;
+      let localTotal = 0;
+        let explicit: Liability[] = [];
+        let businessInterruption: Liability[] = [];
         if (liabilities != null) {
           for(let i=0; i<liabilities!.length; i++) {
             if (liabilities![i].threatId == option) {
+              if (liabilities![i].mitigationId != null || liabilities![i].detectionId != null) {
+                localRemediationTotal += liabilities![i].cost;
+              } 
+              else {
+                localTotal += liabilities![i].cost;
+              }
+
               if (liabilities![i].type === "EXPLICIT") {
                 explicit.push(liabilities![i]);
               }
@@ -45,6 +56,9 @@ const ImpactBuilder = () => {
             }
           }
         }
+        
+          setRemediationTotal(localRemediationTotal);
+          setTotal(localTotal);
           setSelectedThreat(option)
           setExplicitLiabilities(explicit)
           setBusinessInterruptionLiabilities(businessInterruption)
@@ -72,7 +86,7 @@ const ImpactBuilder = () => {
             <ExplicitLiabilityTable explicitLiabilities={explicitLiabilities} /> 
           </div>
           <div className='ImpactBuilder__body__left__totalLiability'>
-            <TotalLiabilityTable />
+            <TotalLiabilityTable total={total} remediationTotal={remediationTotal}/>
             
           </div>
         </div>

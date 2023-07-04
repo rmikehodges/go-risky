@@ -14,11 +14,10 @@ import { useMemo } from 'react';
 
 import Sidebar from './Sidebar';
 import ActionNode from './ActionNode';
-
 import '../../index.css';
-import { ActionOutput } from '../Actions/Actions';
-import { ThreatOutput } from '../Threats/Threats';
-import { AssetOutput } from '../Assets/Assets';
+import  Action  from '../Actions/Action';
+import  Threat  from '../Threats/Threat';
+import  Asset  from '../Assets/Asset';
 import AssetNode from './AssetNode';
 import ThreatNode from './ThreatNode';
 import ImpactBuilder from '../ImpactBuilder/ImpactBuilder';
@@ -28,17 +27,17 @@ const initialNodes: Node[] = [];
 let id = 0;
 const getId = () => `dndnode_${id++}`;
 
-// type draggedObjectType = AssetOutput | ThreatOutput | ActionOutput
+// type draggedObjectType = Asset | Threat | Action
 
 
-// const isThreatOutput = (object: any) => {
-//     return object && object.type === 'ThreatOutput'
+// const isThreat = (object: any) => {
+//     return object && object.type === 'Threat'
 // }
-// const isAssetOutput = (object: any) => {
-//     return object && object.type === 'AssetOutput'
+// const isAsset = (object: any) => {
+//     return object && object.type === 'Asset'
 // }
-// const isActionOutput = (object: any) => {
-//     return object && object.type === 'ActionOutput'
+// const isAction = (object: any) => {
+//     return object && object.type === 'Action'
 // }
 
 
@@ -103,6 +102,7 @@ const AttackChainBuilderDnD = () => {
   );
 
   return (
+    <div className="flow-container">
     <div style={{ height: 800 }} className="dndflow">
       <ReactFlowProvider>
         <div className="reactflow-wrapper" ref={reactFlowWrapper}>
@@ -123,8 +123,17 @@ const AttackChainBuilderDnD = () => {
           </ReactFlow>
         </div>
       </ReactFlowProvider>
-      <div className="sidebar"><Sidebar /></div>
+      </div>
+      <div className="sidebar-container">
+        <div className="sidebar"><Sidebar /></div>
+      </div>
       <div className="impactBuilder"><ImpactBuilder /></div>
+      <div className="bottomtoolbar-container">
+        <div className="box">Newsfeed</div>
+        <div className="box">Chatbot</div>
+      </div>
+
+
     </div>
   );
 };
