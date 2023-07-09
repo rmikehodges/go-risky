@@ -22,6 +22,7 @@ import GetResource from './components/Resources/GetResource';
 import ListResources from './components/Resources/ListResources';
 import GetAttackChain from './components/AttackChains/GetAttackChain';
 import ListAttackChains from './components/AttackChains/ListAttackChains';
+import ListAttackChainSteps from './components/AttackChainSteps/ListAttackChainSteps';
 
 
 
@@ -101,6 +102,10 @@ const router = createBrowserRouter([
     {
       path: "/attackChains",
       element: <ListAttackChains />
+    },
+    {
+      path: "/attackChainSteps",
+      element: <ListAttackChainSteps />
     },
   
 ])

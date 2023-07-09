@@ -54,7 +54,7 @@ func (controller *PublicController) AttackChainStepRoutes(router *gin.Engine) {
 	router.GET("/attackChainStep/:id", controller.GetAttackChainStep)
 	router.DELETE("/attackChainStep/:id", controller.DeleteAttackChainStep)
 	router.PATCH("/attackChainStep/:id", controller.UpdateAttackChainStep)
-	router.POST("/attackChainSteps", controller.CreateAttackChainStep)
+	router.POST("/attackChainStep", controller.CreateAttackChainStep)
 }
 
 func (controller *PublicController) BusinessRoutes(router *gin.Engine) {

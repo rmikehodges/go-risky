@@ -60,6 +60,62 @@ Accountants go by revenue / employee hours. This means
 
 6/26: Fleshed out liability relation seed script in seed.sql and relevant database changes. Got the liability lookup working and calculating each table. Need to total everything up by passing the state up to the main component or just roll it all into one. Noticed that useEffect isnt always necesary and state is only really necessary for conditional rendering and passing around values.
 
+6/30: Looked into bootstrap themes which seems worth the cost for getting this in a decent place. Also looked at how to do RSS feeds and ChatGPT for users which doesnt seem that easy from the frontend. I would rather do it all in the frontend, but the backend could be safer for users. I need to get an opinion on that from a software dev I trust. Probably Tobias.
+
+
+7/3
+Consider doing this for the td tags in the table to make it dynamic to object changes:
+```import React from 'react';
+
+const ResourceTable = ({ resource }) => {
+  return (
+    <table>
+      <tbody>
+        <tr>       
+          {Object.values(resource).map((value, index) => (
+            <td key={index}>{value}</td>
+          ))}
+        </tr>
+      </tbody>
+    </table>
+  );
+};
+
+export default ResourceTable;
+```
+
+I created all the components for all of different objects and their respective CRUD operations. Still need to test it out, but its looking pretty good so far. Probably need to go and consolidate my thoughts one of these days, but the frontend is really coming along. Made huge progress today focusing on just the bare minimum. Need to figure out the attack chain builder next and how Im going to create the attackChainSteps. Overall great work today.
+
+
+7/4 - Changed the action nodes to be attackChainStep nodes and realized that I need to do a more thorough design of the attackChainStep node functionality and how I want everything to operate. Real time updates would be nice on the impact builder if
+detections or mitigations are added.
+
+
+## Node Actions
+Node Actions:
+
+Each node will be associated to an Action and AttackChain in the beginning. AssetId, DetectionId, and MitigationId can be added later.
+
+OnDrop:
+Create AttackChainStep and get the id back to populate the item - Done
+
+OnDelete:
+Delete AttackChainStep by Id and move the positions of all other AttackChainSteps accordingly - Done
+
+Moving Nodes around;
+Update AttackChainSteps to move their position based on connection of edges
+
+OnDoubleClick
+Show a larger modal where users can select Assets, Detection and/or Mitigation.
+Every detection and mitigation should probably create a liability associated with a resource automatically for the user
+
+OnConnection
+populate a node’s position
+
+onDeleteEdge
+- update a node’s position to negative 1 
+
+
 
 ## TODO Testing
 2. Handlers

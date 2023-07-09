@@ -21,7 +21,7 @@ type AttackChainModel struct {
 
 func (m *DBManager) GetAttackChains(businessID string) (attackChainOutput []AttackChainModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, threat_id, created_at FROM risky_public.attackChain(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, threat_id, created_at FROM risky_public.attack_chains(fn_business_id => $1)", businessID)
 	if err != nil {
 		log.Println(err)
 		return

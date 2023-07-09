@@ -11,21 +11,23 @@ import (
 //Create types and functions for AttackChainStep that match the handler attackChain
 
 type AttackChainStepInput struct {
-	BusinessID    uuid.UUID `json:"businessId"`
-	ActionID      uuid.UUID `json:"actionId"`
-	AssetID       uuid.UUID `json:"assetId"`
-	AttackChainID uuid.UUID `json:"attackChainId"`
-	Postion       int       `json:"position"`
-	CreatedAt     time.Time `json:"createdAt"`
+	ID            uuid.UUID  `json:"id"`
+	BusinessID    uuid.UUID  `json:"businessId"`
+	ActionID      uuid.UUID  `json:"actionId"`
+	AssetID       *uuid.UUID `json:"assetId"`
+	AttackChainID uuid.UUID  `json:"attackChainId"`
+	Postion       int        `json:"position"`
+	CreatedAt     time.Time  `json:"createdAt"`
 }
 
 type AttackChainStepOutput struct {
-	BusinessID    uuid.UUID `json:"businessId"`
-	ActionID      uuid.UUID `json:"actionId"`
-	AssetID       uuid.UUID `json:"assetId"`
-	AttackChainID uuid.UUID `json:"attackChainId"`
-	Position      int       `json:"position"`
-	CreatedAt     time.Time `json:"createdAt"`
+	ID            uuid.UUID  `json:"id"`
+	BusinessID    uuid.UUID  `json:"businessId"`
+	ActionID      uuid.UUID  `json:"actionId"`
+	AssetID       *uuid.UUID `json:"assetId"`
+	AttackChainID uuid.UUID  `json:"attackChainId"`
+	Position      int        `json:"position"`
+	CreatedAt     time.Time  `json:"createdAt"`
 }
 
 type AttackChainStepOutputs []AttackChainStepOutput
@@ -33,6 +35,7 @@ type AttackChainStepOutputs []AttackChainStepOutput
 func (attackChainStepInput AttackChainStepInput) inputToModel() (attackChainStepModel database.AttackChainStepModel, err error) {
 	attackChainStepModel.BusinessID = attackChainStepInput.BusinessID
 	attackChainStepModel.ActionID = attackChainStepInput.ActionID
+	attackChainStepModel.AssetID = attackChainStepInput.AssetID
 	attackChainStepModel.AttackChainID = attackChainStepInput.AttackChainID
 	attackChainStepModel.Position = attackChainStepInput.Postion
 	attackChainStepModel.CreatedAt = attackChainStepInput.CreatedAt
@@ -45,6 +48,7 @@ func (attackChainStepOutput *AttackChainStepOutput) modelToOutput(attackChainSte
 	//This is where you do input validation sanitization
 	attackChainStepOutput.BusinessID = attackChainStepModel.BusinessID
 	attackChainStepOutput.ActionID = attackChainStepModel.ActionID
+	attackChainStepOutput.AssetID = attackChainStepModel.AssetID
 	attackChainStepOutput.AttackChainID = attackChainStepModel.AttackChainID
 	attackChainStepOutput.Position = attackChainStepModel.Position
 	attackChainStepOutput.CreatedAt = attackChainStepModel.CreatedAt

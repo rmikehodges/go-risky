@@ -79,7 +79,6 @@ func actionModelsToOutput(actionModels []database.ActionModel) (actionOutputs Ac
 		if err != nil {
 			return
 		}
-		fmt.Println(actionOutput)
 		actionOutputs = append(actionOutputs, actionOutput)
 	}
 

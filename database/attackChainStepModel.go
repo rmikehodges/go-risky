@@ -17,14 +17,14 @@ type AttackChainStepModel struct {
 	AssetID       *uuid.UUID `db:"asset_id"`
 	AttackChainID uuid.UUID  `db:"attack_chain_id"`
 	Position      int        `db:"position"`
-	DetectionID   *uuid.UUID `db:"detection_id"`
+	DetectionID   uuid.UUID  `db:"detection_id"`
 	MitigationID  *uuid.UUID `db:"mitigation_id"`
 	CreatedAt     time.Time  `db:"created_at"`
 }
 
 func (m *DBManager) GetAttackChainSteps(attackChainId string, businessId string) (attackChainStepOutput []AttackChainStepModel, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select attack_chain_id, action_id, asset_id, position,business_id, created_at FROM risky_public.attack_chain_steps(fn_business_id => $1, fn_attack_chain_id => $2)", businessId, attackChainId)
+	rows, err := m.DBPool.Query(context.Background(), "select attack_chain_id, action_id, asset_id, position,business_id, created_at FROM risky_public.attack_chain_steps(fn_business_id => $1, fn_attack_chain_id => $, fn_attack_chain_id => $2)", businessId, attackChainId)
 	if err != nil {
 		log.Println(err)
 		return

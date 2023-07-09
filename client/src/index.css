@@ -30,8 +30,8 @@ code {
   margin-bottom: 10px;
 }
 
-.dndflow .dndnode {
-  height: 10px;
+.dndnode {
+  height: 30px;
   padding: 4px;
   border: 1px solid #1a192b;
   border-radius: 2px;

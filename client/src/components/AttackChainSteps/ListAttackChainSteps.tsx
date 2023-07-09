@@ -9,10 +9,11 @@ import  AttackChainStep  from "./AttackChainStep";
 const ListAttackChainSteps = () => {
     const queryParameters = new URLSearchParams(window.location.search)
     const businessId = queryParameters.get("businessId")
+    const attackChainId = queryParameters.get("attackChainId")
     const [attackChainSteps, setAttackChainSteps] = useState<AttackChainStep[] | null>(null);
 
     useEffect(() => {
-      axios.get<AttackChainStep[]>(`http://localhost:8081/attackChainSteps?businessId=${businessId}`)
+      axios.get<AttackChainStep[]>(`http://localhost:8081/attackChainSteps?businessId=${businessId}&attackChainId=${attackChainId}`)
         .then(res => {
         const attackChainStepsResp = res.data;
        setAttackChainSteps(attackChainStepsResp)})

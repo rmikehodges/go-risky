@@ -23,7 +23,14 @@ export default (props:any) => {
         }, [businessId]);
 
 
- const onActionDragStart = (event: any, nodeType: any, action: Action) => {
+//  const onActionDragStart = (event: any, nodeType: any, action: Action) => {
+//     event.dataTransfer.setData('application/reactflow', nodeType);
+//     event.dataTransfer.setData('application/json', JSON.stringify(action));
+//     event.dataTransfer.effectAllowed = 'move';
+//   };
+
+  //TODO: Add in attackchain to drag start
+  const onAttackChainStepDragStart = (event: any, nodeType: any, action: Action) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.setData('application/json', JSON.stringify(action));
     event.dataTransfer.effectAllowed = 'move';
@@ -35,11 +42,11 @@ export default (props:any) => {
   //   event.dataTransfer.effectAllowed = 'move';
   // };
 
-  const onAssetDragStart = (event: any, nodeType: any, asset: Asset) => {
-    event.dataTransfer.setData('application/reactflow', nodeType);
-    event.dataTransfer.setData('application/json', JSON.stringify(asset));
-    event.dataTransfer.effectAllowed = 'move';
-  };
+  // const onAssetDragStart = (event: any, nodeType: any, asset: Asset) => {
+  //   event.dataTransfer.setData('application/reactflow', nodeType);
+  //   event.dataTransfer.setData('application/json', JSON.stringify(asset));
+  //   event.dataTransfer.effectAllowed = 'move';
+  // };
 
   return (
     <div>
@@ -48,10 +55,10 @@ export default (props:any) => {
         Attack Chain
       </div>
     <aside>
-      <div className="description">Actions</div>
+      <div className="description">Attack Chain Steps</div>
       {actions?.map(action => {
         return (
-           <div  key={action.id} className="dndnode" onDragStart={(event) => onActionDragStart(event, 'action', action)} draggable>
+           <div  key={action.id} className="dndnode" onDragStart={(event) => onAttackChainStepDragStart(event, 'attackChainStep', action)} draggable>
             {action.name}
           </div>
 
@@ -68,7 +75,7 @@ export default (props:any) => {
 
         )
       })} */}
-    <div className="description">Assets</div>
+    {/* <div className="description">Assets</div>
       {assets?.map(asset => {
         return (
            <div  key={asset.id} className="dndnode" onDragStart={(event) => onAssetDragStart(event, 'asset', asset)} draggable>
@@ -76,7 +83,7 @@ export default (props:any) => {
           </div>
 
         )
-    })}
+    })} */}
     </aside>
     </div>
   );
