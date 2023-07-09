@@ -72,12 +72,10 @@ func (m *DBManager) DeleteAttackChainStep(attackChainStepId string) (err error) 
 	return
 }
 
-func (m *DBManager) CreateAttackChainStep(attackChainStepInput AttackChainStepModel) (attackChainStepOutput AttackChainStepModel, err error) {
+func (m *DBManager) CreateAttackChainStep(attackChainStepInput AttackChainStepModel) (attackChainStepId string, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(),
-		`select id, 
-		attack_chain_id, action_id, asset_id, position,business_id, detection_id, mitigation_id, created_at
-		FROM risky_public.create_attack_chain_step(
+	err = m.DBPool.QueryRow(context.Background(),
+		`select * FROM risky_public.create_attack_chain_step(
 			fn_attack_chain_id => $1, 
 			fn_action_id => $2,
 			fn_asset_id => $3 ,
@@ -87,15 +85,9 @@ func (m *DBManager) CreateAttackChainStep(attackChainStepInput AttackChainStepMo
 		attackChainStepInput.ActionID,
 		attackChainStepInput.AssetID,
 		attackChainStepInput.Position,
-		attackChainStepInput.BusinessID)
+		attackChainStepInput.BusinessID).Scan(&attackChainStepId)
 	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	attackChainStepOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[AttackChainStepModel])
-	if err != nil {
-		log.Println(err)
+		log.Printf("CreateAttackChainStep Error: %s", err)
 		return
 	}
 

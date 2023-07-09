@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"go-risky/database"
+	"log"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -105,7 +107,13 @@ func (controller PublicController) GetAttackChainStep(context *gin.Context) {
 
 func (controller PublicController) DeleteAttackChainStep(context *gin.Context) {
 
-	id := context.Param("id")
+	id, ok := context.GetQuery("id")
+	if !ok {
+		log.Println("Parameter id not found")
+		context.JSON(http.StatusNotFound, "Not found")
+		return
+	}
+
 	err := controller.DBManager.DeleteAttackChainStep(id)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
@@ -155,15 +163,8 @@ func (controller PublicController) CreateAttackChainStep(context *gin.Context) {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	attackChainStepModel, err = controller.DBManager.CreateAttackChainStep(attackChainStepModel)
+	attackChainStepOutput, err := controller.DBManager.CreateAttackChainStep(attackChainStepModel)
 	if err != nil {
-		context.JSON(500, gin.H{"error": err.Error()})
-		return
-	}
-	var attackChainStepOutput AttackChainStepOutput
-	err = attackChainStepOutput.modelToOutput(attackChainStepModel)
-	if err != nil {
-
 		context.JSON(500, gin.H{"error": err.Error()})
 		return
 	}

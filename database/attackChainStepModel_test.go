@@ -38,8 +38,8 @@ func TestGetAttackChainStep(t *testing.T) {
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
 	attackChainStepInput := database.AttackChainStepModel{ActionID: uuid.MustParse(actionId), AttackChainID: uuid.MustParse(attackChainId), AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
-	createdAttackChainStep, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
-	attackChainStep, _ := dbManager.GetAttackChainStep(createdAttackChainStep.ID.String())
+	createdAttackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
+	attackChainStep, _ := dbManager.GetAttackChainStep(createdAttackChainStepId)
 
 	assert.Equal(t, attackChainStep.ActionID.String(), actionId)
 	assert.Equal(t, attackChainStep.AttackChainID.String(), attackChainId)
@@ -59,11 +59,11 @@ func TestCreateAttackChainStep(t *testing.T) {
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
 	attackChainStepInput := database.AttackChainStepModel{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
-	attackChainStep, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
+	attackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
 	assert.Equal(t, err, nil)
 
-	attackChainStep, err = dbManager.GetAttackChainStep(attackChainStep.ID.String())
+	attackChainStep, err := dbManager.GetAttackChainStep(attackChainStepId)
 
 	assert.Equal(t, err, nil)
 
@@ -83,13 +83,13 @@ func TestDeleteAttackChainStep(t *testing.T) {
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
 	attackChainStepInput := database.AttackChainStepModel{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
-	attackChainStep, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
+	attackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
-	err = dbManager.DeleteAttackChainStep(attackChainStep.ID.String())
+	err = dbManager.DeleteAttackChainStep(attackChainStepId)
 
 	assert.Equal(t, err, nil)
 
-	_, err = dbManager.GetAttackChainStep(attackChainStep.ID.String())
+	_, err = dbManager.GetAttackChainStep(attackChainStepId)
 
 	assert.NotEqual(t, err, nil)
 
@@ -107,22 +107,20 @@ func TestUpdateAttackChainStep(t *testing.T) {
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
 	attackChainStepInput := database.AttackChainStepModel{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
-	attackChainStep, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
+	attackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
-	updateAttackChainStepInput := attackChainStep
-	updateAttackChainStepInput.AttackChainID = (attackChainStep.AttackChainID)
-	updateAttackChainStepInput.ActionID = uuid.MustParse("73088b69-dbc2-4f93-bf4a-de292af69102")
-	updateAttackChainStepInput.Position = 1
+	attackChainStepInput.ID = uuid.MustParse(attackChainStepId)
+	attackChainStepInput.ActionID = uuid.MustParse("73088b69-dbc2-4f93-bf4a-de292af69102")
 
-	err = dbManager.UpdateAttackChainStep(updateAttackChainStepInput)
+	err = dbManager.UpdateAttackChainStep(attackChainStepInput)
 
 	assert.Equal(t, err, nil)
 
-	updatedAttackChainStep, err := dbManager.GetAttackChainStep(attackChainStep.ID.String())
+	updatedAttackChainStep, err := dbManager.GetAttackChainStep(attackChainStepId)
 
 	assert.Equal(t, err, nil)
 
-	assert.Equal(t, updateAttackChainStepInput.ActionID, updatedAttackChainStep.ActionID)
-	assert.Equal(t, updateAttackChainStepInput.AttackChainID, updatedAttackChainStep.AttackChainID)
-	assert.Equal(t, updateAttackChainStepInput.Position, updatedAttackChainStep.Position)
+	assert.Equal(t, attackChainStepInput.ActionID, updatedAttackChainStep.ActionID)
+	assert.Equal(t, attackChainStepInput.AttackChainID, updatedAttackChainStep.AttackChainID)
+	assert.Equal(t, attackChainStepInput.Position, updatedAttackChainStep.Position)
 }

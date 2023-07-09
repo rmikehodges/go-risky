@@ -73,7 +73,9 @@ const AttackChainBuilderDnD = () => {
         deleted.reduce((acc, node) => {
           //TODO: Add Error Handling
           if (node.type === 'attackChainStep') {
-            axios.delete(`/attackChainStep?id=${node.data.id}`)
+            console.log(node)
+            console.log(node.data)
+            axios.delete(`http://localhost:8081/attackChainStep?id=${node.data.attackChainStep.id}`)
           }
           const incomers = getIncomers(node, nodes, edges);
           const outgoers = getOutgoers(node, nodes, edges);
@@ -128,7 +130,8 @@ const AttackChainBuilderDnD = () => {
       if (type === 'attackChainStep') { }
         attackChainStepData = { actionId: draggedObject.id, businessId: businessId, position: 0, attackChainId: attackChainId, id: null, createdAt:null, assetId:null }
         axios.post('http://localhost:8081/attackChainStep', attackChainStepData).then((res) => {
-          attackChainStepData.id = res.data.id;
+          attackChainStepData.id = res.data;
+          console.log(res.data)
           data = { label: draggedObject.name , action: draggedObject, attackChainStep: attackChainStepData }
           const newNode = {
             id: getId(),

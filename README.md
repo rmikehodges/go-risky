@@ -100,7 +100,7 @@ OnDrop:
 Create AttackChainStep and get the id back to populate the item - Done
 
 OnDelete:
-Delete AttackChainStep by Id and move the positions of all other AttackChainSteps accordingly - Done
+Delete AttackChainStep by Id and move the positions of all other AttackChainSteps accordingly - Done, fully connected end-to-end
 
 Moving Nodes around;
 Update AttackChainSteps to move their position based on connection of edges
