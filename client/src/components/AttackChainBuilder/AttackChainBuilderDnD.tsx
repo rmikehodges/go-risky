@@ -59,6 +59,9 @@ const AttackChainBuilderDnD = () => {
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [attackChainId, setAttackChainId] = useState<UUID>("20036fa3-45c6-47b2-a343-f88bcd4f5e07");
   const [attackChains, setAttackChains] = useState<AttackChain[]>([]);
+  const [attackChainStepPosition, setAttackChainStepPosition] = useState<number>(0);
+
+
 
   // useEffect(() => {
   //   axios.get('/attackChains?businessId='+businessId).then((res) => {
@@ -73,8 +76,6 @@ const AttackChainBuilderDnD = () => {
         deleted.reduce((acc, node) => {
           //TODO: Add Error Handling
           if (node.type === 'attackChainStep') {
-            console.log(node)
-            console.log(node.data)
             axios.delete(`http://localhost:8081/attackChainStep?id=${node.data.attackChainStep.id}`)
           }
           const incomers = getIncomers(node, nodes, edges);
@@ -94,7 +95,39 @@ const AttackChainBuilderDnD = () => {
     [nodes, edges]
   );
 
-  const onConnect = useCallback((params: any) => setEdges((eds) => addEdge({...params,type:"smoothstep"}, eds)), []);
+  const onConnect = useCallback((params: any) => {
+    let targetPosition: number = 0;
+    nodes.forEach((node) => {
+      if (params.source === node.id) {
+        targetPosition = node.data.attackChainStep.position;
+      } 
+
+    });
+    setNodes((nds) =>
+    nds.map((node) => {
+      if (node.id === params.target) {
+        // it's important that you create a new object here
+        // in order to notify react flow about the change
+        node.data = {
+          ...node.data,
+          attackChainStep: {
+            ...node.data.attackChainStep,
+            position: targetPosition + 1,
+          }
+        };
+        axios.patch('http://localhost:8081/attackChainStep', node.data.attackChainStep).then((res) => {
+          console.log(node.data.attackChainStep)
+          console.log(res);
+        });
+      }
+
+      console.log(node);
+      return node;
+    })
+  );
+    setAttackChainStepPosition(attackChainStepPosition + 1);
+    setEdges((eds) => addEdge({...params,type:"smoothstep"}, eds))
+  }, [nodes, edges, attackChainStepPosition]);
 
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
@@ -176,10 +209,10 @@ const AttackChainBuilderDnD = () => {
         <div className="sidebar"><Sidebar /></div>
       </div>
       <div className="impactBuilder"><ImpactBuilder /></div>
-      <div className="bottomtoolbar-container">
+      {/* <div className="bottomtoolbar-container">
         <div className="box">Newsfeed</div>
         <div className="box">Chatbot</div>
-      </div>
+      </div> */}
 
 
     </div>

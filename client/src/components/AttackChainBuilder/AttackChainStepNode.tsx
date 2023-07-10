@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import { Handle, Position, NodeProps, NodeToolbar } from 'reactflow';
 import  AttackChainStep  from "../AttackChainSteps/AttackChainStep";
 import Asset from '../Assets/Asset';
 import AttackChain from '../AttackChains/AttackChain';
@@ -12,13 +12,11 @@ const handleStyle = { left: 10 };
 
 interface AttackChainStepNodeData {
   label: string
-  id: UUID | null
   action: Action
-  asset: Asset | null
-  attackChain: AttackChain | null
-  detection: Detection | null
-  mitigation: Mitigation | null
+  attackChainStep: AttackChainStep
   position: number
+  toolbarVisible: boolean
+  toolbarPosition: Position
 }
 
 interface AttackChainStepNodeProps extends NodeProps {
@@ -27,16 +25,19 @@ interface AttackChainStepNodeProps extends NodeProps {
 
 const AttackChainStepNode = ({ data, isConnectable }: AttackChainStepNodeProps) => {
   const actionName = data.action?.name;
+
   return (
     <>
-     <Handle type="source" position={Position.Left} />
-     <Handle type="target" position={Position.Right} />
+      <NodeToolbar isVisible={data.toolbarVisible} position={data.toolbarPosition}>
+      Position: {data.attackChainStep.position}<br></br>
+      </NodeToolbar>
+
+     <Handle type="target" position={Position.Left} />
+     <Handle type="source" position={Position.Right} />
       <Handle type="target" position={Position.Top} />
       <div>
        Name: {actionName}<br></br>
-       Description: {data.action?.description}<br></br>
-        Complexity: {data.action?.complexity}<br></br>
-        
+       Position: {data.attackChainStep.position}<br></br>
       </div>
       <Handle type="source" position={Position.Bottom}/>
 

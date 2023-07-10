@@ -102,8 +102,14 @@ Create AttackChainStep and get the id back to populate the item - Done
 OnDelete:
 Delete AttackChainStep by Id and move the positions of all other AttackChainSteps accordingly - Done, fully connected end-to-end
 
-Moving Nodes around;
-Update AttackChainSteps to move their position based on connection of edges
+Moving Edges around;
+Update AttackChainSteps to move their position based on connection of edges.
+- Initial value is -1
+- If connected on right, but not connected on left it goes to 0, and currentPosition is updated
+- Adding connection to the left and make the position currentPosition+1
+- How do I want to handle if an attackChain is disconnected somewhere in the middle?
+  - Would it be good to make multiple paths in an attackChain to realize a threat? If so then if an edge is broken
+    then the node without a left edge would be a position 0 and then we could update all nodes.
 
 OnDoubleClick
 Show a larger modal where users can select Assets, Detection and/or Mitigation.
