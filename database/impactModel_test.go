@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -48,7 +49,7 @@ func TestCreateImpact(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	impactInput := database.ImpactModel{Name: "test", BusinessID: uuid.MustParse(businessId), ThreatID: threatId}
+	impactInput := types.Impact{Name: "test", BusinessID: uuid.MustParse(businessId), ThreatID: threatId}
 	impactId, err := dbManager.CreateImpact(impactInput)
 
 	assert.Equal(t, err, nil)
@@ -68,7 +69,7 @@ func TestDeleteImpact(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	impactInput := database.ImpactModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	impactInput := types.Impact{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	impactId, _ := dbManager.CreateImpact(impactInput)
 
 	err = dbManager.DeleteImpact(impactId)
@@ -91,7 +92,7 @@ func TestUpdateImpact(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createImpactInput := database.ImpactModel{Name: "test", BusinessID: uuid.MustParse(businessId), ThreatID: threatId}
+	createImpactInput := types.Impact{Name: "test", BusinessID: uuid.MustParse(businessId), ThreatID: threatId}
 	impactId, _ := dbManager.CreateImpact(createImpactInput)
 
 	updateImpactInput := createImpactInput

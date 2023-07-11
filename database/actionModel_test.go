@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -47,7 +48,7 @@ func TestCreateAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	actionInput := types.Action{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	actionId, err := dbManager.CreateAction(actionInput)
 
 	assert.Equal(t, err, nil)
@@ -67,7 +68,7 @@ func TestDeleteAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	actionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	actionInput := types.Action{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	actionId, _ := dbManager.CreateAction(actionInput)
 
 	err = dbManager.DeleteAction(actionId)
@@ -89,7 +90,7 @@ func TestUpdateAction(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createActionInput := database.ActionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	createActionInput := types.Action{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	actionId, _ := dbManager.CreateAction(createActionInput)
 
 	createActionInput.Name = "test2"

@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -50,7 +51,7 @@ func TestCreateBusiness(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	businessInput := database.BusinessModel{Name: "test", Revenue: 10000}
+	businessInput := types.Business{Name: "test", Revenue: 10000}
 	businessId, err := dbManager.CreateBusiness(businessInput)
 
 	assert.Equal(t, err, nil)
@@ -70,7 +71,7 @@ func TestDeleteBusiness(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	businessInput := database.BusinessModel{Name: "test", Revenue: 10000}
+	businessInput := types.Business{Name: "test", Revenue: 10000}
 	businessId, _ := dbManager.CreateBusiness(businessInput)
 
 	err = dbManager.DeleteBusiness(businessId)
@@ -92,7 +93,7 @@ func TestUpdateBusiness(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createBusinessInput := database.BusinessModel{Name: "test", Revenue: 10000}
+	createBusinessInput := types.Business{Name: "test", Revenue: 10000}
 	businessId, _ := dbManager.CreateBusiness(createBusinessInput)
 
 	updateBusinessInput := createBusinessInput

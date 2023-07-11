@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"go-risky/database"
 	"go-risky/handlers"
+	"go-risky/types"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -54,9 +55,9 @@ func TestCreateAction(t *testing.T) {
 	router := gin.Default()
 	router.POST("/action", controller.CreateAction)
 	w := httptest.NewRecorder()
-	//Create a new handlers.ActionInput struct with prepared data
+	//Create a new types.Action struct with prepared data
 	capabilityId := uuid.MustParse(capabilityId)
-	actionInput := handlers.ActionInput{
+	actionInput := types.Action{
 		Name:         "Test",
 		Description:  "test",
 		BusinessID:   uuid.MustParse(businessId),
@@ -82,7 +83,7 @@ func TestUpdateAction(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	capabilityId := uuid.MustParse(capabilityId)
-	actionInput := handlers.ActionInput{
+	actionInput := types.Action{
 		ID:           uuid.MustParse(actionId),
 		Name:         "Test",
 		Description:  "test",
@@ -112,7 +113,7 @@ func TestDeleteAction(t *testing.T) {
 }
 
 // func TestInputToModel(t *testing.T) {
-// 	actionInput := handlers.ActionInput{
+// 	actionInput := types.Action{
 // 		ID:   uuid.New(),
 // 		Name: "Test",
 // 	}

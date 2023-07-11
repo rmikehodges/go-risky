@@ -2,24 +2,13 @@ package database
 
 import (
 	"context"
+	"go-risky/types"
 	"log"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
 
-type MitigationModel struct {
-	ID          uuid.UUID     `json:"id"`
-	Name        string        `json:"name"`
-	Description zeronull.Text `json:"description"`
-	BusinessID  uuid.UUID     `json:"businessId" db:"business_id"`
-	Implemented bool          `json:"implemented"`
-	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
-}
-
-func (m *DBManager) GetMitigations(businessID string) (mitigationOutput []MitigationModel, err error) {
+func (m *DBManager) GetMitigations(businessID string) (mitigationOutput []types.Mitigation, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, implemented, created_at FROM risky_public.mitigations(fn_business_id => $1)", businessID)
 	if err != nil {
@@ -27,7 +16,7 @@ func (m *DBManager) GetMitigations(businessID string) (mitigationOutput []Mitiga
 		return
 	}
 
-	mitigationOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[MitigationModel])
+	mitigationOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[types.Mitigation])
 	if err != nil {
 		log.Printf("GetMitigations Error: %s", err)
 		return
@@ -36,7 +25,7 @@ func (m *DBManager) GetMitigations(businessID string) (mitigationOutput []Mitiga
 	return
 }
 
-func (m *DBManager) GetMitigation(id string) (mitigationOutput MitigationModel, err error) {
+func (m *DBManager) GetMitigation(id string) (mitigationOutput types.Mitigation, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, implemented, created_at FROM risky_public.get_mitigation(fn_mitigation_id => $1)", id)
 	if err != nil {
@@ -44,7 +33,7 @@ func (m *DBManager) GetMitigation(id string) (mitigationOutput MitigationModel, 
 		return
 	}
 
-	mitigationOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[MitigationModel])
+	mitigationOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[types.Mitigation])
 	if err != nil {
 		log.Printf("GetMitigation parsing error: %s", err)
 		return
@@ -64,7 +53,7 @@ func (m *DBManager) DeleteMitigation(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateMitigation(mitigationInput MitigationModel) (mitigationId string, err error) {
+func (m *DBManager) CreateMitigation(mitigationInput types.Mitigation) (mitigationId string, err error) {
 
 	err = m.DBPool.QueryRow(context.Background(),
 		`select risky_public.create_mitigation(
@@ -84,7 +73,7 @@ func (m *DBManager) CreateMitigation(mitigationInput MitigationModel) (mitigatio
 	return
 }
 
-func (m *DBManager) UpdateMitigation(mitigationInput MitigationModel) (err error) {
+func (m *DBManager) UpdateMitigation(mitigationInput types.Mitigation) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_mitigation(

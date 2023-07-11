@@ -11,6 +11,8 @@ import ReactFlow, {
   getOutgoers,
   getConnectedEdges,
   Node,
+  Background,
+  BackgroundVariant,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useMemo } from 'react';
@@ -201,6 +203,7 @@ const AttackChainBuilderDnD = () => {
             fitView
           >
             <Controls />
+            <Background color="#ccc" variant={BackgroundVariant.Lines} />
           </ReactFlow>
         </div>
       </ReactFlowProvider>

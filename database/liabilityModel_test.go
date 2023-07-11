@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -49,7 +50,7 @@ func TestCreateLiability(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	liabilityInput := database.LiabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	liabilityInput := types.Liability{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	liabilityId, err := dbManager.CreateLiability(liabilityInput)
 
 	assert.Equal(t, err, nil)
@@ -69,7 +70,7 @@ func TestDeleteLiability(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	liabilityInput := database.LiabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	liabilityInput := types.Liability{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	liabilityId, _ := dbManager.CreateLiability(liabilityInput)
 
 	err = dbManager.DeleteLiability(liabilityId)
@@ -91,7 +92,7 @@ func TestUpdateLiability(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createLiabilityInput := database.LiabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	createLiabilityInput := types.Liability{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	liabilityId, _ := dbManager.CreateLiability(createLiabilityInput)
 
 	updateLiabilityInput := createLiabilityInput

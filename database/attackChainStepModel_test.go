@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -37,7 +38,7 @@ func TestGetAttackChainStep(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainStepInput := database.AttackChainStepModel{ActionID: uuid.MustParse(actionId), AttackChainID: uuid.MustParse(attackChainId), AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	attackChainStepInput := types.AttackChainStep{ActionID: uuid.MustParse(actionId), AttackChainID: uuid.MustParse(attackChainId), AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
 	createdAttackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 	attackChainStep, _ := dbManager.GetAttackChainStep(createdAttackChainStepId)
 
@@ -58,7 +59,7 @@ func TestCreateAttackChainStep(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainStepInput := database.AttackChainStepModel{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	attackChainStepInput := types.AttackChainStep{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
 	attackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
 	assert.Equal(t, err, nil)
@@ -82,7 +83,7 @@ func TestDeleteAttackChainStep(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainStepInput := database.AttackChainStepModel{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	attackChainStepInput := types.AttackChainStep{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
 	attackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
 	err = dbManager.DeleteAttackChainStep(attackChainStepId)
@@ -106,7 +107,7 @@ func TestUpdateAttackChainStep(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainStepInput := database.AttackChainStepModel{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	attackChainStepInput := types.AttackChainStep{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
 	attackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
 	attackChainStepInput.ID = uuid.MustParse(attackChainStepId)

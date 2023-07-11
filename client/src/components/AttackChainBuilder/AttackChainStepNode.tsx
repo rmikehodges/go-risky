@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Handle, Position, NodeProps, NodeToolbar } from 'reactflow';
 import  AttackChainStep  from "../AttackChainSteps/AttackChainStep";
 import Asset from '../Assets/Asset';
@@ -15,8 +15,6 @@ interface AttackChainStepNodeData {
   action: Action
   attackChainStep: AttackChainStep
   position: number
-  toolbarVisible: boolean
-  toolbarPosition: Position
 }
 
 interface AttackChainStepNodeProps extends NodeProps {
@@ -25,10 +23,24 @@ interface AttackChainStepNodeProps extends NodeProps {
 
 const AttackChainStepNode = ({ data, isConnectable }: AttackChainStepNodeProps) => {
   const actionName = data.action?.name;
+  const [toolbarVisible, setToolbarVisible] = useState<boolean>(false);
+  const [toolbarPosition, setToolbarPosition] = useState<Position>(Position.Top);
+
+  const onDoubleClick = () => {
+    if (toolbarVisible) {
+      setToolbarVisible(false);
+    }
+    else {
+      setToolbarVisible(true);
+    }
+  }
+
 
   return (
-    <>
-      <NodeToolbar isVisible={data.toolbarVisible} position={data.toolbarPosition}>
+    <div onDoubleClick={onDoubleClick}>
+      <NodeToolbar isVisible={toolbarVisible} position={toolbarPosition}>
+      Action Name: {data.action.name}<br></br>
+      Complexity: {data.action.complexity}<br></br>
       Position: {data.attackChainStep.position}<br></br>
       </NodeToolbar>
 
@@ -36,12 +48,11 @@ const AttackChainStepNode = ({ data, isConnectable }: AttackChainStepNodeProps) 
      <Handle type="source" position={Position.Right} />
       <Handle type="target" position={Position.Top} />
       <div>
-       Name: {actionName}<br></br>
-       Position: {data.attackChainStep.position}<br></br>
+        <label htmlFor="text">{actionName}</label>
       </div>
       <Handle type="source" position={Position.Bottom}/>
 
-    </>
+    </div>
   );
 }
 

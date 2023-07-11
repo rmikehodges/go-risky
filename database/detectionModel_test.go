@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -46,7 +47,7 @@ func TestCreateDetection(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	detectionInput := database.DetectionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	detectionInput := types.Detection{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	detectionId, err := dbManager.CreateDetection(detectionInput)
 
 	assert.Equal(t, err, nil)
@@ -66,7 +67,7 @@ func TestDeleteDetection(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	detectionInput := database.DetectionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	detectionInput := types.Detection{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	detectionId, _ := dbManager.CreateDetection(detectionInput)
 
 	err = dbManager.DeleteDetection(detectionId)
@@ -88,7 +89,7 @@ func TestUpdateDetection(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createDetectionInput := database.DetectionModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	createDetectionInput := types.Detection{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	detectionId, _ := dbManager.CreateDetection(createDetectionInput)
 
 	updateDetectionInput := createDetectionInput

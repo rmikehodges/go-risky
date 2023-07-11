@@ -2,25 +2,13 @@ package database
 
 import (
 	"context"
+	"go-risky/types"
 	"log"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
-type ImpactModel struct {
-	ID               uuid.UUID `json:"id"`
-	Name             string    `json:"name"`
-	Description      *string   `json:"description"`
-	BusinessID       uuid.UUID `json:"businessId" db:"business_id"`
-	ThreatID         uuid.UUID `json:"threatId" db:"threat_id"`
-	ExploitationCost *float32  `json:"exploitationCost" db:"exploitation_cost"`
-	MitigationCost   *float32  `json:"mitigationCost" db:"mitigation_cost"`
-	CreatedAt        time.Time `json:"createdAt" db:"created_at"`
-}
-
-func (m *DBManager) GetImpacts(businessID string) (impactOutput []ImpactModel, err error) {
+func (m *DBManager) GetImpacts(businessID string) (impactOutput []types.Impact, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, threat_id, exploitation_cost, mitigation_cost, created_at FROM risky_public.impacts(fn_business_id => $1)", businessID)
 	if err != nil {
@@ -28,7 +16,7 @@ func (m *DBManager) GetImpacts(businessID string) (impactOutput []ImpactModel, e
 		return
 	}
 
-	impactOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[ImpactModel])
+	impactOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[types.Impact])
 	if err != nil {
 		log.Printf("GetImpacts Error %s:", err)
 		return
@@ -37,7 +25,7 @@ func (m *DBManager) GetImpacts(businessID string) (impactOutput []ImpactModel, e
 	return
 }
 
-func (m *DBManager) GetImpact(id string) (impactOutput ImpactModel, err error) {
+func (m *DBManager) GetImpact(id string) (impactOutput types.Impact, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, threat_id, exploitation_cost, mitigation_cost, created_at FROM risky_public.get_impact(fn_impact_id => $1)", id)
 	if err != nil {
@@ -45,7 +33,7 @@ func (m *DBManager) GetImpact(id string) (impactOutput ImpactModel, err error) {
 		return
 	}
 
-	impactOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[ImpactModel])
+	impactOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[types.Impact])
 	if err != nil {
 		log.Printf("GetImpact error: %s", err)
 		return
@@ -65,7 +53,7 @@ func (m *DBManager) DeleteImpact(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateImpact(impactInput ImpactModel) (impactId string, err error) {
+func (m *DBManager) CreateImpact(impactInput types.Impact) (impactId string, err error) {
 	//TODO: Add impact exploitation and mitigation cost
 
 	err = m.DBPool.QueryRow(context.Background(),
@@ -86,7 +74,7 @@ func (m *DBManager) CreateImpact(impactInput ImpactModel) (impactId string, err 
 	return
 }
 
-func (m *DBManager) UpdateImpact(impactInput ImpactModel) (err error) {
+func (m *DBManager) UpdateImpact(impactInput types.Impact) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_impact(

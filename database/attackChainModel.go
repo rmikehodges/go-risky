@@ -2,24 +2,13 @@ package database
 
 import (
 	"context"
+	"go-risky/types"
 	"log"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
 
-type AttackChainModel struct {
-	ID          uuid.UUID     `json:"id"`
-	Name        string        `json:"name"`
-	Description zeronull.Text `json:"description"`
-	BusinessID  uuid.UUID     `json:"businessId" db:"business_id"`
-	ThreatID    uuid.UUID     `json:"assetId" db:"threat_id"`
-	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
-}
-
-func (m *DBManager) GetAttackChains(businessID string) (attackChainOutput []AttackChainModel, err error) {
+func (m *DBManager) GetAttackChains(businessID string) (attackChainOutput []types.AttackChain, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, threat_id, created_at FROM risky_public.attack_chains(fn_business_id => $1)", businessID)
 	if err != nil {
@@ -27,7 +16,7 @@ func (m *DBManager) GetAttackChains(businessID string) (attackChainOutput []Atta
 		return
 	}
 
-	attackChainOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[AttackChainModel])
+	attackChainOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[types.AttackChain])
 	if err != nil {
 		log.Println(err)
 		return
@@ -36,7 +25,7 @@ func (m *DBManager) GetAttackChains(businessID string) (attackChainOutput []Atta
 	return
 }
 
-func (m *DBManager) GetAttackChain(id string) (attackChainOutput AttackChainModel, err error) {
+func (m *DBManager) GetAttackChain(id string) (attackChainOutput types.AttackChain, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, threat_id, business_id, created_at FROM risky_public.get_attack_chain(fn_attack_chain_id => $1)", id)
 	if err != nil {
@@ -44,7 +33,7 @@ func (m *DBManager) GetAttackChain(id string) (attackChainOutput AttackChainMode
 		return
 	}
 
-	attackChainOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[AttackChainModel])
+	attackChainOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[types.AttackChain])
 	if err != nil {
 		log.Println(err)
 		return
@@ -64,7 +53,7 @@ func (m *DBManager) DeleteAttackChain(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateAttackChain(attackChainInput AttackChainModel) (attackChainId string, err error) {
+func (m *DBManager) CreateAttackChain(attackChainInput types.AttackChain) (attackChainId string, err error) {
 
 	err = m.DBPool.QueryRow(context.Background(),
 		`select risky_public.create_attack_chain(
@@ -84,7 +73,7 @@ func (m *DBManager) CreateAttackChain(attackChainInput AttackChainModel) (attack
 	return
 }
 
-func (m *DBManager) UpdateAttackChain(attackChainInput AttackChainModel) (err error) {
+func (m *DBManager) UpdateAttackChain(attackChainInput types.AttackChain) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_attack_chain(

@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -47,7 +48,7 @@ func TestCreateMitigation(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	mitigationInput := database.MitigationModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	mitigationInput := types.Mitigation{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	mitigationId, err := dbManager.CreateMitigation(mitigationInput)
 
 	assert.Equal(t, err, nil)
@@ -67,7 +68,7 @@ func TestDeleteMitigation(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	mitigationInput := database.MitigationModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	mitigationInput := types.Mitigation{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	mitigationId, _ := dbManager.CreateMitigation(mitigationInput)
 
 	err = dbManager.DeleteMitigation(mitigationId)
@@ -88,7 +89,7 @@ func TestUpdateMitigation(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createMitigationInput := database.MitigationModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	createMitigationInput := types.Mitigation{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	mitigationId, _ := dbManager.CreateMitigation(createMitigationInput)
 
 	updateMitigationInput := createMitigationInput

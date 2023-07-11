@@ -1,99 +1,15 @@
 package handlers
 
 import (
-	"go-risky/database"
+	"go-risky/types"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
 
-type LiabilityInput struct {
-	ID           uuid.UUID     `json:"id"`
-	Name         string        `json:"name"`
-	Description  zeronull.Text `json:"description"`
-	Quantity     *float32      `json:"quantity"`
-	Type         string        `json:"type"`
-	ResourceType string        `json:"resourceType"`
-	Cost         *float32      `json:"cost"`
-	BusinessID   uuid.UUID     `json:"businessId"`
-	DetectionID  *uuid.UUID    `json:"detectionId"`
-	MitigationID *uuid.UUID    `json:"mitigationId"`
-	ResourceID   *uuid.UUID    `json:"resourceId"`
-	ThreatID     *uuid.UUID    `json:"threatId"`
-	ImpactID     *uuid.UUID    `json:"impactId"`
-	CreatedAt    time.Time     `json:"createdAt"`
-}
-
-type LiabilityOutput struct {
-	ID           uuid.UUID     `json:"id"`
-	Name         string        `json:"name"`
-	Description  zeronull.Text `json:"description"`
-	Quantity     *float32      `json:"quantity"`
-	Type         string        `json:"type"`
-	ResourceType string        `json:"resourceType"`
-	Cost         *float32      `json:"cost"`
-	BusinessID   uuid.UUID     `json:"businessId"`
-	DetectionID  *uuid.UUID    `json:"detectionId"`
-	MitigationID *uuid.UUID    `json:"mitigationId"`
-	ResourceID   *uuid.UUID    `json:"resourceId"`
-	ThreatID     *uuid.UUID    `json:"threatId"`
-	ImpactID     *uuid.UUID    `json:"impactId"`
-	CreatedAt    time.Time     `json:"createdAt"`
-}
-type LiabilityOutputs []LiabilityOutput
-
-func (liabilityInput LiabilityInput) inputToModel() (liabilityModel database.LiabilityModel, err error) {
-	liabilityModel.ID = liabilityInput.ID
-	liabilityModel.Name = liabilityInput.Name
-	liabilityModel.Description = liabilityInput.Description
-	liabilityModel.Quantity = liabilityInput.Quantity
-	liabilityModel.Type = liabilityInput.Type
-	liabilityModel.ResourceType = liabilityInput.ResourceType
-	liabilityModel.Cost = liabilityInput.Cost
-	liabilityModel.BusinessID = liabilityInput.BusinessID
-	liabilityModel.MitigationID = liabilityInput.MitigationID
-	liabilityModel.ResourceID = liabilityInput.ResourceID
-	liabilityModel.ThreatID = liabilityInput.ThreatID
-	liabilityModel.ImpactID = liabilityInput.ImpactID
-	liabilityModel.CreatedAt = liabilityInput.CreatedAt
-	return
-}
-
-func (liabilityOutput *LiabilityOutput) modelToOutput(liabilityModel database.LiabilityModel) (err error) {
-	liabilityOutput.ID = liabilityModel.ID
-	liabilityOutput.Name = liabilityModel.Name
-	liabilityOutput.Description = liabilityModel.Description
-	liabilityOutput.Quantity = liabilityModel.Quantity
-	liabilityOutput.Type = liabilityModel.Type
-	liabilityOutput.ResourceType = liabilityModel.ResourceType
-	liabilityOutput.Cost = liabilityModel.Cost
-	liabilityOutput.BusinessID = liabilityModel.BusinessID
-	liabilityOutput.MitigationID = liabilityModel.MitigationID
-	liabilityOutput.ResourceID = liabilityModel.ResourceID
-	liabilityOutput.ThreatID = liabilityModel.ThreatID
-	liabilityOutput.ImpactID = liabilityModel.ImpactID
-	liabilityOutput.CreatedAt = liabilityModel.CreatedAt
-	return
-}
-
-func liabilityModelsToOutputs(liabilityModels []database.LiabilityModel) (liabilityOutputs LiabilityOutputs, err error) {
-	for _, liabilityModel := range liabilityModels {
-		liabilityOutput := LiabilityOutput{}
-		err := liabilityOutput.modelToOutput(liabilityModel)
-		if err != nil {
-			return nil, err
-		}
-		liabilityOutputs = append(liabilityOutputs, liabilityOutput)
-	}
-	return
-}
-
 func (controller PublicController) GetLiabilities(context *gin.Context) {
-	var liabilityModels []database.LiabilityModel
 
 	rawBusinessId, ok := context.GetQuery("businessId")
 	if !ok {
@@ -113,6 +29,7 @@ func (controller PublicController) GetLiabilities(context *gin.Context) {
 	rawMitigationId, mitigationIdPresent := context.GetQuery("mitigationId")
 	rawThreatId, threatIdPresent := context.GetQuery("threatId")
 
+	var liabilityOutputs types.Liabilities
 	switch {
 	case threatIdPresent:
 		threatId, err := uuid.Parse(rawThreatId)
@@ -121,7 +38,7 @@ func (controller PublicController) GetLiabilities(context *gin.Context) {
 			context.JSON(http.StatusNotFound, "Not found")
 			return
 		}
-		liabilityModels, err = controller.DBManager.GetLiabilitiesByThreatId(businessId.String(), threatId.String())
+		liabilityOutputs, err = controller.DBManager.GetLiabilitiesByThreatId(businessId.String(), threatId.String())
 		if err != nil {
 			log.Println(err)
 			context.JSON(http.StatusNotFound, "Not Found")
@@ -134,7 +51,7 @@ func (controller PublicController) GetLiabilities(context *gin.Context) {
 			context.JSON(http.StatusNotFound, "Not found")
 			return
 		}
-		liabilityModels, err = controller.DBManager.GetLiabilitiesByMitigationId(businessId.String(), mitigationId.String())
+		liabilityOutputs, err = controller.DBManager.GetLiabilitiesByMitigationId(businessId.String(), mitigationId.String())
 		if err != nil {
 			log.Println(err)
 			context.JSON(http.StatusNotFound, "Not Found")
@@ -147,28 +64,20 @@ func (controller PublicController) GetLiabilities(context *gin.Context) {
 			context.JSON(http.StatusNotFound, "Not found")
 			return
 		}
-		liabilityModels, err = controller.DBManager.GetLiabilitiesByImpactId(businessId.String(), impactId.String())
+		liabilityOutputs, err = controller.DBManager.GetLiabilitiesByImpactId(businessId.String(), impactId.String())
 		if err != nil {
 			log.Println(err)
 			context.JSON(http.StatusNotFound, "Not Found")
 			return
 		}
 	default:
-		liabilityModels, err = controller.DBManager.GetLiabilities(businessId.String())
+		liabilityOutputs, err = controller.DBManager.GetLiabilities(businessId.String())
 		if err != nil {
 			log.Println(err)
 			context.JSON(http.StatusNotFound, "Not Found")
 			return
 		}
 
-	}
-
-	liabilityOutputs, err := liabilityModelsToOutputs(liabilityModels)
-
-	if err != nil {
-		log.Println(err)
-		context.JSON(http.StatusNotFound, "Not Found")
-		return
 	}
 
 	context.JSON(http.StatusOK, liabilityOutputs)
@@ -190,22 +99,14 @@ func (controller PublicController) GetLiability(context *gin.Context) {
 		return
 	}
 
-	liabilityModel, err := controller.DBManager.GetLiability(liabilityId.String())
+	liabilityOutput, err := controller.DBManager.GetLiability(liabilityId.String())
 
 	if err != nil {
 		log.Println(err)
 		context.JSON(http.StatusNotFound, "Not Found")
 		return
 	}
-	var liabilityOutput LiabilityOutput
 
-	err = liabilityOutput.modelToOutput(liabilityModel)
-
-	if err != nil {
-		log.Println(err)
-		context.JSON(http.StatusNotFound, "Not Found")
-		return
-	}
 	context.JSON(http.StatusOK, liabilityOutput)
 }
 
@@ -272,22 +173,14 @@ func (controller PublicController) DeleteLiability(context *gin.Context) {
 
 func (controller PublicController) CreateLiability(context *gin.Context) {
 
-	liabilityInput := LiabilityInput{}
+	liabilityInput := types.Liability{}
 	err := context.ShouldBindJSON(&liabilityInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	liabilityModel, err := liabilityInput.inputToModel()
-
-	if err != nil {
-		log.Println(err)
-		context.IndentedJSON(http.StatusBadRequest, "Bad request")
-		return
-	}
-
-	liabilityId, err := controller.DBManager.CreateLiability(liabilityModel)
+	liabilityId, err := controller.DBManager.CreateLiability(liabilityInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -299,21 +192,13 @@ func (controller PublicController) CreateLiability(context *gin.Context) {
 
 func (controller PublicController) UpdateLiability(context *gin.Context) {
 
-	liabilityInput := LiabilityInput{}
+	liabilityInput := types.Liability{}
 	err := context.ShouldBindJSON(&liabilityInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
-	liabilityModel, err := liabilityInput.inputToModel()
-
-	if err != nil {
-		log.Println(err)
-		context.IndentedJSON(http.StatusBadRequest, "Bad request")
-		return
-	}
-
-	err = controller.DBManager.UpdateLiability(liabilityModel)
+	err = controller.DBManager.UpdateLiability(liabilityInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

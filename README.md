@@ -107,6 +107,7 @@ Update AttackChainSteps to move their position based on connection of edges.
 - Initial value is -1
 - If connected on right, but not connected on left it goes to 0, and currentPosition is updated
 - Adding connection to the left and make the position currentPosition+1
+- Right now the update on the database is not working how I would like as it doesn't appear to be incrementing anything
 - How do I want to handle if an attackChain is disconnected somewhere in the middle?
   - Would it be good to make multiple paths in an attackChain to realize a threat? If so then if an edge is broken
     then the node without a left edge would be a position 0 and then we could update all nodes.
@@ -116,10 +117,21 @@ Show a larger modal where users can select Assets, Detection and/or Mitigation.
 Every detection and mitigation should probably create a liability associated with a resource automatically for the user
 
 OnConnection
-populate a node’s position
+populate a node’s position - Done
 
 onDeleteEdge
 - update a node’s position to negative 1 
+
+Expand Related Attack Chains on Action and Action+Asset Combo
+- the former for problematic capabilities
+- the latter for hot spots that need detection/hardening
+- Can use DB function to list both
+- Can get AttackChainSteps based on Action
+- Show/Hide alternative chains in the graph since we are working on one chain at a time. But updates will be
+allowed because of the nature of the Custom Node. 
+
+7/10 - I need to remove the model, output, and input objects and consolidate on a single object definition defined in another package. Its creating too much complexity. This is done, was very easy due to lack of functionality built on top of it.
+
 
 
 

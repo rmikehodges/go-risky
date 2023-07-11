@@ -2,24 +2,13 @@ package database
 
 import (
 	"context"
+	"go-risky/types"
 	"log"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
 
-type CapabilityModel struct {
-	ID          uuid.UUID     `json:"id"`
-	Name        string        `json:"name"`
-	Description zeronull.Text `json:"description"`
-	BusinessID  uuid.UUID     `json:"businessId" db:"business_id"`
-	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
-}
-
-
-func (m *DBManager) GetCapabilities(businessID string) (capabilityOutput []CapabilityModel, err error) {
+func (m *DBManager) GetCapabilities(businessID string) (capabilityOutput []types.Capability, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, created_at FROM risky_public.capabilities(fn_business_id => $1)", businessID)
 	if err != nil {
@@ -27,7 +16,7 @@ func (m *DBManager) GetCapabilities(businessID string) (capabilityOutput []Capab
 		return
 	}
 
-	capabilityOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[CapabilityModel])
+	capabilityOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[types.Capability])
 	if err != nil {
 		log.Println(err)
 		return
@@ -36,7 +25,7 @@ func (m *DBManager) GetCapabilities(businessID string) (capabilityOutput []Capab
 	return
 }
 
-func (m *DBManager) GetCapability(id string) (capabilityOutput CapabilityModel, err error) {
+func (m *DBManager) GetCapability(id string) (capabilityOutput types.Capability, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, created_at FROM risky_public.get_capability(fn_capability_id => $1)", id)
 	if err != nil {
@@ -44,7 +33,7 @@ func (m *DBManager) GetCapability(id string) (capabilityOutput CapabilityModel, 
 		return
 	}
 
-	capabilityOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[CapabilityModel])
+	capabilityOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[types.Capability])
 	if err != nil {
 		log.Println(err)
 		return
@@ -64,7 +53,7 @@ func (m *DBManager) DeleteCapability(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateCapability(capabilityInput CapabilityModel) (capabilityId string, err error) {
+func (m *DBManager) CreateCapability(capabilityInput types.Capability) (capabilityId string, err error) {
 
 	err = m.DBPool.QueryRow(context.Background(),
 		`select * FROM risky_public.create_capability(
@@ -82,7 +71,7 @@ func (m *DBManager) CreateCapability(capabilityInput CapabilityModel) (capabilit
 	return
 }
 
-func (m *DBManager) UpdateCapability(capabilityInput CapabilityModel) (err error) {
+func (m *DBManager) UpdateCapability(capabilityInput types.Capability) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_capability(

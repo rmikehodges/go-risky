@@ -2,21 +2,13 @@ package database
 
 import (
 	"context"
+	"go-risky/types"
 	"log"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
-type BusinessModel struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	Revenue   float32   `json:"revenue"`
-	CreatedAt time.Time `json:"createdAt" db:"created_at"`
-}
-
-func (m *DBManager) GetBusinesses() (businessOutput []BusinessModel, err error) {
+func (m *DBManager) GetBusinesses() (businessOutput []types.Business, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, revenue, created_at FROM risky_public.businesses()")
 	if err != nil {
@@ -24,7 +16,7 @@ func (m *DBManager) GetBusinesses() (businessOutput []BusinessModel, err error) 
 		return
 	}
 
-	businessOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[BusinessModel])
+	businessOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[types.Business])
 	if err != nil {
 		log.Println(err)
 		return
@@ -33,7 +25,7 @@ func (m *DBManager) GetBusinesses() (businessOutput []BusinessModel, err error) 
 	return
 }
 
-func (m *DBManager) GetBusiness(id string) (businessOutput BusinessModel, err error) {
+func (m *DBManager) GetBusiness(id string) (businessOutput types.Business, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, revenue, created_at FROM risky_public.get_business(fn_business_id => $1)", id)
 	if err != nil {
@@ -41,7 +33,7 @@ func (m *DBManager) GetBusiness(id string) (businessOutput BusinessModel, err er
 		return
 	}
 
-	businessOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[BusinessModel])
+	businessOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[types.Business])
 	if err != nil {
 		log.Println(err)
 		return
@@ -61,7 +53,7 @@ func (m *DBManager) DeleteBusiness(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateBusiness(businessInput BusinessModel) (businessId string, err error) {
+func (m *DBManager) CreateBusiness(businessInput types.Business) (businessId string, err error) {
 
 	err = m.DBPool.QueryRow(context.Background(),
 		`select risky_public.create_business(
@@ -77,7 +69,7 @@ func (m *DBManager) CreateBusiness(businessInput BusinessModel) (businessId stri
 	return
 }
 
-func (m *DBManager) UpdateBusiness(businessInput BusinessModel) (err error) {
+func (m *DBManager) UpdateBusiness(businessInput types.Business) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_business(

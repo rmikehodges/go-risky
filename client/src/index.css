@@ -22,7 +22,7 @@ code {
 .dndflow aside {
   border-right: 1px solid #eee;
   padding: 15px 10px;
-  font-size: 12px;
+  font-size: 14px;
   background: #fcfcfc;
 }
 
@@ -31,7 +31,7 @@ code {
 }
 
 .dndnode {
-  height: 30px;
+  height: 20px;
   padding: 4px;
   border: 1px solid #1a192b;
   border-radius: 2px;
@@ -74,7 +74,7 @@ code {
   }
 }
 
-.react-flow__node-action {
+/* .react-flow__node-action {
   font-size: 12px;
   background: #eee;
   border: 1px solid #555;
@@ -98,7 +98,7 @@ code {
   border-radius: 5px;
   text-align: center;
   width: 100px;
-}
+} */
 
 
 .wrapper {

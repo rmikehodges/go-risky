@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -48,7 +49,7 @@ func TestCreateAsset(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	assetInput := database.AssetModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	assetInput := types.Asset{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	assetId, err := dbManager.CreateAsset(assetInput)
 
 	assert.Equal(t, err, nil)
@@ -68,7 +69,7 @@ func TestDeleteAsset(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	assetInput := database.AssetModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	assetInput := types.Asset{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	assetId, _ := dbManager.CreateAsset(assetInput)
 
 	err = dbManager.DeleteAsset(assetId)
@@ -90,7 +91,7 @@ func TestUpdateAsset(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createAssetInput := database.AssetModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	createAssetInput := types.Asset{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	assetId, _ := dbManager.CreateAsset(createAssetInput)
 
 	updateAssetInput := createAssetInput

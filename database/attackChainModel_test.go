@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -48,7 +49,7 @@ func TestCreateAttackChain(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainInput := database.AttackChainModel{Name: "test", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
+	attackChainInput := types.AttackChain{Name: "test", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
 	attackChainId, err := dbManager.CreateAttackChain(attackChainInput)
 
 	assert.Equal(t, err, nil)
@@ -69,7 +70,7 @@ func TestDeleteAttackChain(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainInput := database.AttackChainModel{Name: "test", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
+	attackChainInput := types.AttackChain{Name: "test", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
 	attackChainId, _ := dbManager.CreateAttackChain(attackChainInput)
 
 	err = dbManager.DeleteAttackChain(attackChainId)
@@ -91,11 +92,11 @@ func TestUpdateAttackChain(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createAttackChainInput := database.AttackChainModel{Name: "test", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
+	createAttackChainInput := types.AttackChain{Name: "test", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
 
 	attackChainId, _ := dbManager.CreateAttackChain(createAttackChainInput)
 
-	updateAttackChainInput := database.AttackChainModel{ID: uuid.MustParse(attackChainId), Name: "test2", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
+	updateAttackChainInput := types.AttackChain{ID: uuid.MustParse(attackChainId), Name: "test2", ThreatID: uuid.MustParse(threatId), BusinessID: uuid.MustParse(businessId)}
 
 	err = dbManager.UpdateAttackChain(updateAttackChainInput)
 

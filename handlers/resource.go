@@ -1,77 +1,13 @@
 package handlers
 
 import (
-	"go-risky/database"
+	"go-risky/types"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
-
-type ResourceInput struct {
-	ID           uuid.UUID     `json:"id"`
-	Name         string        `json:"name"`
-	Description  zeronull.Text `json:"description"`
-	Cost         float32       `json:"cost" db:"cost"`
-	Unit         string        `json:"unit" db:"unit"`
-	Total        float32       `json:"total"`
-	ResourceType string        `json:"resourceType" db:"resource_type"`
-	BusinessID   uuid.UUID     `json:"businessId" db:"business_id"`
-}
-
-type ResourceOutput struct {
-	ID           uuid.UUID     `json:"id"`
-	Name         string        `json:"name"`
-	Description  zeronull.Text `json:"description"`
-	Cost         float32       `json:"cost" db:"cost"`
-	Unit         string        `json:"unit" db:"unit"`
-	Total        float32       `json:"total"`
-	ResourceType string        `json:"resourceType" db:"resource_type"`
-	BusinessID   uuid.UUID     `json:"businessId" db:"business_id"`
-	CreatedAt    time.Time     `json:"createdAt" db:"created_at"`
-}
-
-type ResourceOutputs []ResourceOutput
-
-func (resourceInput ResourceInput) inputToModel() (resourceModel database.ResourceModel, err error) {
-	resourceModel.ID = resourceInput.ID
-	resourceModel.Name = resourceInput.Name
-	resourceModel.Description = resourceInput.Description
-	resourceModel.Cost = resourceInput.Cost
-	resourceModel.Unit = resourceInput.Unit
-	resourceModel.Total = resourceInput.Total
-	resourceModel.ResourceType = resourceInput.ResourceType
-	resourceModel.BusinessID = resourceInput.BusinessID
-	return
-}
-
-func (resourceOutput *ResourceOutput) modelToOutput(resourceModel database.ResourceModel) (err error) {
-	resourceOutput.ID = resourceModel.ID
-	resourceOutput.Name = resourceModel.Name
-	resourceOutput.Description = resourceModel.Description
-	resourceOutput.Cost = resourceModel.Cost
-	resourceOutput.Unit = resourceModel.Unit
-	resourceOutput.Total = resourceModel.Total
-	resourceOutput.ResourceType = resourceModel.ResourceType
-	resourceOutput.BusinessID = resourceModel.BusinessID
-	resourceOutput.CreatedAt = resourceModel.CreatedAt
-	return
-}
-
-func resourceModelsToOutputs(resourceModels []database.ResourceModel) (resourceOutputs ResourceOutputs, err error) {
-	for _, resourceModel := range resourceModels {
-		resourceOutput := ResourceOutput{}
-		err := resourceOutput.modelToOutput(resourceModel)
-		if err != nil {
-			return nil, err
-		}
-		resourceOutputs = append(resourceOutputs, resourceOutput)
-	}
-	return
-}
 
 func (controller PublicController) GetResources(context *gin.Context) {
 
@@ -89,15 +25,7 @@ func (controller PublicController) GetResources(context *gin.Context) {
 		return
 	}
 
-	resourcesModels, err := controller.DBManager.GetResources(businessId.String())
-
-	if err != nil {
-		log.Println(err)
-		context.JSON(http.StatusNotFound, "Not found")
-		return
-	}
-
-	resourceOutputs, err := resourceModelsToOutputs(resourcesModels)
+	resourceOutputs, err := controller.DBManager.GetResources(businessId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -124,17 +52,7 @@ func (controller PublicController) GetResource(context *gin.Context) {
 		return
 	}
 
-	resourceModel, err := controller.DBManager.GetResource(resourceId.String())
-
-	if err != nil {
-		log.Println(err)
-		context.JSON(http.StatusNotFound, "Not found")
-		return
-	}
-
-	var resourceOutput ResourceOutput
-
-	err = resourceOutput.modelToOutput(resourceModel)
+	resourceOutput, err := controller.DBManager.GetResource(resourceId.String())
 
 	if err != nil {
 		log.Println(err)
@@ -174,22 +92,14 @@ func (controller PublicController) DeleteResource(context *gin.Context) {
 
 func (controller PublicController) CreateResource(context *gin.Context) {
 
-	resourceInput := ResourceInput{}
+	resourceInput := types.Resource{}
 	err := context.ShouldBindJSON(&resourceInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	resourceModel, err := resourceInput.inputToModel()
-
-	if err != nil {
-		log.Println(err)
-		context.IndentedJSON(http.StatusBadRequest, "Bad request")
-		return
-	}
-
-	resourceId, err := controller.DBManager.CreateResource(resourceModel)
+	resourceId, err := controller.DBManager.CreateResource(resourceInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
@@ -201,22 +111,14 @@ func (controller PublicController) CreateResource(context *gin.Context) {
 
 func (controller PublicController) UpdateResource(context *gin.Context) {
 
-	resourceInput := ResourceInput{}
+	resourceInput := types.Resource{}
 	err := context.ShouldBindJSON(&resourceInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	resourceModel, err := resourceInput.inputToModel()
-
-	if err != nil {
-		log.Println(err)
-		context.IndentedJSON(http.StatusBadRequest, "Bad request")
-		return
-	}
-
-	err = controller.DBManager.UpdateResource(resourceModel)
+	err = controller.DBManager.UpdateResource(resourceInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")

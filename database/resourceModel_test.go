@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -47,7 +48,7 @@ func TestCreateResource(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	resourceInput := database.ResourceModel{Name: "test", Description: "test", Cost: 100, Unit: "dollar", ResourceType: "CASH", Total: 100000, BusinessID: uuid.MustParse(businessId)}
+	resourceInput := types.Resource{Name: "test", Description: "test", Cost: 100, Unit: "dollar", ResourceType: "CASH", Total: 100000, BusinessID: uuid.MustParse(businessId)}
 	resourceId, err := dbManager.CreateResource(resourceInput)
 
 	assert.Equal(t, err, nil)
@@ -67,7 +68,7 @@ func TestDeleteResource(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	resourceInput := database.ResourceModel{Name: "test", Description: "test", Cost: 100, Unit: "dollar", ResourceType: "CASH", Total: 100000, BusinessID: uuid.MustParse(businessId)}
+	resourceInput := types.Resource{Name: "test", Description: "test", Cost: 100, Unit: "dollar", ResourceType: "CASH", Total: 100000, BusinessID: uuid.MustParse(businessId)}
 	resourceId, _ := dbManager.CreateResource(resourceInput)
 
 	err = dbManager.DeleteResource(resourceId)
@@ -88,7 +89,7 @@ func TestUpdateResource(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createResourceInput := database.ResourceModel{Name: "test", Description: "test", Cost: 100, Unit: "dollar", ResourceType: "CASH", Total: 100000, BusinessID: uuid.MustParse(businessId)}
+	createResourceInput := types.Resource{Name: "test", Description: "test", Cost: 100, Unit: "dollar", ResourceType: "CASH", Total: 100000, BusinessID: uuid.MustParse(businessId)}
 	resourceId, _ := dbManager.CreateResource(createResourceInput)
 
 	updateResourceInput := createResourceInput

@@ -2,80 +2,20 @@ package handlers
 
 import (
 	"fmt"
+	"go-risky/types"
 	"log"
 	"net/http"
-	"time"
-
-	"go-risky/database"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-type BusinessInput struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name" binding:"required"`
-	Revenue   float32   `json:"revenue"`
-	CreatedAt time.Time `json:"createdAt"`
-}
-
-type BusinessOutput struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name" binding:"required"`
-	Revenue   float32   `json:"revenue"`
-	CreatedAt time.Time `json:"createdAt"`
-}
-
-type BusinessOutputs []BusinessOutput
-
-func (businessInput BusinessInput) inputToModel() (businessModel database.BusinessModel, err error) {
-	//This is where you do input validation sanitization
-	businessModel.ID = businessInput.ID
-	businessModel.Name = businessInput.Name
-	businessModel.Revenue = businessInput.Revenue
-	businessModel.CreatedAt = businessInput.CreatedAt
-
-	return
-
-}
-
-func (businessOutput *BusinessOutput) modelToOutput(businessModel database.BusinessModel) (err error) {
-	//This is where you do input validation sanitization
-	businessOutput.ID = businessModel.ID
-	businessOutput.Name = businessModel.Name
-	businessOutput.Revenue = businessModel.Revenue
-	businessOutput.CreatedAt = businessModel.CreatedAt
-
-	return
-}
-
-func businessModelsToOutput(businessModels []database.BusinessModel) (businessOutputs BusinessOutputs, err error) {
-	//This is where you do input validation sanitization
-	for _, model := range businessModels {
-		businessOutput := BusinessOutput{}
-		err := businessOutput.modelToOutput(model)
-		if err != nil {
-			return nil, err
-		}
-		businessOutputs = append(businessOutputs, businessOutput)
-	}
-
-	return
-}
-
 func (controller PublicController) GetBusinesses(context *gin.Context) {
 
-	businessmodel, err := controller.DBManager.GetBusinesses()
+	businessOutputs, err := controller.DBManager.GetBusinesses()
 
 	if err != nil {
 		log.Println(err)
-		context.JSON(http.StatusNotFound, businessmodel)
-		return
-	}
-
-	businessOutputs, err := businessModelsToOutput(businessmodel)
-
-	if err != nil {
 		context.JSON(http.StatusNotFound, businessOutputs)
 		return
 	}
@@ -139,21 +79,15 @@ func (controller PublicController) DeleteBusiness(context *gin.Context) {
 
 func (controller PublicController) CreateBusiness(context *gin.Context) {
 
-	businessInput := BusinessInput{}
+	businessInput := types.Business{}
 	err := context.ShouldBindJSON(&businessInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 		return
 	}
-	businessModel, err := businessInput.inputToModel()
-	if err != nil {
-		log.Println(err)
-		context.IndentedJSON(http.StatusNotFound, "Not Found")
-		return
-	}
 
-	businessOutput, err := controller.DBManager.CreateBusiness(businessModel)
+	businessOutput, err := controller.DBManager.CreateBusiness(businessInput)
 	fmt.Println("returned from create business")
 	if err != nil {
 		log.Println(err)
@@ -167,27 +101,19 @@ func (controller PublicController) CreateBusiness(context *gin.Context) {
 
 func (controller PublicController) UpdateBusiness(context *gin.Context) {
 
-	businessInput := BusinessInput{}
+	businessInput := types.Business{}
 	err := context.ShouldBindJSON(&businessInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusBadRequest, "Bad request")
 	}
 
-	businessModel, err := businessInput.inputToModel()
-
+	err = controller.DBManager.UpdateBusiness(businessInput)
 	if err != nil {
 		log.Println(err)
 		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	err = controller.DBManager.UpdateBusiness(businessModel)
-	if err != nil {
-		log.Println(err)
-		context.IndentedJSON(http.StatusNotFound, "Not Found")
-		return
-	}
-
-	context.IndentedJSON(http.StatusOK, businessModel.ID.String()+" updated")
+	context.IndentedJSON(http.StatusOK, businessInput.ID.String()+" updated")
 }

@@ -2,27 +2,13 @@ package database
 
 import (
 	"context"
+	"go-risky/types"
 	"log"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
 
-type ResourceModel struct {
-	ID           uuid.UUID     `json:"id"`
-	Name         string        `json:"name"`
-	Description  zeronull.Text `json:"description"`
-	Cost         float32       `json:"cost" db:"cost"`
-	Unit         string        `json:"unit" db:"unit"`
-	Total        float32       `json:"total"`
-	ResourceType string        `json:"resourceType" db:"resource_type"`
-	BusinessID   uuid.UUID     `json:"businessId" db:"business_id"`
-	CreatedAt    time.Time     `json:"createdAt" db:"created_at"`
-}
-
-func (m *DBManager) GetResources(businessID string) (resourceOutput []ResourceModel, err error) {
+func (m *DBManager) GetResources(businessID string) (resourceOutput []types.Resource, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, cost, unit, total, resource_type, business_id, created_at FROM risky_public.resources(fn_business_id => $1)", businessID)
 	if err != nil {
@@ -30,7 +16,7 @@ func (m *DBManager) GetResources(businessID string) (resourceOutput []ResourceMo
 		return
 	}
 
-	resourceOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[ResourceModel])
+	resourceOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[types.Resource])
 	if err != nil {
 		log.Println(err)
 		return
@@ -39,7 +25,7 @@ func (m *DBManager) GetResources(businessID string) (resourceOutput []ResourceMo
 	return
 }
 
-func (m *DBManager) GetResource(id string) (resourceOutput ResourceModel, err error) {
+func (m *DBManager) GetResource(id string) (resourceOutput types.Resource, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, cost, unit, total, resource_type, business_id, created_at FROM risky_public.get_resource(fn_resource_id => $1)", id)
 	if err != nil {
@@ -47,7 +33,7 @@ func (m *DBManager) GetResource(id string) (resourceOutput ResourceModel, err er
 		return
 	}
 
-	resourceOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[ResourceModel])
+	resourceOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[types.Resource])
 	if err != nil {
 		log.Println(err)
 		return
@@ -67,7 +53,7 @@ func (m *DBManager) DeleteResource(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateResource(resourceInput ResourceModel) (resourceId string, err error) {
+func (m *DBManager) CreateResource(resourceInput types.Resource) (resourceId string, err error) {
 
 	err = m.DBPool.QueryRow(context.Background(),
 		`select * FROM risky_public.create_resource(
@@ -93,7 +79,7 @@ func (m *DBManager) CreateResource(resourceInput ResourceModel) (resourceId stri
 	return
 }
 
-func (m *DBManager) UpdateResource(resourceInput ResourceModel) (err error) {
+func (m *DBManager) UpdateResource(resourceInput types.Resource) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_resource(

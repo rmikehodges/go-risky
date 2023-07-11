@@ -2,23 +2,13 @@ package database
 
 import (
 	"context"
+	"go-risky/types"
 	"log"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
 
-type ThreatModel struct {
-	ID          uuid.UUID     `json:"id"`
-	Name        string        `json:"name"`
-	Description zeronull.Text `json:"description"`
-	BusinessID  uuid.UUID     `json:"businessId" db:"business_id"`
-	CreatedAt   time.Time     `json:"createdAt" db:"created_at"`
-}
-
-func (m *DBManager) GetThreats(businessID string) (threatOutput []ThreatModel, err error) {
+func (m *DBManager) GetThreats(businessID string) (threatOutput []types.Threat, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id,created_at FROM risky_public.threats(fn_business_id => $1)", businessID)
 	if err != nil {
@@ -26,7 +16,7 @@ func (m *DBManager) GetThreats(businessID string) (threatOutput []ThreatModel, e
 		return
 	}
 
-	threatOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[ThreatModel])
+	threatOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[types.Threat])
 	if err != nil {
 		log.Println(err)
 		return
@@ -35,7 +25,7 @@ func (m *DBManager) GetThreats(businessID string) (threatOutput []ThreatModel, e
 	return
 }
 
-func (m *DBManager) GetThreat(id string) (threatOutput ThreatModel, err error) {
+func (m *DBManager) GetThreat(id string) (threatOutput types.Threat, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description,business_id, created_at FROM risky_public.get_threat(fn_threat_id => $1)", id)
 	if err != nil {
@@ -43,7 +33,7 @@ func (m *DBManager) GetThreat(id string) (threatOutput ThreatModel, err error) {
 		return
 	}
 
-	threatOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[ThreatModel])
+	threatOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[types.Threat])
 	if err != nil {
 		log.Println(err)
 		return
@@ -63,7 +53,7 @@ func (m *DBManager) DeleteThreat(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateThreat(threatInput ThreatModel) (threatId string, err error) {
+func (m *DBManager) CreateThreat(threatInput types.Threat) (threatId string, err error) {
 
 	err = m.DBPool.QueryRow(context.Background(),
 		`select * FROM risky_public.create_threat(
@@ -81,7 +71,7 @@ func (m *DBManager) CreateThreat(threatInput ThreatModel) (threatId string, err 
 	return
 }
 
-func (m *DBManager) UpdateThreat(threatInput ThreatModel) (err error) {
+func (m *DBManager) UpdateThreat(threatInput types.Threat) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_threat(

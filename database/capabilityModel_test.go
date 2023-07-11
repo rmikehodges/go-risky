@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -47,7 +48,7 @@ func TestCreateCapability(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	capabilityInput := database.CapabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	capabilityInput := types.Capability{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	capabilityId, err := dbManager.CreateCapability(capabilityInput)
 
 	assert.Equal(t, err, nil)
@@ -67,7 +68,7 @@ func TestDeleteCapability(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	capabilityInput := database.CapabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	capabilityInput := types.Capability{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	capabilityId, _ := dbManager.CreateCapability(capabilityInput)
 
 	err = dbManager.DeleteCapability(capabilityId)
@@ -89,7 +90,7 @@ func TestUpdateCapability(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createCapabilityInput := database.CapabilityModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	createCapabilityInput := types.Capability{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	capabilityId, _ := dbManager.CreateCapability(createCapabilityInput)
 
 	updateCapabilityInput := createCapabilityInput

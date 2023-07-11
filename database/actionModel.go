@@ -3,26 +3,13 @@ package database
 import (
 	"context"
 	"log"
-	"time"
 
-	"github.com/google/uuid"
+	"go-risky/types"
+
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype/zeronull"
 )
 
-type ActionModel struct {
-	ID              uuid.UUID     `json:"id"`
-	Name            string        `json:"name"`
-	Description     zeronull.Text `json:"description"`
-	CapabilityID    *uuid.UUID    `json:"capabilityId" db:"capability_id"`
-	VulnerabilityID *uuid.UUID    `json:"vulnerabilityId" db:"vulnerability_id"`
-	BusinessID      uuid.UUID     `json:"businessId" db:"business_id"`
-	Complexity      zeronull.Text `json:"complexity"`
-	AssetID         *uuid.UUID    `json:"assetId" db:"asset_id"`
-	CreatedAt       time.Time     `json:"createdAt" db:"created_at"`
-}
-
-func (m *DBManager) GetActions(businessID string) (actionOutput []ActionModel, err error) {
+func (m *DBManager) GetActions(businessID string) (actionOutput []types.Action, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.actions(fn_business_id => $1)", businessID)
 	if err != nil {
@@ -30,7 +17,7 @@ func (m *DBManager) GetActions(businessID string) (actionOutput []ActionModel, e
 		return
 	}
 
-	actionOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[ActionModel])
+	actionOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[types.Action])
 	if err != nil {
 		log.Println(err)
 		return
@@ -39,7 +26,7 @@ func (m *DBManager) GetActions(businessID string) (actionOutput []ActionModel, e
 	return
 }
 
-func (m *DBManager) GetAction(id string) (actionOutput ActionModel, err error) {
+func (m *DBManager) GetAction(id string) (actionOutput types.Action, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.get_action(fn_action_id => $1)", id)
 	if err != nil {
@@ -47,7 +34,7 @@ func (m *DBManager) GetAction(id string) (actionOutput ActionModel, err error) {
 		return
 	}
 
-	actionOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[ActionModel])
+	actionOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[types.Action])
 	if err != nil {
 		log.Println(err)
 		return
@@ -66,7 +53,7 @@ func (m *DBManager) DeleteAction(id string) (err error) {
 	return
 }
 
-func (m *DBManager) CreateAction(actionInput ActionModel) (createdAction string, err error) {
+func (m *DBManager) CreateAction(actionInput types.Action) (createdAction string, err error) {
 	err = m.DBPool.QueryRow(context.Background(),
 		`select * FROM risky_public.create_action(
 			fn_name => $1, 
@@ -91,7 +78,7 @@ func (m *DBManager) CreateAction(actionInput ActionModel) (createdAction string,
 	return
 }
 
-func (m *DBManager) UpdateAction(actionInput ActionModel) (err error) {
+func (m *DBManager) UpdateAction(actionInput types.Action) (err error) {
 	_, err = m.DBPool.Exec(context.Background(),
 		`select risky_public.update_action(
 			fn_action_id => $1,

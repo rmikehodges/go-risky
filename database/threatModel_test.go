@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"go-risky/database"
+	"go-risky/types"
 	"testing"
 
 	"github.com/go-playground/assert"
@@ -47,7 +48,7 @@ func TestCreateThreat(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	threatInput := database.ThreatModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	threatInput := types.Threat{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	threatId, err := dbManager.CreateThreat(threatInput)
 
 	assert.Equal(t, err, nil)
@@ -67,7 +68,7 @@ func TestDeleteThreat(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	threatInput := database.ThreatModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	threatInput := types.Threat{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	threatId, _ := dbManager.CreateThreat(threatInput)
 
 	err = dbManager.DeleteThreat(threatId)
@@ -88,7 +89,7 @@ func TestUpdateThreat(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	createThreatInput := database.ThreatModel{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	createThreatInput := types.Threat{Name: "test", BusinessID: uuid.MustParse(businessId)}
 	threatId, _ := dbManager.CreateThreat(createThreatInput)
 
 	updateThreatInput := createThreatInput
