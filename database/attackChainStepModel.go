@@ -9,9 +9,8 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (m *DBManager) GetAttackChainSteps(attackChainId string, businessId string) (attackChainStepOutput []types.AttackChainStep, err error) {
-
-	rows, err := m.DBPool.Query(context.Background(), "select attack_chain_id, action_id, asset_id, position,business_id, created_at FROM risky_public.attack_chain_steps(fn_business_id => $1, fn_attack_chain_id => $, fn_attack_chain_id => $2)", businessId, attackChainId)
+func (m *DBManager) GetAttackChainSteps(businessId string, attackChainId string) (attackChainStepOutput []types.AttackChainStep, err error) {
+	rows, err := m.DBPool.Query(context.Background(), "select id, attack_chain_id, action_id, detection_id, mitigation_id, asset_id, next_step, previous_step,business_id, created_at FROM risky_public.attack_chain_steps(fn_business_id => $1, fn_attack_chain_id => $2)", businessId, attackChainId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -29,7 +28,7 @@ func (m *DBManager) GetAttackChainSteps(attackChainId string, businessId string)
 func (m *DBManager) GetAttackChainStep(attackChainStepId string) (attackChainStepOutput types.AttackChainStep, err error) {
 
 	rows, err := m.DBPool.Query(context.Background(), `select  id, 
-	attack_chain_id, action_id, asset_id, position,business_id, detection_id, mitigation_id,created_at 
+	attack_chain_id, action_id, asset_id, next_step, previous_step ,business_id, detection_id, mitigation_id,created_at 
 	FROM 
 	risky_public.get_attack_chain_step(fn_attack_chain_step_id => $1)`,
 		attackChainStepId)
@@ -66,12 +65,14 @@ func (m *DBManager) CreateAttackChainStep(attackChainStepInput types.AttackChain
 			fn_attack_chain_id => $1, 
 			fn_action_id => $2,
 			fn_asset_id => $3,
-			fn_position => $4,
-			fn_business_id => $5)`,
+			fn_next_step => $4,
+			fn_previous_step => $5,
+			fn_business_id => $6)`,
 		attackChainStepInput.AttackChainID,
 		attackChainStepInput.ActionID,
 		attackChainStepInput.AssetID,
-		attackChainStepInput.Position,
+		attackChainStepInput.NextStep,
+		attackChainStepInput.PreviousStep,
 		attackChainStepInput.BusinessID).Scan(&attackChainStepId)
 	if err != nil {
 		log.Printf("CreateAttackChainStep Error: %s", err)
@@ -89,13 +90,15 @@ func (m *DBManager) UpdateAttackChainStep(attackChainStepInput types.AttackChain
 			fn_attack_chain_id => $2, 
 			fn_action_id => $3, 
 			fn_asset_id => $4,
-			fn_position => $5,
-			fn_business_id => $6)`,
+			fn_next_step => $5,
+			fn_previous_step => $6,
+			fn_business_id => $7)`,
 		attackChainStepInput.ID,
 		attackChainStepInput.AttackChainID,
 		attackChainStepInput.ActionID,
 		attackChainStepInput.AssetID,
-		attackChainStepInput.Position,
+		attackChainStepInput.NextStep,
+		attackChainStepInput.PreviousStep,
 		attackChainStepInput.BusinessID)
 	if err != nil {
 		log.Println(err)

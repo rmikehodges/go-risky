@@ -6,6 +6,7 @@ export default interface AttackChainStep {
 	actionId: UUID | null
 	assetId: UUID | null
 	attackChainId: UUID | null
-	position: number
+	nextStep: UUID | null
+	previousStep: UUID | null
 	createdAt:   Date | null
 }

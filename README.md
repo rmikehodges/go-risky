@@ -132,6 +132,10 @@ allowed because of the nature of the Custom Node.
 
 7/10 - I need to remove the model, output, and input objects and consolidate on a single object definition defined in another package. Its creating too much complexity. This is done, was very easy due to lack of functionality built on top of it.
 
+7/11 - Added functionality to select the attackChain to work on and grab the attackchain steps. However
+the attackchainstep fetching isn't working correctly after creating an attackchainstep in the UI
+
+7/12 - Changed the datamodel of attackchainstep to be a linked list so its easier to query and update and render.
 
 
 

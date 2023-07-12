@@ -32,6 +32,7 @@ import { on } from 'events';
 import axios from 'axios';
 import AttackChainStep from '../AttackChainSteps/AttackChainStep';
 import { UUID } from 'crypto';
+import AttackChainDropdown from './AttackChainDropdown';
 
 const initialNodes: Node[] = [];
 
@@ -61,17 +62,20 @@ const AttackChainBuilderDnD = () => {
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [attackChainId, setAttackChainId] = useState<UUID>("20036fa3-45c6-47b2-a343-f88bcd4f5e07");
   const [attackChains, setAttackChains] = useState<AttackChain[]>([]);
+  const [attackChainSteps, setAttackChainSteps] = useState<AttackChainStep[]>([]);
   const [attackChainStepPosition, setAttackChainStepPosition] = useState<number>(0);
 
 
+  //TODO: Make the graph render the attack chain steps in the correct order
 
-  // useEffect(() => {
-  //   axios.get('/attackChains?businessId='+businessId).then((res) => {
-  //     setAttackChains(res.data);
-  //   });
-  // }, []);
+  useEffect(() => {
+    axios.get('http://localhost:8081/attackChains?businessId='+businessId).then((res) => {
+      setAttackChains(res.data);
+    });
+  }, []);
 
-  //TODO: Update positions of all attack chain steps when one is moved
+  //TODO: Update nodes once this is done, its done in the backend automatically, but needs to reflect the state
+  //in the frontend. The delete on the database layer may not be ideal. 
   const onNodesDelete = useCallback(
     (deleted: Node[]) => {
       setEdges(
@@ -98,32 +102,41 @@ const AttackChainBuilderDnD = () => {
   );
 
   const onConnect = useCallback((params: any) => {
-    let targetPosition: number = 0;
+    let nextStepId: UUID;
+    let previousStepId: UUID; 
     nodes.forEach((node) => {
       if (params.source === node.id) {
-        targetPosition = node.data.attackChainStep.position;
-      } 
+        previousStepId = node.data.attackChainStep.id;
+      } else if (params.target === node.id) {
+        nextStepId = node.data.attackChainStep.id;
+      }
 
     });
     setNodes((nds) =>
     nds.map((node) => {
       if (node.id === params.target) {
-        // it's important that you create a new object here
-        // in order to notify react flow about the change
         node.data = {
           ...node.data,
           attackChainStep: {
             ...node.data.attackChainStep,
-            position: targetPosition + 1,
+            previousStep: previousStepId,
           }
         };
         axios.patch('http://localhost:8081/attackChainStep', node.data.attackChainStep).then((res) => {
           console.log(node.data.attackChainStep)
-          console.log(res);
+        });
+      } else if (node.id === params.source) {
+        node.data = {
+          ...node.data,
+          attackChainStep: {
+            ...node.data.attackChainStep,
+            nextStep: nextStepId,
+          }
+        };
+        axios.patch('http://localhost:8081/attackChainStep', node.data.attackChainStep).then((res) => {
+          console.log(node.data.attackChainStep)
         });
       }
-
-      console.log(node);
       return node;
     })
   );
@@ -163,7 +176,7 @@ const AttackChainBuilderDnD = () => {
       let data;
       let attackChainStepData: AttackChainStep;
       if (type === 'attackChainStep') { }
-        attackChainStepData = { actionId: draggedObject.id, businessId: businessId, position: 0, attackChainId: attackChainId, id: null, createdAt:null, assetId:null }
+        attackChainStepData = { actionId: draggedObject.id, businessId: businessId, attackChainId: attackChainId, id: null, createdAt:null, assetId:null, nextStep:null, previousStep: null }
         axios.post('http://localhost:8081/attackChainStep', attackChainStepData).then((res) => {
           attackChainStepData.id = res.data;
           console.log(res.data)
@@ -182,6 +195,15 @@ const AttackChainBuilderDnD = () => {
     },
     [reactFlowInstance]
   );
+
+  const handleSelectedAttackChain = (option: string) => {
+    let selectedOption: UUID = option as UUID;
+    setAttackChainId(selectedOption);
+    console.log('http://localhost:8081/attackChainSteps?attackChainId='+option+'&businessId='+businessId)
+    axios.get('http://localhost:8081/attackChainSteps?attackChainId='+option+'&businessId='+businessId).then((res) => {
+    setAttackChainSteps(res.data);
+    });
+  }
 
   return (
     <div className="flow-container">
@@ -209,7 +231,15 @@ const AttackChainBuilderDnD = () => {
       </ReactFlowProvider>
       </div>
       <div className="sidebar-container">
-        <div className="sidebar"><Sidebar /></div>
+        <div className="sidebar">
+          <div className="sidebar-header">
+            <h2>Attack Chain Builder</h2>
+            <div className="sidebar-header-select">
+            <AttackChainDropdown options={attackChains} selectedAttackChain={attackChainId} onSelectOption={handleSelectedAttackChain}/>
+            </div>
+          </div>
+          <Sidebar />
+        </div>
       </div>
       <div className="impactBuilder"><ImpactBuilder /></div>
       {/* <div className="bottomtoolbar-container">

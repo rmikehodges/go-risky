@@ -32,7 +32,8 @@ const ListAttackChainSteps = () => {
         <th>actionId</th>
         <th>assetId</th>
         <th>attackChainId</th>
-        <th>Position</th>
+        <th>Next Step</th>
+        <th>Previous Step</th>
         <th>BusinessId</th>
         <th>CreatedAt</th>
         <th>Update</th>
@@ -42,7 +43,7 @@ const ListAttackChainSteps = () => {
       {attackChainSteps?.map(attackChainStep => {
         counter = counter + 1;    
         const updateAttackChainStepInput: AttackChainStep = {id: attackChainStep.id, actionId: attackChainStep.actionId, assetId: attackChainStep.assetId, attackChainId: attackChainStep.attackChainId, 
-          position: attackChainStep.position, businessId: attackChainStep.businessId,
+          nextStep: attackChainStep.nextStep, previousStep: attackChainStep.previousStep, businessId: attackChainStep.businessId,
           createdAt: attackChainStep.createdAt}
         const deleteAttackChainStepInput = {id: attackChainStep.id}
         return (
@@ -51,7 +52,8 @@ const ListAttackChainSteps = () => {
             <td>{attackChainStep.actionId}</td>
             <td>{attackChainStep.assetId}</td>
             <td>{attackChainStep.attackChainId}</td>
-            <td>{attackChainStep.position}</td>
+            <td>{attackChainStep.nextStep}</td>
+            <td>{attackChainStep.previousStep}</td>
             <td>{attackChainStep.businessId}</td>
             <td>{attackChainStep.createdAt?.toString()}</td>
             <td><UpdateAttackChainStep {...updateAttackChainStepInput} /></td>

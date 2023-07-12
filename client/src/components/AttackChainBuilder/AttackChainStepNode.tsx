@@ -41,7 +41,8 @@ const AttackChainStepNode = ({ data, isConnectable }: AttackChainStepNodeProps) 
       <NodeToolbar isVisible={toolbarVisible} position={toolbarPosition}>
       Action Name: {data.action.name}<br></br>
       Complexity: {data.action.complexity}<br></br>
-      Position: {data.attackChainStep.position}<br></br>
+      NextStep: {data.attackChainStep.nextStep}<br></br>
+      PreviousStep: {data.attackChainStep.previousStep}<br></br>
       </NodeToolbar>
 
      <Handle type="target" position={Position.Left} />

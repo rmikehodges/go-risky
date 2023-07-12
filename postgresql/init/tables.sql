@@ -143,6 +143,7 @@ CREATE TABLE risky_public.attack_chain_step (
     business_id uuid references risky_public.business(id) NOT NULL,
     detection_id uuid references risky_public.detection(id),
     mitigation_id uuid references risky_public.mitigation(id),
-    position INT NOT NULL,
+    previous_step uuid constraint attack_chain_step_mapping_previous_step_id_fkey references risky_public.attack_chain_step (id),
+    next_step uuid constraint attack_chain_step_mapping_next_step_id_fkey references risky_public.attack_chain_step (id),
     created_at       timestamp default now()
 );

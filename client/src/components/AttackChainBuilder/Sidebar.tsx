@@ -50,12 +50,8 @@ export default (props:any) => {
 
   return (
     <div>
-      <div>
-      <br></br>
-        Attack Chain
-      </div>
     <aside>
-      <div className="description">Attack Chain Steps</div>
+      <div className="description">Actions</div>
       {actions?.map(action => {
         return (
            <div  key={action.id} className="dndnode" onDragStart={(event) => onAttackChainStepDragStart(event, 'attackChainStep', action)} draggable>

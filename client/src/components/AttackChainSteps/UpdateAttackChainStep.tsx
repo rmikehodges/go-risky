@@ -71,8 +71,11 @@ const UpdateAttackChainStep = (updateAttackChainStepInput:AttackChainStep) => {
           <label htmlFor="attackChainId">attackChainId</label>
           <Field id="attackChainId" name="attackChainId" />
 
-          <label htmlFor="position">position</label>
-          <Field id="position" name="position" />
+          <label htmlFor="nextStep">nextStep</label>
+          <Field id="nextStep" name="nextStep" />
+
+          <label htmlFor="previousStep">previousStep</label>
+          <Field id="previousStep" name="previousStep" />
 
           <label htmlFor="businessId">businessId</label>
           <Field id="businessId" name="businessId" />

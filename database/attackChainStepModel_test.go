@@ -38,7 +38,7 @@ func TestGetAttackChainStep(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainStepInput := types.AttackChainStep{ActionID: uuid.MustParse(actionId), AttackChainID: uuid.MustParse(attackChainId), AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	attackChainStepInput := types.AttackChainStep{ActionID: uuid.MustParse(actionId), AttackChainID: uuid.MustParse(attackChainId), AssetID: &assetId, BusinessID: uuid.MustParse(businessId)}
 	createdAttackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 	attackChainStep, _ := dbManager.GetAttackChainStep(createdAttackChainStepId)
 
@@ -59,7 +59,7 @@ func TestCreateAttackChainStep(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainStepInput := types.AttackChainStep{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	attackChainStepInput := types.AttackChainStep{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId)}
 	attackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
 	assert.Equal(t, err, nil)
@@ -83,7 +83,7 @@ func TestDeleteAttackChainStep(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainStepInput := types.AttackChainStep{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	attackChainStepInput := types.AttackChainStep{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId)}
 	attackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
 	err = dbManager.DeleteAttackChainStep(attackChainStepId)
@@ -107,7 +107,7 @@ func TestUpdateAttackChainStep(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainStepInput := types.AttackChainStep{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId), Position: 1}
+	attackChainStepInput := types.AttackChainStep{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId)}
 	attackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
 
 	attackChainStepInput.ID = uuid.MustParse(attackChainStepId)
@@ -123,5 +123,5 @@ func TestUpdateAttackChainStep(t *testing.T) {
 
 	assert.Equal(t, attackChainStepInput.ActionID, updatedAttackChainStep.ActionID)
 	assert.Equal(t, attackChainStepInput.AttackChainID, updatedAttackChainStep.AttackChainID)
-	assert.Equal(t, attackChainStepInput.Position, updatedAttackChainStep.Position)
+	// assert.Equal(t, attackChainStepInput.Position, updatedAttackChainStep.Position)
 }

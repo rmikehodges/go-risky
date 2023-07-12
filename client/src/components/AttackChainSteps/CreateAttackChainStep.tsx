@@ -23,7 +23,7 @@ Modal.setAppElement('#root');
 
 const CreateAttackChainStep = () => {
   const [modalIsOpen, setIsOpen] = React.useState(false);
-  const attackChainStepInput: AttackChainStep = {id: null, actionId: null, assetId: null, attackChainId: null, businessId: null, position:0, createdAt: null}
+  const attackChainStepInput: AttackChainStep = {id: null, actionId: null, assetId: null, attackChainId: null, businessId: null, nextStep: null, previousStep: null, createdAt: null}
 
    const openModal = () => {
     setIsOpen(true)
