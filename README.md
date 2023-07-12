@@ -136,6 +136,8 @@ allowed because of the nature of the Custom Node.
 the attackchainstep fetching isn't working correctly after creating an attackchainstep in the UI
 
 7/12 - Changed the datamodel of attackchainstep to be a linked list so its easier to query and update and render.
+I also changed the delete attackChainStep function so all the linked list updates are handled on the db layer which
+eliminates the need for multiple calls to the database. Next step is to get the graph rendering already built attackChains
 
 
 

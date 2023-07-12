@@ -75,7 +75,7 @@ const AttackChainBuilderDnD = () => {
   }, []);
 
   //TODO: Update nodes once this is done, its done in the backend automatically, but needs to reflect the state
-  //in the frontend. The delete on the database layer may not be ideal. 
+  //in the frontend.
   const onNodesDelete = useCallback(
     (deleted: Node[]) => {
       setEdges(

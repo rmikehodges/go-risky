@@ -17,10 +17,16 @@ DROP FUNCTION risky_public.delete_attack_chain_step;
 CREATE FUNCTION risky_public.delete_attack_chain_step(fn_attack_chain_step_id uuid)
 RETURNS void 
 AS $$
-    UPDATE risky_public.attack_chain_step SET next_step = NULL WHERE next_step = fn_attack_chain_step_id;
-    UPDATE risky_public.attack_chain_step SET previous_step = NULL WHERE previous_step = fn_attack_chain_step_id;
+    declare
+        v_next_step uuid;
+        v_previous_step uuid;
+    begin
+    SELECT next_step, previous_step INTO v_next_step, v_previous_step FROM risky_public.attack_chain_step WHERE id = fn_attack_chain_step_id;
+    UPDATE risky_public.attack_chain_step SET next_step = v_next_step WHERE next_step = fn_attack_chain_step_id;
+    UPDATE risky_public.attack_chain_step SET previous_step = v_previous_step WHERE previous_step = fn_attack_chain_step_id;
     DELETE FROM risky_public.attack_chain_step WHERE id = fn_attack_chain_step_id;
-$$ LANGUAGE sql VOLATILE;
+    end;
+$$ LANGUAGE plpgsql VOLATILE;
 
 -- Create should move the position of others in the chain upward if its position is less than the new position
 DROP FUNCTION risky_public.create_attack_chain_step;
