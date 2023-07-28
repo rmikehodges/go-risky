@@ -10,7 +10,7 @@ import (
 
 func (m *DBManager) GetImpacts(businessID string) (impactOutput []types.Impact, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, threat_id, exploitation_cost, mitigation_cost, created_at FROM risky_public.impacts(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.impact WHERE business_id = $1", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -27,7 +27,7 @@ func (m *DBManager) GetImpacts(businessID string) (impactOutput []types.Impact, 
 
 func (m *DBManager) GetImpact(id string) (impactOutput types.Impact, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, threat_id, exploitation_cost, mitigation_cost, created_at FROM risky_public.get_impact(fn_impact_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.impact WHERE id = $1", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -44,7 +44,7 @@ func (m *DBManager) GetImpact(id string) (impactOutput types.Impact, err error) 
 
 func (m *DBManager) DeleteImpact(id string) (err error) {
 
-	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_impact(fn_impact_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "DELETE FROM risky_public.impact WHERE id = $1", id)
 	if err != nil {
 		log.Printf("DeleteImpact Error: %s", err)
 		return

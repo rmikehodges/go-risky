@@ -40,7 +40,7 @@ const ListActions = () => {
       <tbody>
       {actions?.map(action => {
         counter = counter + 1;    
-        const updateActionInput: Action = {id: action.id, description: action.description ,name: action.name, complexity: action.complexity,businessId: action.businessId, assetId: action.assetId, capabilityId: action.capabilityId, vulnerabilityId: action.vulnerabilityId, createdAt: action.createdAt}
+        const updateActionInput: Action = {id: action.id, description: action.description ,name: action.name, complexity: action.complexity,businessId: action.businessId, capabilityId: action.capabilityId, vulnerabilityId: action.vulnerabilityId, createdAt: action.createdAt}
         const deleteActionInput = {id: action.id}
         return (
           <tr key={action.id}>

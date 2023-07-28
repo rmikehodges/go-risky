@@ -11,6 +11,7 @@ import ReactFlow, {
   getOutgoers,
   getConnectedEdges,
   Node,
+  Edge,
   Background,
   BackgroundVariant,
 } from 'reactflow';
@@ -32,7 +33,6 @@ import { on } from 'events';
 import axios from 'axios';
 import AttackChainStep from '../AttackChainSteps/AttackChainStep';
 import { UUID } from 'crypto';
-import AttackChainDropdown from './AttackChainDropdown';
 
 const initialNodes: Node[] = [];
 
@@ -64,6 +64,8 @@ const AttackChainBuilderDnD = () => {
   const [attackChains, setAttackChains] = useState<AttackChain[]>([]);
   const [attackChainSteps, setAttackChainSteps] = useState<AttackChainStep[]>([]);
   const [attackChainStepPosition, setAttackChainStepPosition] = useState<number>(0);
+  const [actions, setActions] = useState<Action[]>([]);
+  const [showOverlappingAttackChains, setShowOverlappingAttackChains] = useState<boolean>(false);
 
 
   //TODO: Make the graph render the attack chain steps in the correct order
@@ -72,6 +74,8 @@ const AttackChainBuilderDnD = () => {
     axios.get('http://localhost:8081/attackChains?businessId='+businessId).then((res) => {
       setAttackChains(res.data);
     });
+    axios.get<Action[]>(`http://localhost:8081/actions?businessId=${businessId}`)
+    .then(res => {setActions(res.data)});
   }, []);
 
   //TODO: Update nodes once this is done, its done in the backend automatically, but needs to reflect the state
@@ -119,28 +123,30 @@ const AttackChainBuilderDnD = () => {
           ...node.data,
           attackChainStep: {
             ...node.data.attackChainStep,
+            attackChainId: attackChainId,
             previousStep: previousStepId,
           }
         };
         axios.patch('http://localhost:8081/attackChainStep', node.data.attackChainStep).then((res) => {
-          console.log(node.data.attackChainStep)
+          console.log("success ")
         });
-      } else if (node.id === params.source) {
+      } else if (node.id === params.source) { 
         node.data = {
           ...node.data,
           attackChainStep: {
             ...node.data.attackChainStep,
+            attackChainId: attackChainId,
             nextStep: nextStepId,
           }
         };
         axios.patch('http://localhost:8081/attackChainStep', node.data.attackChainStep).then((res) => {
-          console.log(node.data.attackChainStep)
+          console.log(res)
         });
       }
       return node;
     })
   );
-    setAttackChainStepPosition(attackChainStepPosition + 1);
+    // setAttackChainStepPosition(attackChainStepPosition + 1);
     setEdges((eds) => addEdge({...params,type:"smoothstep"}, eds))
   }, [nodes, edges, attackChainStepPosition]);
 
@@ -196,14 +202,107 @@ const AttackChainBuilderDnD = () => {
     [reactFlowInstance]
   );
 
-  const handleSelectedAttackChain = (option: string) => {
-    let selectedOption: UUID = option as UUID;
-    setAttackChainId(selectedOption);
-    console.log('http://localhost:8081/attackChainSteps?attackChainId='+option+'&businessId='+businessId)
-    axios.get('http://localhost:8081/attackChainSteps?attackChainId='+option+'&businessId='+businessId).then((res) => {
-    setAttackChainSteps(res.data);
-    });
-  }
+  //TODO: Place nodes in order of attack chain steps
+  const handleSelectedAttackChain = (event: any) => {
+    let selectedOption: UUID = event.target.value as UUID;
+    let attackChainStepsResponse: AttackChainStep[] = [];
+    let tempNodes: Node[] = [];
+
+    let currentNode: Node;
+    let currentEdge: Edge;
+    let edgesToSet: Edge[] = [];
+    let nodesToSet: Node[] = [];
+
+    axios.get('http://localhost:8081/attackChainSteps?attackChainId='+selectedOption+'&businessId='+businessId).then((res) => { 
+      attackChainStepsResponse= res.data;
+      let result = attackChainStepsResponse.map((tempAttackChainStep) => {
+        let currentAction: Action = {id: null, name: "INVALID", description: null, businessId: null, createdAt: null, capabilityId: null, vulnerabilityId: null, complexity: ""};
+        for (let i = 0; i < actions?.length; i++) {
+          currentAction = actions[i] as Action;
+          if (currentAction.id == tempAttackChainStep.actionId) {
+            currentNode = {
+              id: getId(),
+              type: 'attackChainStep',
+              position:{x:0, y:0},
+              data: { label: currentAction.name, action: currentAction, attackChainStep: tempAttackChainStep },
+            };
+            return currentNode;
+          }
+        }
+      });   
+      tempNodes = result as Node[];
+
+      nodesToSet = tempNodes;
+
+      for (let i =0; i< tempNodes.length; i++) {
+        let yCounter = 0;
+        for (let j = 0; j < tempNodes.length; j++) {
+          if (tempNodes[i].data.attackChainStep.id == tempNodes[j].data.attackChainStep.previousStep) {
+            currentEdge = { id: getId(), source: tempNodes[i].id, target: tempNodes[j].id, type: "smoothstep" };
+            nodesToSet[j].position.x = nodesToSet[i].position.x + 200;
+            nodesToSet[j].position.y = nodesToSet[i].position.y + 100*yCounter;
+            edgesToSet.push(currentEdge);
+            yCounter++;
+          }
+
+        }
+      }
+
+      setNodes(tempNodes);
+      setEdges(edgesToSet); 
+      setAttackChainSteps(attackChainStepsResponse);
+      setAttackChainId(selectedOption);
+
+      });
+
+    };
+
+  //TODO Connect this to a node.
+  const onShowOverlappingAttackChainsClick = (actionId: string) => {
+    setShowOverlappingAttackChains(!showOverlappingAttackChains);
+
+    if (!showOverlappingAttackChains) {
+      let attackChainStepsResponse: AttackChainStep[] = [];
+      let tempNodes: Node[] = [];
+      let currentNode: Node;
+      let currentEdge: Edge;
+      
+
+
+      axios.get('http://localhost:8081/attackChainSteps?businessId='+businessId+"&actionId="+actionId).then((res) => {
+        attackChainStepsResponse = res.data;
+        setNodes(attackChainStepsResponse.map((tempAttackChainStep) => {
+          let currentAction: Action = {id: null, name: "INVALID", description: null, businessId: null, createdAt: null, capabilityId: null, vulnerabilityId: null, complexity: ""};
+          for (let i = 0; i < actions?.length; i++) {
+            currentAction = actions[i] as Action;
+            if (currentAction.id === tempAttackChainStep.actionId) {
+              break;
+            }
+          }
+          currentNode = {
+            id: getId(),
+            type: 'attackChainStep',
+            position: { x: 0, y: 0 },
+            data: { label: currentAction.name, action: currentAction, attackChainStep: tempAttackChainStep },
+          }
+          tempNodes.push(currentNode);
+          return currentNode
+        }));
+        setEdges(() => {
+          let edgesToSet: Edge[] = [];
+          for (let i = 0; i < tempNodes.length; i++) {
+            currentNode = tempNodes[i];
+            let nextNodes = tempNodes.filter((node) => node.data.attackChainStep.previousStep === currentNode.data.attackChainStep.id);
+            for (let j = 0; j < nextNodes.length; j++) {
+              currentEdge = { id: getId(), source: currentNode.id, target: nextNodes[j].id, type: "smoothstep" };
+              edgesToSet.push(currentEdge);
+          }
+          }
+          return edgesToSet
+        });
+    })
+  }};
+
 
   return (
     <div className="flow-container">
@@ -235,10 +334,15 @@ const AttackChainBuilderDnD = () => {
           <div className="sidebar-header">
             <h2>Attack Chain Builder</h2>
             <div className="sidebar-header-select">
-            <AttackChainDropdown options={attackChains} selectedAttackChain={attackChainId} onSelectOption={handleSelectedAttackChain}/>
+            <select value={attackChainId} onChange={handleSelectedAttackChain}>
+              {attackChains?.map((tempAttackChain, i) => (
+                <option key={i} value={tempAttackChain.id?.toString()}>{tempAttackChain.id}</option>
+                ))}
+              </select>
+            
             </div>
           </div>
-          <Sidebar />
+          <Sidebar actions={actions}/>
         </div>
       </div>
       <div className="impactBuilder"><ImpactBuilder /></div>

@@ -9,11 +9,27 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (m *DBManager) GetAttackChainSteps(businessId string, attackChainId string) (attackChainStepOutput []types.AttackChainStep, err error) {
-	rows, err := m.DBPool.Query(context.Background(), "select id, attack_chain_id, action_id, detection_id, mitigation_id, asset_id, next_step, previous_step,business_id, created_at FROM risky_public.attack_chain_steps(fn_business_id => $1, fn_attack_chain_id => $2)", businessId, attackChainId)
-	if err != nil {
-		log.Println(err)
-		return
+func (m *DBManager) GetAttackChainSteps(businessId string, attackChainId string, actionId string) (attackChainStepOutput []types.AttackChainStep, err error) {
+	var rows pgx.Rows
+	if attackChainId != "" {
+		rows, err = m.DBPool.Query(context.Background(), "select id, attack_chain_id, action_id, detection_id, mitigation_id, asset_id, next_step, previous_step,business_id, created_at FROM risky_public.attack_chain_steps_by_attack_chain_id(fn_business_id => $1, fn_attack_chain_id => $2)", businessId, attackChainId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	} else if actionId != "" && attackChainId == "" {
+		rows, err = m.DBPool.Query(context.Background(), "select id, attack_chain_id, action_id, detection_id, mitigation_id, asset_id, next_step, previous_step,business_id, created_at FROM risky_public.attack_chain_steps_by_action_id(fn_business_id => $1, fn_action_id => $2)", businessId, actionId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	} else {
+		fmt.Println('a')
+		rows, err = m.DBPool.Query(context.Background(), "select id, attack_chain_id, action_id, detection_id, mitigation_id, asset_id, next_step, previous_step,business_id, created_at FROM risky_public.attack_chain_steps(fn_business_id => $1)", businessId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 
 	attackChainStepOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[types.AttackChainStep])

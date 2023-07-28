@@ -8,6 +8,5 @@ export default interface Action {
     vulnerabilityId: UUID | null
     businessId: string | null
     complexity: string
-    assetId: UUID | null
     createdAt: Date | null
     }

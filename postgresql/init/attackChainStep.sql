@@ -1,9 +1,24 @@
-DROP FUNCTION risky_public.attack_chain_steps;
-CREATE FUNCTION risky_public.attack_chain_steps(fn_business_id uuid, fn_attack_chain_id uuid) 
+DROP FUNCTION risky_public.attack_chain_steps_by_attack_chain_id;
+CREATE FUNCTION risky_public.attack_chain_steps_by_attack_chain_id(fn_business_id uuid, fn_attack_chain_id uuid) 
 RETURNS SETOF risky_public.attack_chain_step 
 AS $$
     SELECT * FROM risky_public.attack_chain_step WHERE business_id = fn_business_id AND attack_chain_id = fn_attack_chain_id;
 $$ LANGUAGE sql;
+
+DROP FUNCTION risky_public.attack_chain_steps_by_action_id;
+CREATE FUNCTION risky_public.attack_chain_steps_by_action_id(fn_business_id uuid, fn_action_id uuid) 
+RETURNS SETOF risky_public.attack_chain_step 
+AS $$
+    SELECT * FROM risky_public.attack_chain_step WHERE business_id = fn_business_id AND action_id = fn_action_id;
+$$ LANGUAGE sql;
+
+DROP FUNCTION risky_public.attack_chain_steps;
+CREATE FUNCTION risky_public.attack_chain_steps(fn_business_id uuid) 
+RETURNS SETOF risky_public.attack_chain_step 
+AS $$
+    SELECT * FROM risky_public.attack_chain_step WHERE business_id = fn_business_id;
+$$ LANGUAGE sql;
+
 
 DROP FUNCTION risky_public.get_attack_chain_step;
 CREATE FUNCTION risky_public.get_attack_chain_step(fn_attack_chain_step_id uuid) 
@@ -23,7 +38,11 @@ AS $$
     begin
     SELECT next_step, previous_step INTO v_next_step, v_previous_step FROM risky_public.attack_chain_step WHERE id = fn_attack_chain_step_id;
     UPDATE risky_public.attack_chain_step SET next_step = v_next_step WHERE next_step = fn_attack_chain_step_id;
-    UPDATE risky_public.attack_chain_step SET previous_step = v_previous_step WHERE previous_step = fn_attack_chain_step_id;
+    If v_previous_step = fn_attack_chain_step_id then
+        UPDATE risky_public.attack_chain_step SET previous_step = NULL WHERE previous_step = fn_attack_chain_step_id;
+    else
+        UPDATE risky_public.attack_chain_step SET previous_step = v_previous_step WHERE previous_step = fn_attack_chain_step_id;
+    end if;
     DELETE FROM risky_public.attack_chain_step WHERE id = fn_attack_chain_step_id;
     end;
 $$ LANGUAGE plpgsql VOLATILE;

@@ -3,7 +3,7 @@ import Modal from 'react-modal';
 import { Formik, Field, Form, FormikHelpers } from 'formik';
 import axios from "axios";
 
-import Liability from './Liability';
+import Liability from '../Liabilities/Liability';
 
 const customStyles = {
   content: {
@@ -37,12 +37,11 @@ const CreateLiability = () => {
 
   const closeModal = () => {
     setIsOpen(false);
-    // window.location.reload();
   }
    return (
       <div id='create-liability'>
         <button onClick={openModal}>
-        Create Liability
+        +
       </button>
       <Modal
         isOpen={modalIsOpen}

@@ -10,7 +10,7 @@ import (
 
 func (m *DBManager) GetThreats(businessID string) (threatOutput []types.Threat, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id,created_at FROM risky_public.threats(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.threat WHERE business_id = $1", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -27,7 +27,7 @@ func (m *DBManager) GetThreats(businessID string) (threatOutput []types.Threat, 
 
 func (m *DBManager) GetThreat(id string) (threatOutput types.Threat, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description,business_id, created_at FROM risky_public.get_threat(fn_threat_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.threat WHERE id = $1;", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -44,7 +44,7 @@ func (m *DBManager) GetThreat(id string) (threatOutput types.Threat, err error) 
 
 func (m *DBManager) DeleteThreat(id string) (err error) {
 
-	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_threat(fn_threat_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "DELETE FROM risky_public.threat WHERE id = $1; ", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -56,10 +56,7 @@ func (m *DBManager) DeleteThreat(id string) (err error) {
 func (m *DBManager) CreateThreat(threatInput types.Threat) (threatId string, err error) {
 
 	err = m.DBPool.QueryRow(context.Background(),
-		`select * FROM risky_public.create_threat(
-			fn_name => $1, 
-			fn_description => $2, 
-			fn_business_id => $3)`,
+		`INSERT INTO risky_public.threat(name, description, business_id) values($1, $2,$3) RETURNING id;`,
 		threatInput.Name,
 		threatInput.Description,
 		threatInput.BusinessID).Scan(&threatId)
@@ -74,11 +71,7 @@ func (m *DBManager) CreateThreat(threatInput types.Threat) (threatId string, err
 func (m *DBManager) UpdateThreat(threatInput types.Threat) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
-		`select risky_public.update_threat(
-			fn_threat_id => $1,
-			fn_name => $2, 
-			fn_description => $3,
-			fn_business_id => $4)`,
+		`UPDATE risky_public.threat SET name = $2, description = $3,business_id = $4  WHERE id = $1;`,
 		threatInput.ID,
 		threatInput.Name,
 		threatInput.Description,

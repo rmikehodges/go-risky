@@ -147,3 +147,30 @@ CREATE TABLE risky_public.attack_chain_step (
     next_step uuid constraint attack_chain_step_mapping_next_step_id_fkey references risky_public.attack_chain_step (id),
     created_at       timestamp default now()
 );
+
+CREATE TABLE risky_secret.user (
+    id uuid primary key default gen_random_uuid(),
+    email varchar not null,
+    password varchar not null,
+    groupId uuid references risky_secret.group(id) NOT NULL,
+    organizationId uuid references risky_secret.organization(id) NOT NULL,
+    created_at       timestamp default now()
+);
+
+CREATE TABLE risky_secret.group (
+    id uuid primary key default gen_random_uuid(),
+    name varchar not null,
+    organizationId uuid references risky_secret.organization(id) NOT NULL,
+    created_at       timestamp default now()
+);
+
+CREATE TABLE risky_secret.organization (
+    id uuid primary key default gen_random_uuid(),
+    name varchar not null,
+    oauthClientId varchar,
+    oauthClientSecret varchar,
+    redireactUri varchar
+    scopes varchar,
+    endpoint varchar,
+    created_at       timestamp default now()
+);

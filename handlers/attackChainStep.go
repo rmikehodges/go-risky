@@ -12,9 +12,10 @@ import (
 
 func (controller PublicController) GetAttackChainSteps(context *gin.Context) {
 
-	businessID := context.Query("businessId")
 	attackChainId := context.Query("attackChainId")
-	attackChainStepOutputs, err := controller.DBManager.GetAttackChainSteps(businessID, attackChainId)
+	businessID := context.Query("businessId")
+	actionId := context.Query("actionId")
+	attackChainStepOutputs, err := controller.DBManager.GetAttackChainSteps(businessID, attackChainId, actionId)
 	if err != nil {
 		context.JSON(500, gin.H{"error": err.Error()})
 		return

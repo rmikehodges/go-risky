@@ -13,6 +13,7 @@ import (
 
 func TestGetAttackChainSteps(t *testing.T) {
 	var attackChainId = "20036fa3-45c6-47b2-a343-f88bcd4f5e07"
+	var actionId = ""
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -20,7 +21,7 @@ func TestGetAttackChainSteps(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
-	attackChainSteps, _ := dbManager.GetAttackChainSteps(attackChainId, businessId)
+	attackChainSteps, _ := dbManager.GetAttackChainSteps(attackChainId, businessId, actionId)
 
 	for _, attackChainStep := range attackChainSteps {
 		assert.Equal(t, attackChainStep.BusinessID.String(), businessId)

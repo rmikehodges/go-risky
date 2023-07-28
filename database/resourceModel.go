@@ -10,7 +10,7 @@ import (
 
 func (m *DBManager) GetResources(businessID string) (resourceOutput []types.Resource, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, cost, unit, total, resource_type, business_id, created_at FROM risky_public.resources(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.resource WHERE business_id = $1;", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -27,7 +27,7 @@ func (m *DBManager) GetResources(businessID string) (resourceOutput []types.Reso
 
 func (m *DBManager) GetResource(id string) (resourceOutput types.Resource, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, cost, unit, total, resource_type, business_id, created_at FROM risky_public.get_resource(fn_resource_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT *  FROM risky_public.resource WHERE id = $1", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -44,7 +44,7 @@ func (m *DBManager) GetResource(id string) (resourceOutput types.Resource, err e
 
 func (m *DBManager) DeleteResource(id string) (err error) {
 
-	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_resource(fn_resource_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "DELETE FROM risky_public.resource WHERE id = $1;", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -56,14 +56,7 @@ func (m *DBManager) DeleteResource(id string) (err error) {
 func (m *DBManager) CreateResource(resourceInput types.Resource) (resourceId string, err error) {
 
 	err = m.DBPool.QueryRow(context.Background(),
-		`select * FROM risky_public.create_resource(
-			fn_name => $1, 
-			fn_description => $2, 
-			fn_cost => $3, 
-			fn_unit => $4, 
-			fn_total => $5,
-			fn_resource_type => $6, 
-			fn_business_id => $7)`,
+		`INSERT INTO risky_public.resource(name, description, cost, unit, total, resource_type, business_id)  values($1, $2, $3, $4, $5, $6, $7) RETURNING id;`,
 		resourceInput.Name,
 		resourceInput.Description,
 		resourceInput.Cost,
@@ -82,15 +75,7 @@ func (m *DBManager) CreateResource(resourceInput types.Resource) (resourceId str
 func (m *DBManager) UpdateResource(resourceInput types.Resource) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
-		`select risky_public.update_resource(
-			fn_resource_id => $1,
-			fn_name => $2, 
-			fn_description => $3, 
-			fn_cost=> $4, 
-			fn_unit => $5, 
-			fn_total => $6, 
-			fn_resource_type => $7,
-			fn_business_id => $8)`,
+		`UPDATE risky_public.resource SET name = $2, description = $3, cost = $4, unit = $5, total = $6, resource_type = $7, business_id = $8 WHERE id = $1;`,
 		resourceInput.ID,
 		resourceInput.Name,
 		resourceInput.Description,

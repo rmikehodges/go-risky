@@ -26,7 +26,7 @@ Modal.setAppElement('#root');
 const CreateAction = () => {
   const [modalIsOpen, setIsOpen] = React.useState(false);
   // const [actionInput, setActionInput] = useState<Action>();
-  const actionInput: Action = {id: null, name: "", description : "", capabilityId: null, vulnerabilityId: null, businessId: null, complexity: "", assetId: null, createdAt: null}
+  const actionInput: Action = {id: null, name: "", description : "", capabilityId: null, vulnerabilityId: null, businessId: null, complexity: "", createdAt: null}
 
    const openModal = () => {
     setIsOpen(true)

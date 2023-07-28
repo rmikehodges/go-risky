@@ -139,6 +139,60 @@ the attackchainstep fetching isn't working correctly after creating an attackcha
 I also changed the delete attackChainStep function so all the linked list updates are handled on the db layer which
 eliminates the need for multiple calls to the database. Next step is to get the graph rendering already built attackChains
 
+7/13 - Need to fix the data model where I can have multiple next steps. In order to be able to render across specific actions or even in combination then I'm going to need a list for previousSteps and nextSteps.
+
+7/14 - The above may not be true because each attackchain is a doubly linked list (May only need to be single, but that is for another day) of steps. In order to do the shortest path discovery, I will just need the actionId and assetId across all steps. I should probably use NodeOnDoubleClick() instead of the toolbar hack, but it will do for now
+
+7/23 - I'm thinking that identity story is complicated by the database model. In addition, its complicated because I am putting so much logic on the database layer, if the intent is to have this as a self-hosted solution, there will be too much complexity at the database layer for debugging and updates. i.e. if we have to update a database function then it will require executing an update against the database rather than pushing a new executable that just works out of the box. This introduces a lot more complexity into the chain below are the two options laid out
+
+7/27 - Moved a lot of logic off the database layer with the exception of the more complicated bits. That will require some extra thinking. Got an idea on the auth model 
+
+Executable:
+1. Update SQL call to database
+2. Build executable
+3. Ship
+4. Bugs filed and fixed
+
+Database Function:
+1. Update function
+2. Test with pgTap
+3. Build into some installer script 
+4. Test installer script
+4. Ship
+5. Customer must run installer script
+
+The database route requires a lot of action from the customer and would introduce needless complexity into the process. If this were solely a SaaS product then no problem, but unfortunately, this is something teams will want self-hosted and protected since it essentially provides a map to the worst possible outcome.
+
+Eventually, I will need to split out all functions from the database into the database functions.
+
+Lets start with just the user login flow for password, then do oAuth2 with the assumption that every user has access to everything. We will lock everything down later. Seems like that is the best path forward since there are the following parts missing at the moment.
+
+1. Authentication
+2. User Management
+3. Authorization
+4. Dashboard
+5. Financial tooling, impact builder is ok right now, but I think it could be wayyy better.
+
+Worked on porting a few things over from the sql files and designing some of the flows for the user management.
+
+
+# Flows
+
+## User auth flow
+1. Initial run will detect if the database has a user and it will create the first admin user and password that will expire. Complex passwords only.
+2. Password-based auth
+
+## User creation flow
+
+## User management flow
+
+## oAuth management flow
+1. Admin users will be able to set the idp endpoint for oAuth2 ()
+
+## Roles / Groups
+1. User - basic user in the business with no explicit read access to anything, but can create new attack chains and impacts
+2. Executive - Read privileges on technical pieces, write access to financials, can see all
+3. Admin - can do everything and manage security settings
 
 
 ## TODO Testing

@@ -9,7 +9,7 @@ import (
 )
 
 func (m *DBManager) GetDetections(businessID string) (detectionOutput []types.Detection, err error) {
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, implemented ,created_at FROM risky_public.detections(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.detection WHERE business_id = $1", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -17,7 +17,7 @@ func (m *DBManager) GetDetections(businessID string) (detectionOutput []types.De
 
 	detectionOutput, err = pgx.CollectRows(rows, pgx.RowToStructByName[types.Detection])
 	if err != nil {
-		log.Printf("GetDetections ErrorL %s", err)
+		log.Printf("GetDetections Error %s", err)
 		return
 	}
 
@@ -25,7 +25,7 @@ func (m *DBManager) GetDetections(businessID string) (detectionOutput []types.De
 }
 
 func (m *DBManager) GetDetection(id string) (detectionOutput types.Detection, err error) {
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, implemented ,created_at FROM risky_public.get_detection(fn_detection_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.detection WHERE id = $1", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -41,7 +41,7 @@ func (m *DBManager) GetDetection(id string) (detectionOutput types.Detection, er
 }
 
 func (m *DBManager) DeleteDetection(id string) (err error) {
-	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_detection(fn_detection_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "DELETE FROM risky_public.detection WHERE id = $1", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -52,11 +52,7 @@ func (m *DBManager) DeleteDetection(id string) (err error) {
 
 func (m *DBManager) CreateDetection(detectionInput types.Detection) (detectionId string, err error) {
 	err = m.DBPool.QueryRow(context.Background(),
-		`select risky_public.create_detection(
-			fn_name => $1, 
-			fn_description => $2, 
-			fn_business_id => $3, 
-			fn_implemented => $4)`,
+		`INSERT INTO risky_public.detection(name, description, business_id, implemented) values($1, $2, $3, $4) RETURNING id;`,
 		detectionInput.Name,
 		detectionInput.Description,
 		detectionInput.BusinessID,
@@ -72,12 +68,7 @@ func (m *DBManager) CreateDetection(detectionInput types.Detection) (detectionId
 func (m *DBManager) UpdateDetection(detectionInput types.Detection) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
-		`select risky_public.update_detection(
-			fn_detection_id => $1,
-			fn_name => $2, 
-			fn_description => $3, 
-			fn_business_id => $4, 
-			fn_implemented => $6)`,
+		`UPDATE risky_public.detection SET name = $2, description = $3, business_id = $3,implemented = $4 WHERE id = $1;`,
 		detectionInput.ID,
 		detectionInput.Name,
 		detectionInput.Description,

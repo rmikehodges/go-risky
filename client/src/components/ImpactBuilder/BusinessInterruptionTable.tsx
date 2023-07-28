@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEffect, useState, useRef } from "react";
 import  Liability  from '../Liabilities/Liability';
+import CreateLiability from './CreateLiability';
 
 interface BusinessInterruptionTableProps {
     businessInterruptionLiabilities: Liability[] | null;
@@ -82,45 +83,45 @@ const BusinessInterruptionTable: React.FC<BusinessInterruptionTableProps> = ({ b
             <td>
                 <tr>
                     <td>{employeeTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{overtimeTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{revenueTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{otherTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 {/* <tr>
                     <td>0</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr> */}
             </td>
             <td>
                 <tr>
                     <td>{employeeRemediationTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{overtimeRemediationTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{revenueRemediationTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{otherRemediationTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 {/* <tr>
                     <td>0</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr> */}
             </td>
             </tbody>

@@ -23,5 +23,3 @@ const AttackChainDropdown: React.FC<DropdownProps> = ({ options, selectedAttackC
     </select>
   );
 }
-
-export default AttackChainDropdown;

@@ -14,6 +14,7 @@ interface AttackChainStepNodeData {
   label: string
   action: Action
   attackChainStep: AttackChainStep
+  asset: Asset
   position: number
 }
 
@@ -40,9 +41,13 @@ const AttackChainStepNode = ({ data, isConnectable }: AttackChainStepNodeProps) 
     <div onDoubleClick={onDoubleClick}>
       <NodeToolbar isVisible={toolbarVisible} position={toolbarPosition}>
       Action Name: {data.action.name}<br></br>
+      Description: {data.action.description}<br></br>
       Complexity: {data.action.complexity}<br></br>
-      NextStep: {data.attackChainStep.nextStep}<br></br>
-      PreviousStep: {data.attackChainStep.previousStep}<br></br>
+      Capability: {data.action.capabilityId}<br></br>
+      Vulnerability: {data.action.vulnerabilityId}<br></br>
+      Asset: <br></br>
+      Detection: <br></br>
+      Mitigation: <br></br>
       </NodeToolbar>
 
      <Handle type="target" position={Position.Left} />

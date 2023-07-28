@@ -6,20 +6,16 @@ import  Threat  from '../Threats/Threat';
 import  Asset  from '../Assets/Asset';
 import ThreatDropdown from '../ImpactBuilder/ThreatDropdown';
 
-export default (props:any) => {
+interface SidebarProps {
+  actions: Action[] | null;
+}
+
+export default (props:SidebarProps) => {
+    const actions = props.actions;
     var businessId = "23628819-59dd-45f3-8395-aceeca86bc9c"
-    const [actions, setActions] = useState<Action[] | null>(null);
     const [assets, setAssets] = useState<Asset[] | null>(null);
 
     useEffect(() => {
-        axios.get<Action[]>(`http://localhost:8081/actions?businessId=${businessId}`)
-          .then(res => {
-          const actionsResp = res.data;
-         setActions(actionsResp)});
-        axios.get<Asset[]>(`http://localhost:8081/assets?businessId=${businessId}`)
-        .then(res => {
-        const assetsResp = res.data;
-       setAssets(assetsResp)});
         }, [businessId]);
 
 

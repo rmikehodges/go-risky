@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"go-risky/types"
@@ -11,7 +12,7 @@ import (
 
 func (m *DBManager) GetActions(businessID string) (actionOutput []types.Action, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.actions(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.action WHERE business_id = $1", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -28,11 +29,12 @@ func (m *DBManager) GetActions(businessID string) (actionOutput []types.Action, 
 
 func (m *DBManager) GetAction(id string) (actionOutput types.Action, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, capability_id, vulnerability_id, business_id, complexity, asset_id, created_at FROM risky_public.get_action(fn_action_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.action WHERE id = $1", id)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	fmt.Println(rows)
 
 	actionOutput, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[types.Action])
 	if err != nil {
@@ -44,7 +46,7 @@ func (m *DBManager) GetAction(id string) (actionOutput types.Action, err error) 
 }
 
 func (m *DBManager) DeleteAction(id string) (err error) {
-	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_action(fn_action_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "DELETE FROM risky_public.action WHERE id = $1", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -55,14 +57,16 @@ func (m *DBManager) DeleteAction(id string) (err error) {
 
 func (m *DBManager) CreateAction(actionInput types.Action) (createdAction string, err error) {
 	err = m.DBPool.QueryRow(context.Background(),
-		`select * FROM risky_public.create_action(
-			fn_name => $1, 
-			fn_description => $2, 
-			fn_capability_id => $3, 
-			fn_vulnerability_id => $4, 
-			fn_business_id => $5, 
-			fn_complexity => $6, 
-			fn_asset_id => $7)`,
+		`INSERT INTO risky_public.action(
+			name, 
+			description, 
+			capability_id, 
+			vulnerability_id,
+			 business_id, 
+			 complexity, 
+			 asset_id) 
+			 values($1, $2, $3,$4, $5, $6, $7) 
+			 RETURNING id`,
 		actionInput.Name,
 		actionInput.Description,
 		actionInput.CapabilityID,
@@ -80,15 +84,15 @@ func (m *DBManager) CreateAction(actionInput types.Action) (createdAction string
 
 func (m *DBManager) UpdateAction(actionInput types.Action) (err error) {
 	_, err = m.DBPool.Exec(context.Background(),
-		`select risky_public.update_action(
-			fn_action_id => $1,
-			fn_name => $2, 
-			fn_description => $3, 
-			fn_capability_id => $4, 
-			fn_vulnerability_id => $5, 
-			fn_business_id => $6, 
-			fn_complexity => $7, 
-			fn_asset_id => $8)`,
+		`UPDATE risky_public.action SET 
+		name = $2, 
+		description = $3, 
+		capability_id = $4, 
+		vulnerability_id = $5, 
+		business_id = $6, 
+		complexity = $7, 
+		asset_id = $8 
+		WHERE id = $1`,
 		actionInput.ID,
 		actionInput.Name,
 		actionInput.Description,

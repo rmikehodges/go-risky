@@ -1,6 +1,7 @@
 import React from 'react';
 import  Liability  from '../Liabilities/Liability';
 import { useEffect, useState, useRef } from "react";
+import CreateLiability from './CreateLiability';
 
 
 interface ExplicitLiabilityTableProps {
@@ -96,53 +97,53 @@ const ExplicitLiabilityTable: React.FC<ExplicitLiabilityTableProps> = ({ explici
             <td>
                 <tr>
                     <td>{complianceTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{legalTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{headcountTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{consultingTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{cashTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{otherTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
             </td>
             <td>
                 <tr>
                     <td>{complianceRemediationTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{legalRemediationTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{headcountRemediationTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{consultingRemediationTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{cashRemediationTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
                 <tr>
                     <td>{otherRemediationTotal}</td>
-                    <td>+</td>
+                    <td><CreateLiability/></td>
                 </tr>
             </td>
             </tbody>

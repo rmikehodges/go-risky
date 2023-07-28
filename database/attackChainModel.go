@@ -10,7 +10,7 @@ import (
 
 func (m *DBManager) GetAttackChains(businessID string) (attackChainOutput []types.AttackChain, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, business_id, threat_id, created_at FROM risky_public.attack_chains(fn_business_id => $1)", businessID)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.attack_chain WHERE business_id = $1", businessID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -27,7 +27,7 @@ func (m *DBManager) GetAttackChains(businessID string) (attackChainOutput []type
 
 func (m *DBManager) GetAttackChain(id string) (attackChainOutput types.AttackChain, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "select id,name, description, threat_id, business_id, created_at FROM risky_public.get_attack_chain(fn_attack_chain_id => $1)", id)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.attack_chain WHERE id = $1", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -44,7 +44,7 @@ func (m *DBManager) GetAttackChain(id string) (attackChainOutput types.AttackCha
 
 func (m *DBManager) DeleteAttackChain(id string) (err error) {
 
-	_, err = m.DBPool.Exec(context.Background(), "select risky_public.delete_attack_chain(fn_attack_chain_id => $1)", id)
+	_, err = m.DBPool.Exec(context.Background(), "DELETE FROM risky_public.attack_chain WHERE id = $1", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -56,11 +56,7 @@ func (m *DBManager) DeleteAttackChain(id string) (err error) {
 func (m *DBManager) CreateAttackChain(attackChainInput types.AttackChain) (attackChainId string, err error) {
 
 	err = m.DBPool.QueryRow(context.Background(),
-		`select risky_public.create_attack_chain(
-			fn_name => $1, 
-			fn_description => $2, 
-			fn_business_id => $3,  
-			fn_threat_id => $4)`,
+		`INSERT INTO risky_public.attack_chain(name, description, business_id, threat_id) VALUES ($1, $2, $3, $4) RETURNING id;`,
 		attackChainInput.Name,
 		attackChainInput.Description,
 		attackChainInput.BusinessID,
@@ -76,12 +72,7 @@ func (m *DBManager) CreateAttackChain(attackChainInput types.AttackChain) (attac
 func (m *DBManager) UpdateAttackChain(attackChainInput types.AttackChain) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
-		`select risky_public.update_attack_chain(
-			fn_attack_chain_id => $1,
-			fn_name => $2, 
-			fn_description => $3, 
-			fn_business_id => $4, 
-			fn_threat_id => $5)`,
+		`UPDATE risky_public.attack_chain SET name = $2, description = $3, business_id = $4, threat_id = $5 WHERE id = $1;`,
 		attackChainInput.ID,
 		attackChainInput.Name,
 		attackChainInput.Description,
