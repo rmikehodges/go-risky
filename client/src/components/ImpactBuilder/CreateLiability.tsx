@@ -39,7 +39,7 @@ const CreateLiability = () => {
     setIsOpen(false);
   }
    return (
-      <div id='create-liability'>
+      <>
         <button onClick={openModal}>
         +
       </button>
@@ -102,7 +102,7 @@ const CreateLiability = () => {
         </Formik>
 
       </Modal>
-      </div>
+      </>
 
 
     )

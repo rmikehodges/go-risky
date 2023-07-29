@@ -65,16 +65,24 @@ const BusinessInterruptionTable: React.FC<BusinessInterruptionTableProps> = ({ b
         <tbody>
             <td>
                 <tr>
-                    <td>Employee Time</td>
+                    <td>Employee Time
+                    {businessInterruptionLiabilities?.filter(liability => liability.resourceType == "EMPLOYEE").map(liability => <li>{liability.name}</li>)}
+                    </td>
                 </tr>
                 <tr>
-                    <td>Overtime</td>
+                    <td>Overtime
+                    {businessInterruptionLiabilities?.filter(liability => liability.resourceType == "OVERTIME").map(liability => <li>{liability.name}</li>)}
+                    </td>
                 </tr>
                 <tr>
-                    <td>Lost Revenue</td>
+                    <td>Lost Revenue
+                    {businessInterruptionLiabilities?.filter(liability => liability.resourceType == "REVENUE").map(liability => <li>{liability.name}</li>)}
+                    </td>
                 </tr>
                 <tr>
-                    <td>Other</td>
+                    <td>Other
+                    {businessInterruptionLiabilities?.filter(liability => liability.resourceType == "OTHER").map(liability => <li>{liability.name}</li>)}
+                    </td>
                 </tr>
                 {/* <tr>
                     <td>Lost Profit</td>

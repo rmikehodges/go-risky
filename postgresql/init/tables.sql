@@ -152,25 +152,27 @@ CREATE TABLE risky_secret.user (
     id uuid primary key default gen_random_uuid(),
     email varchar not null,
     password varchar not null,
-    groupId uuid references risky_secret.group(id) NOT NULL,
-    organizationId uuid references risky_secret.organization(id) NOT NULL,
+    group_id uuid references risky_secret.group(id) NOT NULL,
+    organization_id uuid references risky_secret.organization(id) NOT NULL,
+    password_reset_token varchar,
     created_at       timestamp default now()
 );
 
 CREATE TABLE risky_secret.group (
     id uuid primary key default gen_random_uuid(),
     name varchar not null,
-    organizationId uuid references risky_secret.organization(id) NOT NULL,
+    organization_id uuid references risky_secret.organization(id) NOT NULL,
     created_at       timestamp default now()
 );
 
 CREATE TABLE risky_secret.organization (
     id uuid primary key default gen_random_uuid(),
     name varchar not null,
-    oauthClientId varchar,
-    oauthClientSecret varchar,
-    redireactUri varchar
+    oauth_client_id varchar,
+    oauth_client_secret varchar,
+    oauth_enabled boolean default FALSE NOT NULL,
+    redirect_uri varchar,
     scopes varchar,
-    endpoint varchar,
+    ouath_endpoint varchar,
     created_at       timestamp default now()
 );

@@ -7,6 +7,8 @@ import CreateLiability from './CreateLiability';
 interface ExplicitLiabilityTableProps {
     explicitLiabilities: Liability[] | null;
   }
+
+const ExplicitLiabilityTypes = ["COMPLIANCE", "LEGAL", "EMPLOYEE", "CONSULTING", "CASH", "OTHER"]
   
 const ExplicitLiabilityTable: React.FC<ExplicitLiabilityTableProps> = ({ explicitLiabilities }) => {
     let complianceTotal = 0;
@@ -74,41 +76,40 @@ const ExplicitLiabilityTable: React.FC<ExplicitLiabilityTableProps> = ({ explici
                 </tr>           
         </thead>
         <tbody>
-            <td>
                 <tr>
-                    <td>Compliance</td>
+                    <td>Compliance  {complianceTotal} <CreateLiability/>
+                    {explicitLiabilities?.filter(liability => liability.resourceType == "COMPLIANCE").map(liability => <li>{liability.name}</li>)}
+                    </td>
                 </tr>
                 <tr>
-                    <td>Legal</td>
+                    <td>Legal     {legalTotal}         <CreateLiability/>
+     
+                    {explicitLiabilities?.filter(liability => liability.resourceType == "LEGAL").map(liability => <li>{liability.name}</li>)}
+                    </td>
                 </tr>
                 <tr>
-                    <td>Headcount</td>
+                    <td>Headcount 
+                    {explicitLiabilities?.filter(liability => liability.resourceType == "EMPLOYEE").map(liability => <li>{liability.name}</li>)}
+                    </td>
                 </tr>
                 <tr>
-                    <td>Consulting</td>
+                    <td>Consulting {consultingTotal}
+                    {explicitLiabilities?.filter(liability => liability.resourceType == "CONSULTING").map(liability => <li>{liability.name}</li>)}
+                    </td>
                 </tr>
                 <tr>
-                    <td>Cash</td>
+                    <td>Cash
+                    {explicitLiabilities?.filter(liability => liability.resourceType == "CASH").map(liability => <li>{liability.name}</li>)}
+                    </td>
                 </tr>
                                 <tr>
-                    <td>Other</td>
+                    <td>Other
+                    {explicitLiabilities?.filter(liability => !ExplicitLiabilityTypes.includes(liability.resourceType)).map(liability => <li>{liability.name}</li>)}
+                    </td>
                 </tr>
-            </td>
             <td>
                 <tr>
-                    <td>{complianceTotal}</td>
-                    <td><CreateLiability/></td>
-                </tr>
-                <tr>
-                    <td>{legalTotal}</td>
-                    <td><CreateLiability/></td>
-                </tr>
-                <tr>
-                    <td>{headcountTotal}</td>
-                    <td><CreateLiability/></td>
-                </tr>
-                <tr>
-                    <td>{consultingTotal}</td>
+                    <td></td>
                     <td><CreateLiability/></td>
                 </tr>
                 <tr>
