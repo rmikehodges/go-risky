@@ -176,6 +176,8 @@ Lets start with just the user login flow for password, then do oAuth2 with the a
 Worked on porting a few things over from the sql files and designing some of the flows for the user management.
 
 
+7/29 - removed JWT to use a dumb cookiestore for sessions instead and added some of that into the auth logic. Migrated attackChainStep over using database transactions which will serve as a good example for the others that are a bit more complex.
+
 # Flows
 
 ## User auth flow

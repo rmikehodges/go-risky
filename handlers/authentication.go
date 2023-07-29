@@ -8,10 +8,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/gorilla/sessions"
 	"golang.org/x/crypto/bcrypt"
 )
 
-//this file will contain the logic to authenticate a user and check if a user isAuthenticated
+// this file will contain the logic to authenticate a user and check if a user isAuthenticated
+
+//This store needs to be migrated to a database of some kind
+var store = sessions.NewCookieStore([]byte(""))
 
 func (controller PublicController) Login(context *gin.Context) {
 
@@ -59,15 +63,37 @@ func (controller PublicController) Login(context *gin.Context) {
 			return
 		}
 
-		token, err := util.GenerateJWT(userOutput)
+		err = createSession(userOutput.ID, userOutput.OrganizationID, userOutput.GroupID, context)
 		if err != nil {
-			log.Printf("Error generating JWT: %s", err)
-			context.IndentedJSON(http.StatusUnauthorized, "Unauthorized")
+			log.Println(err)
+			context.IndentedJSON(http.StatusNotFound, "Not Found")
 			return
 		}
-		context.Header("Authorization", "Bearer "+token)
+
+		// token, err := util.GenerateJWT(userOutput)
+		// if err != nil {
+		// 	log.Printf("Error generating JWT: %s", err)
+
+		// 	return
+		// }
+		// context.Header("Authorization", "Bearer "+token)
 		context.Redirect(http.StatusTemporaryRedirect, "http://localhost:3000")
 	}
+}
+
+func (controller PublicController) Logout(context *gin.Context) {
+	session, err := store.Get(context.Request, "session")
+	if err != nil {
+		log.Printf("Error getting session on logout: %s", err)
+		return
+	}
+	session.Values["authenticated"] = false
+	session.Values["organizationId"] = ""
+	session.Values["groupId"] = ""
+	session.Values["userId"] = ""
+	session.Options.MaxAge = -1
+	session.Save(context.Request, context.Writer)
+	context.IndentedJSON(http.StatusOK, "Success")
 }
 
 func (controller PublicController) ChangePassword(context *gin.Context) {
@@ -155,4 +181,18 @@ func (controller PublicController) ResetPassword(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, "Success")
+}
+
+func createSession(userId string, organizationId string, groupId string, context *gin.Context) (err error) {
+	session, _ := store.Get(context.Request, "session")
+	session.Values["authenticated"] = true
+	session.Values["organizationId"] = organizationId
+	session.Values["groupId"] = groupId
+	session.Values["userId"] = userId
+
+	err = session.Save(context.Request, context.Writer)
+	if err != nil {
+		return
+	}
+	return
 }

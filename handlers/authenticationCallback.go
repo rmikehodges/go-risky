@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"go-risky/types"
-	"go-risky/util"
 	"log"
 	"net/http"
 
@@ -51,13 +50,12 @@ func (controller PublicController) Callback(context *gin.Context) {
 		return
 	}
 
-	jwtToken, err := util.GenerateJWT(userOutput)
+	err = createSession(userOutput.ID, userOutput.OrganizationID, userOutput.GroupID, context)
 	if err != nil {
-		log.Printf("Error generating JWT: %s", err)
-		context.IndentedJSON(http.StatusUnauthorized, "Unauthorized")
+		log.Println(err)
+		context.IndentedJSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	context.Header("Authorization", "Bearer "+jwtToken)
 	context.Redirect(http.StatusTemporaryRedirect, "http://localhost:3000")
 }
