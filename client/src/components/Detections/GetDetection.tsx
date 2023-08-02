@@ -10,7 +10,7 @@ const GetDetection = () => {
     const [detection, setDetection] = useState<Detection | null>(null);
 
     useEffect(() => {
-      axios.get<Detection>(`http://localhost:8081/detection?id=${id}`)
+      axios.get<Detection>(`http://localhost:8081/v0/detection?id=${id}`)
         .then(res => {
         const detectionRes = res.data;
        setDetection(detectionRes);})

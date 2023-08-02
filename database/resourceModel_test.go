@@ -27,7 +27,7 @@ func TestGetResources(t *testing.T) {
 }
 
 func TestGetResource(t *testing.T) {
-	var resourceId = "82021d2b-a7df-4a22-95b6-19c1039db441"
+	var resourceId = "365055b8-15e3-4e28-abcc-827eca9dc3f9"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {

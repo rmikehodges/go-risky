@@ -12,7 +12,7 @@ const ListLiabilities = () => {
     const [liabilities, setLiabilities] = useState<Liability[] | null>(null);
 
     useEffect(() => {
-      axios.get<Liability[]>(`http://localhost:8081/liabilities?businessId=${businessId}`)
+      axios.get<Liability[]>(`http://localhost:8081/v0/liabilities?businessId=${businessId}`)
         .then(res => {
         const liabilitiesResp = res.data;
        setLiabilities(liabilitiesResp)})

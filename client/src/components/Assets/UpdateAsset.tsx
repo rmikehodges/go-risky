@@ -57,7 +57,7 @@ const UpdateAsset = (updateAssetInput:Asset) => {
             values: Asset,
             { setSubmitting }: FormikHelpers<Asset> 
           ) => {
-            axios.patch<Asset>(`http://localhost:8081/asset`, values).catch((err) => console.log(err))
+            axios.patch<Asset>(`http://localhost:8081/v0/asset`, values).catch((err) => console.log(err))
               closeModal()
           }}
         >

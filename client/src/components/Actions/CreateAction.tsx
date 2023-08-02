@@ -59,7 +59,7 @@ const CreateAction = () => {
             values: Action,
             { setSubmitting }: FormikHelpers<Action> 
           ) => {
-              axios.post<Action>(`http://localhost:8081/action`, values).catch(err => console.log(err))
+              axios.post<Action>(`http://localhost:8081/v0/action`, values).catch(err => console.log(err))
               closeModal()
           }}
         >

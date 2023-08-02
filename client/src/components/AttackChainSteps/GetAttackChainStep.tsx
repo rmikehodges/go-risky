@@ -10,7 +10,7 @@ const GetAttackChainStep = () => {
     const [attackChainStepStep, setAttackChainStep] = useState<AttackChainStep | null>(null);
 
     useEffect(() => {
-      axios.get<AttackChainStep>(`http://localhost:8081/attackChainStepStep?id=${id}`)
+      axios.get<AttackChainStep>(`http://localhost:8081/v0/attackChainStepStep?id=${id}`)
         .then(res => {
         const attackChainStepStepRes = res.data;
        setAttackChainStep(attackChainStepStepRes);})

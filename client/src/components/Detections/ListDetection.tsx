@@ -13,7 +13,7 @@ const ListDetections = () => {
     const [detections, setDetections] = useState<Detection[] | null>(null);
 
     useEffect(() => {
-      axios.get<Detection[]>(`http://localhost:8081/detections?businessId=${businessId}`)
+      axios.get<Detection[]>(`http://localhost:8081/v0/detections?businessId=${businessId}`)
         .then(res => {
         const detectionsResp = res.data;
        setDetections(detectionsResp)})

@@ -13,7 +13,7 @@ const ListCapabilities = () => {
     const [capabilities, setCapabilities] = useState<Capability[] | null>(null);
 
     useEffect(() => {
-      axios.get<Capability[]>(`http://localhost:8081/capabilities?businessId=${businessId}`)
+      axios.get<Capability[]>(`http://localhost:8081/v0/capabilities?businessId=${businessId}`)
         .then(res => {
         const capabilitiesResp = res.data;
        setCapabilities(capabilitiesResp)})

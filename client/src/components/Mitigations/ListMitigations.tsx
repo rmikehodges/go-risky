@@ -13,7 +13,7 @@ const ListMitigations = () => {
     const [mitigations, setMitigations] = useState<Mitigation[] | null>(null);
 
     useEffect(() => {
-      axios.get<Mitigation[]>(`http://localhost:8081/mitigations?businessId=${businessId}`)
+      axios.get<Mitigation[]>(`http://localhost:8081/v0/mitigations?businessId=${businessId}`)
         .then(res => {
         const mitigationsResp = res.data;
        setMitigations(mitigationsResp)})

@@ -59,7 +59,7 @@ const CreateThreat = () => {
             values: Threat,
             { setSubmitting }: FormikHelpers<Threat> 
           ) => {
-              axios.post<Threat>(`http://localhost:8081/threat`, values).catch(err => console.log(err))
+              axios.post<Threat>(`http://localhost:8081/v0/threat`, values).catch(err => console.log(err))
               closeModal()
           }}
         >

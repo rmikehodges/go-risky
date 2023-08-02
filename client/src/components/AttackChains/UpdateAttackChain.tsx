@@ -56,7 +56,7 @@ const UpdateAttackChain = (updateAttackChainInput:AttackChain) => {
             values: AttackChain,
             { setSubmitting }: FormikHelpers<AttackChain> 
           ) => {
-            axios.patch<AttackChain>(`http://localhost:8081/mitigation`, values).catch((err) => console.log(err))
+            axios.patch<AttackChain>(`http://localhost:8081/v0/mitigation`, values).catch((err) => console.log(err))
               closeModal()
           }}
         >

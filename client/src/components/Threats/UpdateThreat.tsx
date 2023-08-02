@@ -56,7 +56,7 @@ const UpdateThreat = (updateThreatInput:Threat) => {
             values: Threat,
             { setSubmitting }: FormikHelpers<Threat> 
           ) => {
-            axios.patch<Threat>(`http://localhost:8081/threat`, values).catch((err) => console.log(err))
+            axios.patch<Threat>(`http://localhost:8081/v0/threat`, values).catch((err) => console.log(err))
               closeModal()
           }}
         >

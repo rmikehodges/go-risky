@@ -13,7 +13,7 @@ const ListThreats = () => {
     const [threats, setThreats] = useState<Threat[] | null>(null);
 
     useEffect(() => {
-      axios.get<Threat[]>(`http://localhost:8081/threats?businessId=${businessId}`)
+      axios.get<Threat[]>(`http://localhost:8081/v0/threats?businessId=${businessId}`)
         .then(res => {
         const threatsResp = res.data;
        setThreats(threatsResp)})

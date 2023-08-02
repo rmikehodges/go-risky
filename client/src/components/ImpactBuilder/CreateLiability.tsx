@@ -57,7 +57,7 @@ const CreateLiability = () => {
             values: Liability,
             { setSubmitting }: FormikHelpers<Liability> 
           ) => {
-              axios.post<Liability>(`http://localhost:8081/liability`, values).catch(err => console.log(err))
+              axios.post<Liability>(`http://localhost:8081/v0/liability`, values).catch(err => console.log(err))
               closeModal()
           }}
         >

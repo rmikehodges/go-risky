@@ -9,7 +9,7 @@ const GetLiability = () => {
     const [liability, setLiability] = useState<Liability | null>(null);
 
     useEffect(() => {
-      axios.get<Liability>(`http://localhost:8081/liability?id=${id}`)
+      axios.get<Liability>(`http://localhost:8081/v0/liability?id=${id}`)
         .then(res => {
         const liabilityRes = res.data;
        setLiability(liabilityRes);})

@@ -52,7 +52,7 @@ DROP FUNCTION risky_public.create_liability;
 CREATE FUNCTION risky_public.create_liability(fn_name varchar, fn_description varchar, fn_quantity DOUBLE PRECISION, fn_business_id uuid, fn_type risky_public.liability_type, fn_mitigation_id uuid, fn_resource_id uuid, fn_detection_id uuid, fn_impact_id uuid, fn_threat_id uuid) 
 RETURNS uuid
 AS $$
-    declare
+    declareUPDA
         v_resource_cost DOUBLE PRECISION;
         v_total_cost DOUBLE PRECISION;
         v_resource_type risky_public.resource_type;

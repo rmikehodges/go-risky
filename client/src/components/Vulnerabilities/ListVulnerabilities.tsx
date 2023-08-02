@@ -13,7 +13,7 @@ const ListVulnerabilities = () => {
     const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[] | null>(null);
 
     useEffect(() => {
-      axios.get<Vulnerability[]>(`http://localhost:8081/vulnerabilities?businessId=${businessId}`)
+      axios.get<Vulnerability[]>(`http://localhost:8081/v0/vulnerabilities?businessId=${businessId}`)
         .then(res => {
         const vulnerabilitiesResp = res.data;
        setVulnerabilities(vulnerabilitiesResp)})

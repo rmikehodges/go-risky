@@ -10,7 +10,7 @@ const GetBusiness = () => {
     const [action, setBusiness] = useState<Business | null>(null);
 
     useEffect(() => {
-      axios.get<Business>(`http://localhost:8081/action?id=${id}`)
+      axios.get<Business>(`http://localhost:8081/v0/action?id=${id}`)
         .then(res => {
         const actionRes = res.data;
        setBusiness(actionRes);})

@@ -10,7 +10,7 @@ const GetCapability = () => {
     const [capability, setCapability] = useState<Capability | null>(null);
 
     useEffect(() => {
-      axios.get<Capability>(`http://localhost:8081/capability?id=${id}`)
+      axios.get<Capability>(`http://localhost:8081/v0/capability?id=${id}`)
         .then(res => {
         const capabilityRes = res.data;
        setCapability(capabilityRes);})

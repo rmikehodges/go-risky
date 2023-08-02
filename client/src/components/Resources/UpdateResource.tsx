@@ -56,7 +56,7 @@ const UpdateResource = (updateResourceInput:Resource) => {
             values: Resource,
             { setSubmitting }: FormikHelpers<Resource> 
           ) => {
-            axios.patch<Resource>(`http://localhost:8081/resource`, values).catch((err) => console.log(err))
+            axios.patch<Resource>(`http://localhost:8081/v0/resource`, values).catch((err) => console.log(err))
               closeModal()
           }}
         >

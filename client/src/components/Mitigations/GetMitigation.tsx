@@ -10,7 +10,7 @@ const GetMitigation = () => {
     const [mitigation, setMitigation] = useState<Mitigation | null>(null);
 
     useEffect(() => {
-      axios.get<Mitigation>(`http://localhost:8081/mitigation?id=${id}`)
+      axios.get<Mitigation>(`http://localhost:8081/v0/mitigation?id=${id}`)
         .then(res => {
         const mitigationRes = res.data;
        setMitigation(mitigationRes);})

@@ -59,7 +59,7 @@ const CreateCapability = () => {
             values: Capability,
             { setSubmitting }: FormikHelpers<Capability> 
           ) => {
-              axios.post<Capability>(`http://localhost:8081/capability`, values).catch(err => console.log(err))
+              axios.post<Capability>(`http://localhost:8081/v0/capability`, values).catch(err => console.log(err))
               closeModal()
           }}
         >

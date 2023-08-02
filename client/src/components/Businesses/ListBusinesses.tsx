@@ -13,7 +13,7 @@ const ListBusinesses = () => {
     const [businesses, setBusinesses] = useState<Business[] | null>(null);
 
     useEffect(() => {
-      axios.get<Business[]>(`http://localhost:8081/businesses?businessId=${businessId}`)
+      axios.get<Business[]>(`http://localhost:8081/v0/businesses?businessId=${businessId}`)
         .then(res => {
         const businessesResp = res.data;
        setBusinesses(businessesResp)})

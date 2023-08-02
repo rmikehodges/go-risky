@@ -13,7 +13,7 @@ const ListAttackChainSteps = () => {
     const [attackChainSteps, setAttackChainSteps] = useState<AttackChainStep[] | null>(null);
 
     useEffect(() => {
-      axios.get<AttackChainStep[]>(`http://localhost:8081/attackChainSteps?businessId=${businessId}&attackChainId=${attackChainId}`)
+      axios.get<AttackChainStep[]>(`http://localhost:8081/v0/attackChainSteps?businessId=${businessId}&attackChainId=${attackChainId}`)
         .then(res => {
         const attackChainStepsResp = res.data;
        setAttackChainSteps(attackChainStepsResp)})

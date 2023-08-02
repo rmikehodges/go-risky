@@ -10,7 +10,7 @@ const GetImpact = () => {
     const [impact, setImpact] = useState<Impact | null>(null);
 
     useEffect(() => {
-      axios.get<Impact>(`http://localhost:8081/impact?id=${id}`)
+      axios.get<Impact>(`http://localhost:8081/v0/impact?id=${id}`)
         .then(res => {
         const impactRes = res.data;
        setImpact(impactRes);})

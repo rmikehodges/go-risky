@@ -57,7 +57,7 @@ const UpdateAction = (updateActionInput:Action) => {
             values: Action,
             { setSubmitting }: FormikHelpers<Action> 
           ) => {
-            axios.patch<Action>(`http://localhost:8081/action`, values).catch((err) => console.log(err))
+            axios.patch<Action>(`http://localhost:8081/v0/action`, values).catch((err) => console.log(err))
               closeModal()
           }}
         >

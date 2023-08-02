@@ -59,7 +59,7 @@ const CreateAsset = () => {
             values: Asset,
             { setSubmitting }: FormikHelpers<Asset> 
           ) => {
-              axios.post<Asset>(`http://localhost:8081/asset`, values).catch(err => console.log(err))
+              axios.post<Asset>(`http://localhost:8081/v0/asset`, values).catch(err => console.log(err))
               closeModal()
           }}
         >

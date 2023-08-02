@@ -12,7 +12,7 @@ const ListActions = () => {
     const [actions, setActions] = useState<Action[] | null>(null);
 
     useEffect(() => {
-      axios.get<Action[]>(`http://localhost:8081/actions?businessId=${businessId}`)
+      axios.get<Action[]>(`http://localhost:8081/v0/actions?businessId=${businessId}`)
         .then(res => {
         const actionsResp = res.data;
        setActions(actionsResp)})

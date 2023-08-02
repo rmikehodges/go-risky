@@ -10,7 +10,7 @@ const GetThreat = () => {
     const [threat, setThreat] = useState<Threat | null>(null);
 
     useEffect(() => {
-      axios.get<Threat>(`http://localhost:8081/threat?id=${id}`)
+      axios.get<Threat>(`http://localhost:8081/v0/threat?id=${id}`)
         .then(res => {
         const threatRes = res.data;
        setThreat(threatRes);})

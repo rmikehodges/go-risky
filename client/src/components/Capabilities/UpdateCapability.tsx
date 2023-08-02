@@ -57,7 +57,7 @@ const UpdateCapability = (updateCapabilityInput:Capability) => {
             values: Capability,
             { setSubmitting }: FormikHelpers<Capability> 
           ) => {
-            axios.patch<Capability>(`http://localhost:8081/capability`, values).catch((err) => console.log(err))
+            axios.patch<Capability>(`http://localhost:8081/v0/capability`, values).catch((err) => console.log(err))
               closeModal()
           }}
         >

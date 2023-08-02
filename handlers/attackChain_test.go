@@ -55,7 +55,7 @@ package handlers_test
 // 		t.Errorf("Error while marshalling attackChainInputJson: %v\n", err)
 // 	}
 
-// 	req, _ := http.NewRequest("POST", "http://localhost:8081/attackChain", bytes.NewBuffer(attackChainInputJson))
+// 	req, _ := http.NewRequest("POST", "http://localhost:8081/v0/attackChain", bytes.NewBuffer(attackChainInputJson))
 // 	req.Header.Set("Content-Type", "application/json")
 // 	router.ServeHTTP(w, req)
 // 	assert.Equal(t, 200, w.Code)

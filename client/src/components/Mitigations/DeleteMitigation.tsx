@@ -24,7 +24,7 @@ const DeleteMitigation = (props:DeleteMitigationInput) => {
     // update state
     setIsSending(true)
     // send the actual request
-    await axios.delete(`http://localhost:8081/mitigation?id=${props.id}`)
+    await axios.delete(`http://localhost:8081/v0/mitigation?id=${props.id}`)
     .catch(err => console.log(err))
     .then(resp => window.location.reload())
     if (isMounted.current) // only update if we are still mounted

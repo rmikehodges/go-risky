@@ -10,7 +10,7 @@ const GetAction = () => {
     const [action, setAction] = useState<Action | null>(null);
 
     useEffect(() => {
-      axios.get<Action>(`http://localhost:8081/action?id=${id}`)
+      axios.get<Action>(`http://localhost:8081/v0/action?id=${id}`)
         .then(res => {
         const actionRes = res.data;
        setAction(actionRes);})

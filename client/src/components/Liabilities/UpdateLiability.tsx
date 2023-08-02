@@ -56,7 +56,7 @@ const UpdateLiability = (updateLiabilityInput:Liability) => {
             values: Liability,
             { setSubmitting }: FormikHelpers<Liability> 
           ) => {
-            axios.patch<Liability>(`http://localhost:8081/liability`, values).catch((err) => console.log(err))
+            axios.patch<Liability>(`http://localhost:8081/v0/liability`, values).catch((err) => console.log(err))
               closeModal()
           }}
         >

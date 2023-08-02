@@ -59,7 +59,7 @@ const CreateDetection = () => {
             values: Detection,
             { setSubmitting }: FormikHelpers<Detection> 
           ) => {
-              axios.post<Detection>(`http://localhost:8081/detection`, values).catch(err => console.log(err))
+              axios.post<Detection>(`http://localhost:8081/v0/detection`, values).catch(err => console.log(err))
               closeModal()
           }}
         >

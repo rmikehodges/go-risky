@@ -10,7 +10,7 @@ const GetAsset = () => {
     const [asset, setAsset] = useState<Asset | null>(null);
 
     useEffect(() => {
-      axios.get<Asset>(`http://localhost:8081/asset?id=${id}`)
+      axios.get<Asset>(`http://localhost:8081/v0/asset?id=${id}`)
         .then(res => {
         const assetRes = res.data;
        setAsset(assetRes);})

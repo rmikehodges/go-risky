@@ -13,7 +13,7 @@ const ListResources = () => {
     const [resources, setResources] = useState<Resource[] | null>(null);
 
     useEffect(() => {
-      axios.get<Resource[]>(`http://localhost:8081/resources?businessId=${businessId}`)
+      axios.get<Resource[]>(`http://localhost:8081/v0/resources?businessId=${businessId}`)
         .then(res => {
         const resourcesResp = res.data;
        setResources(resourcesResp)})

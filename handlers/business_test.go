@@ -52,7 +52,7 @@ var businessId = "568d1c21-c83f-4f4f-815b-9ee6490fe8f7"
 // 		t.Errorf("Error while marshalling businessInputJson: %v\n", err)
 // 	}
 
-// 	req, _ := http.NewRequest("POST", "http://localhost:8081/business", bytes.NewBuffer(businessInputJson))
+// 	req, _ := http.NewRequest("POST", "http://localhost:8081/v0/business", bytes.NewBuffer(businessInputJson))
 // 	req.Header.Set("Content-Type", "application/json")
 // 	router.ServeHTTP(w, req)
 // 	assert.Equal(t, 200, w.Code)

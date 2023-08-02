@@ -103,8 +103,8 @@ CREATE TABLE risky_public.impact (
     description varchar default '',
     business_id uuid references risky_public.business(id) NOT NULL,
     threat_id uuid references risky_public.threat(id),
-    exploitation_cost DOUBLE PRECISION,
-    mitigation_cost DOUBLE PRECISION,
+    impact_type varchar NOT NULL,
+    cost DOUBLE PRECISION,
     created_at       timestamp default now()
 );
 
@@ -122,16 +122,13 @@ CREATE TABLE risky_public.liability (
     id uuid primary key default gen_random_uuid(),
     name varchar not null,
     description varchar default '',
-    quantity DOUBLE PRECISION,
-    cost DOUBLE precision,
-    type risky_public.liability_type NOT NULL,
-    resource_type risky_public.resource_type,
+    category varchar NOT NULL,
+    type varchar NOT NULL,
+    impact_type varchar NOT NULL,
+    resource_quantity DOUBLE PRECISION,
     business_id uuid references risky_public.business(id) NOT NULL,
-    detection_id uuid references risky_public.detection(id),
-    mitigation_id uuid references risky_public.mitigation(id),
     resource_id uuid references risky_public.resource(id),
     threat_id uuid references risky_public.threat(id),
-    impact_id uuid references risky_public.impact(id),
     created_at       timestamp default now()
 );
 

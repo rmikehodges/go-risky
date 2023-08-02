@@ -23,10 +23,10 @@ const ImpactBuilder = () => {
 
     useEffect(() => {
 
-      axios.get<Threat[]>(`http://localhost:8081/threats?businessId=${businessId}`)
+      axios.get<Threat[]>(`http://localhost:8081/v0/threats?businessId=${businessId}`)
       .then(res => {
      setThreats(res.data)});
-     axios.get<Liability[]>(`http://localhost:8081/liabilities?businessId=${businessId}`).then(res => {
+     axios.get<Liability[]>(`http://localhost:8081/v0/liabilities?businessId=${businessId}`).then(res => {
         setLiabilities(res.data)}
         );
       } , [businessId]);

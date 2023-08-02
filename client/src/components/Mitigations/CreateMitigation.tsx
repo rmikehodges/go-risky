@@ -59,7 +59,7 @@ const CreateMitigation = () => {
             values: Mitigation,
             { setSubmitting }: FormikHelpers<Mitigation> 
           ) => {
-              axios.post<Mitigation>(`http://localhost:8081/mitigation`, values).catch(err => console.log(err))
+              axios.post<Mitigation>(`http://localhost:8081/v0/mitigation`, values).catch(err => console.log(err))
               closeModal()
           }}
         >

@@ -13,7 +13,7 @@ const ListAssets = () => {
     const [assets, setAssets] = useState<Asset[] | null>(null);
 
     useEffect(() => {
-      axios.get<Asset[]>(`http://localhost:8081/assets?businessId=${businessId}`)
+      axios.get<Asset[]>(`http://localhost:8081/v0/assets?businessId=${businessId}`)
         .then(res => {
         const assetsResp = res.data;
        setAssets(assetsResp)})

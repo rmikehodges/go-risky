@@ -60,7 +60,7 @@ const CreateBusiness = () => {
             values: Business,
             { setSubmitting }: FormikHelpers<Business> 
           ) => {
-              axios.post<Business>(`http://localhost:8081/business`, values).catch(err => console.log(err))
+              axios.post<Business>(`http://localhost:8081/v0/business`, values).catch(err => console.log(err))
               closeModal()
           }}
         >

@@ -54,18 +54,47 @@ func (m *DBManager) DeleteImpact(id string) (err error) {
 }
 
 func (m *DBManager) CreateImpact(impactInput types.Impact) (impactId string, err error) {
-	//TODO: Add impact exploitation and mitigation cost
 
-	err = m.DBPool.QueryRow(context.Background(),
-		`select risky_public.create_impact(
-			fn_name => $1, 
-			fn_description => $2, 
-			fn_business_id => $3, 
-			fn_threat_id => $4)`,
+	tx, err := m.DBPool.Begin(context.Background())
+
+
+	if err != nil {
+		log.Printf("CreateImpact error: %s", err)
+		return
+	}
+
+	defer tx.Rollback(context.Background())
+
+	err = tx.QueryRow(context.Background(), `SELECT SUM(cost) FROM risky_public.liability WHERE business_id = $1 AND threat_id = $2 AND impact_type = $3`,
+		impactInput.BusinessID, impactInput.ThreatID, impactInput.ImpactType).Scan(&impactInput.Cost)
+
+	if err != nil {
+		log.Printf("CreateImpact error: %s", err)
+		return
+	}
+
+	err = tx.QueryRow(context.Background(),
+		`INSERT INTO risky_public.impact
+		(name,
+		description, 
+		business_id, 
+		threat_id,
+		impact_type, 
+		cost) 
+		values($1, $2, $3, $4, $5) RETURNING id;`,
 		impactInput.Name,
 		impactInput.Description,
 		impactInput.BusinessID,
-		impactInput.ThreatID).Scan(&impactId)
+		impactInput.ThreatID,
+		impactInput.ImpactType,
+		impactInput.Cost).Scan(&impactId)
+	if err != nil {
+		log.Printf("CreateImpact error: %s", err)
+		return
+	}
+
+	err = tx.Commit(context.Background())
+
 	if err != nil {
 		log.Printf("CreateImpact error: %s", err)
 		return
@@ -75,21 +104,49 @@ func (m *DBManager) CreateImpact(impactInput types.Impact) (impactId string, err
 }
 
 func (m *DBManager) UpdateImpact(impactInput types.Impact) (err error) {
+	tx, err := m.DBPool.Begin(context.Background())
 
-	_, err = m.DBPool.Exec(context.Background(),
-		`select risky_public.update_impact(
-			fn_impact_id => $1,
-			fn_name => $2, 
-			fn_description => $3, 
-			fn_business_id => $4, 
-			fn_threat_id => $5)`,
+
+	if err != nil {
+		log.Printf("CreateImpact error: %s", err)
+		return
+	}
+
+	defer tx.Rollback(context.Background())
+
+	err = tx.QueryRow(context.Background(), `SELECT SUM(cost) FROM risky_public.liability WHERE business_id = $1 AND threat_id = $2 AND impact_type = $3`,
+		impactInput.BusinessID, impactInput.ThreatID, impactInput.ImpactType).Scan(&impactInput.Cost)
+
+	if err != nil {
+		log.Printf("CreateImpact error: %s", err)
+		return
+	}
+
+	_, err = tx.Exec(context.Background(),
+		`UPDATE risky_public.impact 
+		SET name = $2, 
+		description = $3, 
+		business_id = $4, 
+		threat_id = $5, 
+		impact_type = $6,
+		cost = $7.  
+		WHERE id = $1;`,
 		impactInput.ID,
 		impactInput.Name,
 		impactInput.Description,
 		impactInput.BusinessID,
-		impactInput.ThreatID)
+		impactInput.ThreatID,
+		impactInput.ImpactType,
+		impactInput.Cost)
 	if err != nil {
-		log.Printf("UpdateImpact Error: %s", err)
+		log.Printf("CreateImpact error: %s", err)
+		return
+	}
+
+	err = tx.Commit(context.Background())
+
+	if err != nil {
+		log.Printf("CreateImpact error: %s", err)
 		return
 	}
 

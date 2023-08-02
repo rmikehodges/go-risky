@@ -58,7 +58,7 @@ const UpdateBusiness = (updateBusinessInput:Business) => {
             values: Business,
             { setSubmitting }: FormikHelpers<Business> 
           ) => {
-            axios.patch<Business>(`http://localhost:8081/business`, values).catch((err) => console.log(err))
+            axios.patch<Business>(`http://localhost:8081/v0/business`, values).catch((err) => console.log(err))
               closeModal()
           }}
         >

@@ -71,10 +71,10 @@ const AttackChainBuilderDnD = () => {
   //TODO: Make the graph render the attack chain steps in the correct order
 
   useEffect(() => {
-    axios.get('http://localhost:8081/attackChains?businessId='+businessId).then((res) => {
+    axios.get('http://localhost:8081/v0/attackChains?businessId='+businessId).then((res) => {
       setAttackChains(res.data);
     });
-    axios.get<Action[]>(`http://localhost:8081/actions?businessId=${businessId}`)
+    axios.get<Action[]>(`http://localhost:8081/v0/actions?businessId=${businessId}`)
     .then(res => {setActions(res.data)});
   }, []);
 
@@ -86,7 +86,7 @@ const AttackChainBuilderDnD = () => {
         deleted.reduce((acc, node) => {
           //TODO: Add Error Handling
           if (node.type === 'attackChainStep') {
-            axios.delete(`http://localhost:8081/attackChainStep?id=${node.data.attackChainStep.id}`)
+            axios.delete(`http://localhost:8081/v0/attackChainStep?id=${node.data.attackChainStep.id}`)
           }
           const incomers = getIncomers(node, nodes, edges);
           const outgoers = getOutgoers(node, nodes, edges);
@@ -127,7 +127,7 @@ const AttackChainBuilderDnD = () => {
             previousStep: previousStepId,
           }
         };
-        axios.patch('http://localhost:8081/attackChainStep', node.data.attackChainStep).then((res) => {
+        axios.patch('http://localhost:8081/v0/attackChainStep', node.data.attackChainStep).then((res) => {
           console.log("success ")
         });
       } else if (node.id === params.source) { 
@@ -139,7 +139,7 @@ const AttackChainBuilderDnD = () => {
             nextStep: nextStepId,
           }
         };
-        axios.patch('http://localhost:8081/attackChainStep', node.data.attackChainStep).then((res) => {
+        axios.patch('http://localhost:8081/v0/attackChainStep', node.data.attackChainStep).then((res) => {
           console.log(res)
         });
       }
@@ -183,7 +183,7 @@ const AttackChainBuilderDnD = () => {
       let attackChainStepData: AttackChainStep;
       if (type === 'attackChainStep') { }
         attackChainStepData = { actionId: draggedObject.id, businessId: businessId, attackChainId: attackChainId, id: null, createdAt:null, assetId:null, nextStep:null, previousStep: null }
-        axios.post('http://localhost:8081/attackChainStep', attackChainStepData).then((res) => {
+        axios.post('http://localhost:8081/v0/attackChainStep', attackChainStepData).then((res) => {
           attackChainStepData.id = res.data;
           console.log(res.data)
           data = { label: draggedObject.name , action: draggedObject, attackChainStep: attackChainStepData }
@@ -213,7 +213,7 @@ const AttackChainBuilderDnD = () => {
     let edgesToSet: Edge[] = [];
     let nodesToSet: Node[] = [];
 
-    axios.get('http://localhost:8081/attackChainSteps?attackChainId='+selectedOption+'&businessId='+businessId).then((res) => { 
+    axios.get('http://localhost:8081/v0/attackChainSteps?attackChainId='+selectedOption+'&businessId='+businessId).then((res) => { 
       attackChainStepsResponse= res.data;
       let result = attackChainStepsResponse.map((tempAttackChainStep) => {
         let currentAction: Action = {id: null, name: "INVALID", description: null, businessId: null, createdAt: null, capabilityId: null, vulnerabilityId: null, complexity: ""};
@@ -269,7 +269,7 @@ const AttackChainBuilderDnD = () => {
       
 
 
-      axios.get('http://localhost:8081/attackChainSteps?businessId='+businessId+"&actionId="+actionId).then((res) => {
+      axios.get('http://localhost:8081/v0/attackChainSteps?businessId='+businessId+"&actionId="+actionId).then((res) => {
         attackChainStepsResponse = res.data;
         setNodes(attackChainStepsResponse.map((tempAttackChainStep) => {
           let currentAction: Action = {id: null, name: "INVALID", description: null, businessId: null, createdAt: null, capabilityId: null, vulnerabilityId: null, complexity: ""};

@@ -56,7 +56,7 @@ const CreateAttackChainStep = () => {
             values: AttackChainStep,
             { setSubmitting }: FormikHelpers<AttackChainStep> 
           ) => {
-              axios.post<AttackChainStep>(`http://localhost:8081/attackChainStep`, values).catch(err => console.log(err))
+              axios.post<AttackChainStep>(`http://localhost:8081/v0/attackChainStep`, values).catch(err => console.log(err))
               closeModal()
           }}
         >

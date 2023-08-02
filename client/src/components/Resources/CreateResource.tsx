@@ -70,7 +70,7 @@ const CreateResource = () => {
             values: Resource,
             { setSubmitting }: FormikHelpers<Resource> 
           ) => {
-              axios.post<Resource>(`http://localhost:8081/resource`, values).catch(err => console.log(err))
+              axios.post<Resource>(`http://localhost:8081/v0/resource`, values).catch(err => console.log(err))
               closeModal()
           }}
         >

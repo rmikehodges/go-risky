@@ -71,7 +71,7 @@ func TestCreateAction(t *testing.T) {
 		t.Errorf("Error while marshalling actionInputJson: %v\n", err)
 	}
 
-	req, _ := http.NewRequest("POST", "http://localhost:8081/action", bytes.NewBuffer(actionInputJson))
+	req, _ := http.NewRequest("POST", "http://localhost:8081/v0/action", bytes.NewBuffer(actionInputJson))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)

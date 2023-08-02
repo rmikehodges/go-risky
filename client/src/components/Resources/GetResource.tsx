@@ -10,7 +10,7 @@ const GetResource = () => {
     const [resource, setResource] = useState<Resource | null>(null);
 
     useEffect(() => {
-      axios.get<Resource>(`http://localhost:8081/resource?id=${id}`)
+      axios.get<Resource>(`http://localhost:8081/v0/resource?id=${id}`)
         .then(res => {
         const resourceRes = res.data;
        setResource(resourceRes);})

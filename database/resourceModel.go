@@ -27,7 +27,7 @@ func (m *DBManager) GetResources(businessID string) (resourceOutput []types.Reso
 
 func (m *DBManager) GetResource(id string) (resourceOutput types.Resource, err error) {
 
-	rows, err := m.DBPool.Query(context.Background(), "SELECT *  FROM risky_public.resource WHERE id = $1", id)
+	rows, err := m.DBPool.Query(context.Background(), "SELECT * FROM risky_public.resource WHERE id = $1", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -74,7 +74,16 @@ func (m *DBManager) CreateResource(resourceInput types.Resource) (resourceId str
 
 func (m *DBManager) UpdateResource(resourceInput types.Resource) (err error) {
 
-	_, err = m.DBPool.Exec(context.Background(),
+	tx, err := m.DBPool.Begin(context.Background())
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	defer tx.Rollback(context.Background())
+
+	_, err = tx.Exec(context.Background(),
 		`UPDATE risky_public.resource SET name = $2, description = $3, cost = $4, unit = $5, total = $6, resource_type = $7, business_id = $8 WHERE id = $1;`,
 		resourceInput.ID,
 		resourceInput.Name,
@@ -84,6 +93,22 @@ func (m *DBManager) UpdateResource(resourceInput types.Resource) (err error) {
 		resourceInput.Total,
 		resourceInput.ResourceType,
 		resourceInput.BusinessID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	//Write a sql transaction to upadate all liability entries using this resource by multiplying the resource cost by the number of resources used in the liability
+	_, err = tx.Exec(context.Background(),
+		`UPDATE risky_public.liability SET cost = resource_quantity * $2 WHERE resource_id = $1;`,
+		resourceInput.ID,
+		resourceInput.Cost)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = tx.Commit(context.Background())
 	if err != nil {
 		log.Println(err)
 		return

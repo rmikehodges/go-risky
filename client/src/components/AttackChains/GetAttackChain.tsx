@@ -10,7 +10,7 @@ const GetAttackChain = () => {
     const [attackChain, setAttackChain] = useState<AttackChain | null>(null);
 
     useEffect(() => {
-      axios.get<AttackChain>(`http://localhost:8081/attackChain?id=${id}`)
+      axios.get<AttackChain>(`http://localhost:8081/v0/attackChain?id=${id}`)
         .then(res => {
         const attackChainRes = res.data;
        setAttackChain(attackChainRes);})

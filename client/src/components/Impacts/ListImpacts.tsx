@@ -12,7 +12,7 @@ const ListImpacts = () => {
     const [impacts, setImpacts] = useState<Impact[] | null>(null);
 
     useEffect(() => {
-      axios.get<Impact[]>(`http://localhost:8081/impacts?businessId=${businessId}`)
+      axios.get<Impact[]>(`http://localhost:8081/v0/impacts?businessId=${businessId}`)
         .then(res => {
         const impactsResp = res.data;
        setImpacts(impactsResp)})
