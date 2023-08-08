@@ -27,7 +27,6 @@ func TestGetMitigations(t *testing.T) {
 }
 
 func TestGetMitigation(t *testing.T) {
-	var mitigationId = "ab6b6ddb-8a6e-4102-a900-1acca26a404b"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -35,6 +34,11 @@ func TestGetMitigation(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
+	mitigationInput := types.Mitigation{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	mitigationId, err := dbManager.CreateMitigation(mitigationInput)
+	if err != nil {
+		panic(err)
+	}
 	mitigation, _ := dbManager.GetMitigation(mitigationId)
 
 	assert.Equal(t, mitigation.ID.String(), mitigationId)

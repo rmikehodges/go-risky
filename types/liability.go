@@ -19,6 +19,8 @@ type Liability struct {
 	BusinessID       uuid.UUID     `json:"businessId" db:"business_id"`
 	ResourceID       *uuid.UUID    `json:"resourceId" db:"resource_id"`
 	ThreatID         *uuid.UUID    `json:"threatId" db:"threat_id"`
+	DetectionID      *uuid.UUID    `json:"detectionId" db:"detection_id"`
+	MitigationID     *uuid.UUID    `json:"mitigationId" db:"mitigation_id"`
 	CreatedAt        time.Time     `json:"createdAt" db:"created_at"`
 }
 

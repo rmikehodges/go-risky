@@ -56,7 +56,7 @@ func (m *DBManager) DeleteMitigation(id string) (err error) {
 func (m *DBManager) CreateMitigation(mitigationInput types.Mitigation) (mitigationId string, err error) {
 
 	err = m.DBPool.QueryRow(context.Background(),
-		`INSERT INTO risky_public.mitigation(name, description, business_id, action_id, implemented) values($1, $2, $3, $4) RETURNING id;`,
+		`INSERT INTO risky_public.mitigation(name, description, business_id, implemented) values($1, $2, $3, $4) RETURNING id;`,
 		mitigationInput.Name,
 		mitigationInput.Description,
 		mitigationInput.BusinessID,

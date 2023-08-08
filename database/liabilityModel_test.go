@@ -29,7 +29,6 @@ func TestGetLiabilities(t *testing.T) {
 //TODO: Write Test for GetLiabilitiesByImpactId and GetLiabilitiesByThreatId
 
 func TestGetLiability(t *testing.T) {
-	var liabilityId = "67be251e-33d7-45ab-8577-a5f0e6f32cdf"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -37,6 +36,13 @@ func TestGetLiability(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
+	liabilityInput := types.Liability{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	liabilityId, err := dbManager.CreateLiability(liabilityInput)
+
+	if err != nil {
+		panic(err)
+	}
+
 	liability, _ := dbManager.GetLiability(liabilityId)
 
 	assert.Equal(t, liability.ID.String(), liabilityId)

@@ -27,7 +27,6 @@ func TestGetDetections(t *testing.T) {
 }
 
 func TestGetDetection(t *testing.T) {
-	var detectionId = "3f74a442-ca26-46ab-b16f-916746245e39"
 	poolConfig, _ := pgxpool.ParseConfig("postgres://postgres:postgres@localhost/risky")
 	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
@@ -35,6 +34,12 @@ func TestGetDetection(t *testing.T) {
 	}
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
+	detectionInput := types.Detection{Name: "test", BusinessID: uuid.MustParse(businessId)}
+	detectionId, err := dbManager.CreateDetection(detectionInput)
+	if err != nil {
+		panic(err)
+	}
+
 	detection, _ := dbManager.GetDetection(detectionId)
 	assert.Equal(t, detection.ID.String(), detectionId)
 }

@@ -68,7 +68,7 @@ func (m *DBManager) CreateDetection(detectionInput types.Detection) (detectionId
 func (m *DBManager) UpdateDetection(detectionInput types.Detection) (err error) {
 
 	_, err = m.DBPool.Exec(context.Background(),
-		`UPDATE risky_public.detection SET name = $2, description = $3, business_id = $3,implemented = $4 WHERE id = $1;`,
+		`UPDATE risky_public.detection SET name = $2, description = $3, business_id = $4,implemented = $5 WHERE id = $1;`,
 		detectionInput.ID,
 		detectionInput.Name,
 		detectionInput.Description,

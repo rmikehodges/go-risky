@@ -178,6 +178,9 @@ Worked on porting a few things over from the sql files and designing some of the
 
 7/29 - removed JWT to use a dumb cookiestore for sessions instead and added some of that into the auth logic. Migrated attackChainStep over using database transactions which will serve as a good example for the others that are a bit more complex.
 
+8/8/2023 - Changed the liability model to include a mitigation or detection so that a liability can be the child of a threat, mitigation, or detection. Did a bit of work to resolve the test failures for the other models, but that is still in progress.
+
+
 # Flows
 
 ## User auth flow

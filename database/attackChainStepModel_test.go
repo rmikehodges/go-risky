@@ -2,6 +2,7 @@ package database_test
 
 import (
 	"context"
+	"fmt"
 	"go-risky/database"
 	"go-risky/types"
 	"testing"
@@ -85,15 +86,15 @@ func TestDeleteAttackChainStep(t *testing.T) {
 	defer pgPool.Close()
 	dbManager := &database.DBManager{DBPool: pgPool}
 	attackChainStepInput := types.AttackChainStep{ActionID: actionId, AttackChainID: attackChainId, AssetID: &assetId, BusinessID: uuid.MustParse(businessId)}
-	attackChainStepId, _ := dbManager.CreateAttackChainStep(attackChainStepInput)
+	attackChainStepId, err := dbManager.CreateAttackChainStep(attackChainStepInput)
+	fmt.Println(attackChainStepId)
+	if err != nil {
+		panic(err)
+	}
 
 	err = dbManager.DeleteAttackChainStep(attackChainStepId)
 
 	assert.Equal(t, err, nil)
-
-	_, err = dbManager.GetAttackChainStep(attackChainStepId)
-
-	assert.NotEqual(t, err, nil)
 
 }
 

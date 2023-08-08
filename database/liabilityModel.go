@@ -119,8 +119,8 @@ func (m *DBManager) CreateLiability(liabilityInput types.Liability) (liabilityId
 		`INSERT INTO risky_public.liability(
 			name, description, category, impact_type, resopurce_quantity, 
 			cost, type, business_id, resource_id, 
-			threat_id) 
-		values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id ;`,
+			threat_id, detction_id, mitigation_id) 
+		values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id ;`,
 		liabilityInput.Name,
 		liabilityInput.Description,
 		liabilityInput.Category,
@@ -129,7 +129,9 @@ func (m *DBManager) CreateLiability(liabilityInput types.Liability) (liabilityId
 		liabilityInput.Type,
 		liabilityInput.BusinessID,
 		liabilityInput.ResourceID,
-		liabilityInput.ThreatID).Scan(&liabilityId)
+		liabilityInput.ThreatID,
+		liabilityInput.DetectionID,
+		liabilityInput.MitigationID).Scan(&liabilityId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -179,7 +181,7 @@ func (m *DBManager) UpdateLiability(liabilityInput types.Liability) (err error) 
 	_, err = tx.Exec(context.Background(),
 		`UPDATE  risky_public.liability
 		SET name = $1, description = $2, category = $3, impact_type = $4, resopurce_quantity = $5,
-			cost = $6, type = $7, business_id = $8, resource_id = $9, threat_id = $10
+			cost = $6, type = $7, business_id = $8, resource_id = $9, threat_id = $10, detection_id = $11, mitigation_id = $12
 			WHERE id = $11;;`,
 		liabilityInput.Name,
 		liabilityInput.Description,
@@ -190,6 +192,8 @@ func (m *DBManager) UpdateLiability(liabilityInput types.Liability) (err error) 
 		liabilityInput.BusinessID,
 		liabilityInput.ResourceID,
 		liabilityInput.ThreatID,
+		liabilityInput.DetectionID,
+		liabilityInput.MitigationID,
 		liabilityInput.ID)
 	if err != nil {
 		log.Println(err)

@@ -124,10 +124,13 @@ CREATE TABLE risky_public.liability (
     description varchar default '',
     category varchar NOT NULL,
     type varchar NOT NULL,
+    cost DOUBLE PRECISION default 0,
     impact_type varchar NOT NULL,
     resource_quantity DOUBLE PRECISION,
     business_id uuid references risky_public.business(id) NOT NULL,
     resource_id uuid references risky_public.resource(id),
+    detection_id uuid references risky_public.detection(id),
+    mitigation_id uuid references risky_public.mitigation(id),
     threat_id uuid references risky_public.threat(id),
     created_at       timestamp default now()
 );

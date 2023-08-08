@@ -65,18 +65,7 @@ func (m *DBManager) DeleteAttackChainStep(attackChainStepId string) (err error) 
 		return
 	}
 
-	conn, err := m.DBPool.Acquire(context.Background())
-
-	//Use transactions here
-	tx, err := conn.Begin(context.Background())
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	defer tx.Rollback(context.Background())
-
-	_, err = tx.Exec(context.Background(),
+	_, err = m.DBPool.Exec(context.Background(),
 		`UPDATE risky_public.attack_chain_step 
 	SET next_step = $2 WHERE id = $1;`,
 		attackChainStep.PreviousStep,
@@ -87,17 +76,21 @@ func (m *DBManager) DeleteAttackChainStep(attackChainStepId string) (err error) 
 		return
 	}
 
-	_, err = tx.Exec(context.Background(),
+	_, err = m.DBPool.Exec(context.Background(),
 		`UPDATE risky_public.attack_chain_step 
 	SET previous_step = $2 WHERE id = $1;`,
 		attackChainStep.NextStep,
 		attackChainStep.PreviousStep)
 
-	_, err = tx.Exec(context.Background(),
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	_, err = m.DBPool.Exec(context.Background(),
 		`DELETE FROM risky_public.attack_chain_step WHERE id = $1;`,
 		attackChainStep.ID)
 
-	err = tx.Commit(context.Background())
 	if err != nil {
 		log.Println(err)
 		return
@@ -110,15 +103,17 @@ func (m *DBManager) CreateAttackChainStep(attackChainStepInput types.AttackChain
 
 	err = m.DBPool.QueryRow(context.Background(),
 		`INSERT INTO 
-		risky_public.attack_chain_step(attack_chain_id, action_id, asset_id, next_step, previous_step, business_id) 
-		values($1, $2, $3,$4, $5 , $6) RETURNING id;
+		risky_public.attack_chain_step(attack_chain_id, action_id, asset_id, next_step, previous_step, business_id, detection_id, mitigation_id) 
+		values($1, $2, $3,$4, $5 , $6, $7, $8) RETURNING id;
 		`,
 		attackChainStepInput.AttackChainID,
 		attackChainStepInput.ActionID,
 		attackChainStepInput.AssetID,
 		attackChainStepInput.NextStep,
 		attackChainStepInput.PreviousStep,
-		attackChainStepInput.BusinessID).Scan(&attackChainStepId)
+		attackChainStepInput.BusinessID,
+		attackChainStepInput.DetectionID,
+		attackChainStepInput.MitigationID).Scan(&attackChainStepId)
 	if err != nil {
 		log.Printf("CreateAttackChainStep Error: %s", err)
 		return
@@ -136,7 +131,9 @@ func (m *DBManager) UpdateAttackChainStep(attackChainStepInput types.AttackChain
 		asset_id = $4, 
 		next_step = $5, 
 		previous_step = $6, 
-		business_id = $7 
+		business_id = $7,
+		detection_id = $8,
+		mitigation_id = $9
 		WHERE id = $1;`,
 		attackChainStepInput.ID,
 		attackChainStepInput.AttackChainID,
@@ -144,7 +141,9 @@ func (m *DBManager) UpdateAttackChainStep(attackChainStepInput types.AttackChain
 		attackChainStepInput.AssetID,
 		attackChainStepInput.NextStep,
 		attackChainStepInput.PreviousStep,
-		attackChainStepInput.BusinessID)
+		attackChainStepInput.BusinessID,
+		attackChainStepInput.DetectionID,
+		attackChainStepInput.MitigationID)
 	if err != nil {
 		log.Println(err)
 		return
